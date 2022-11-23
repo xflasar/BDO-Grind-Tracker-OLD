@@ -1,0 +1,23 @@
+{
+  "name": "bdo-grind-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xflasar/BDO-Grind-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xflasar/BDO-Grind-Tracker/issues"
+  },
+  "homepage": "https://github.com/xflasar/BDO-Grind-Tracker#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
