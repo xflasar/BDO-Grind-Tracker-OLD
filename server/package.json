@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,13 @@
   },
   "homepage": "https://github.com/xflasar/BDO-Grind-Tracker#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.17",
+    "express": "^4.18.2",
+    "react-router-dom": "^6.4.5"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
   }
 }
