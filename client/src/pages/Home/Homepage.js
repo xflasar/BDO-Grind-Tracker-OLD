@@ -1,5 +1,4 @@
 import React from "react";
-import logo from '../../assets/logo.svg'
 import "../../assets/Homepage.css";
 
 function Homepage() {
@@ -13,10 +12,14 @@ function Homepage() {
 
   return (
     <div className="Homepage">
-      <header className="Homepage-Header">
-        <img src={logo} className="Homepage-logo" alt="logo" />
-        <p>{!data ? "Loading..." : data}</p>
-      </header>
+      <div className="box-container">
+        <div className="box box-1">Box 1</div>
+        <div className="box box-2">Box 2</div>
+        <div className="box box-3">Box 3</div>
+        <div className="box box-4">Box 4</div>
+        <div className="box box-5">Box 5</div>
+      </div>
+      <p>{!data ? "Loading..." : data}</p>
     </div>
   )
 }
