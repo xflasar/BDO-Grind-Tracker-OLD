@@ -5,9 +5,13 @@ function Homepage() {
   const [data, setData] = React.useState(null);
 
   React.useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((data) => setData(data.message));
+    try {
+      fetch("/api")
+        .then((res) => res.json())
+        .then((data) => setData(data.message));
+    } catch (error) {
+      setData("No data!");
+    }
   }, []);
 
   return (
@@ -19,7 +23,7 @@ function Homepage() {
         <div className="box box-4">Box 4</div>
         <div className="box box-5">Box 5</div>
       </div>
-      <p>{!data ? "Loading..." : data}</p>
+      <p>{!data ? "No data!" : data}</p>
     </div>
   )
 }

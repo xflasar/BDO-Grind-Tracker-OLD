@@ -2,7 +2,7 @@ FROM node:15.13-alpine
 ENV NODE_ENV developement
 LABEL version="1.0"
 LABEL description="Docker for Frontend"
-LABEL maintainer = ["christian.flasar@gmail.com"]
+LABEL maintainer=["Martin Flasar"]
 
 WORKDIR /client
 ENV PATH="./node_modules/.bin:$PATH"

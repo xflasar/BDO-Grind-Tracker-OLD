@@ -11,6 +11,8 @@ services:
     image: "backend"
     ports:
       - "3001:3001"
+    restart: always
+    
   frontend:
     build:
       context: ./client
@@ -18,6 +20,8 @@ services:
     volumes:
       - .:/usr/src/app/client
     image: "frontend"
+    depends_on:
+      - "server"
     ports:
       - "3000:3000"
     links:
