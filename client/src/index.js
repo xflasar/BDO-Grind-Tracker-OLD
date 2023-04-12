@@ -5,14 +5,22 @@ import Homepage from './pages/Home/Homepage';
 import Sites from './pages/Sites/Sites';
 import Analytics from './pages/Analytics/Analytics';
 import History from './pages/History/History';
-import Navbar from './components/ui/navbar'
+import Navigation from './components/ui/navbar'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+const items = [
+  { name: 'Home', url: '/' },
+  { name: 'Sites', url: '/Sites' },
+  { name: 'History', url: '/History' },
+  { name: 'Analytics', url: '/Analytics' },
+  { name: 'Login', url: '/Login' }
+]
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Router>
-      <Navbar/>
+    <Navigation items={items} />
       <Routes>
         <Route exact path="/" element={<Homepage />}/>
         <Route exact path='/sites' element={<Sites />}/>
