@@ -147,6 +147,18 @@ ul {
             display: flex;
             flex-direction: row;
         }
+
+        li {
+            margin: 0 10px;
+        }
+
+        a {
+            color: #FFF;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #ffa600;
+        }
     }
     .navbar-left {
         display: flex;

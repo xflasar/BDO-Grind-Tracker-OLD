@@ -16,7 +16,7 @@ import React, { useState} from 'react';
 import { Link } from 'react-router-dom';
 import '../../assets/Navbar.scss';
 
-const Navigation = ({ items }) => {
+function Navigation () {
     const [toggled, setToggled] = useState(false)
     const [desktopMode, setDesktopMode] = useState(true)
 
@@ -53,18 +53,18 @@ const Navigation = ({ items }) => {
                 <ul>
                     <div className="navbar-left">
                         <li className="home">
-                            <Link to="/" onClick={() => closeMenu()}    >Home</ Link>
+                            <Link to="/">Home</ Link>
                         </li>
                         <li className="sites">
-                            <Link to="/Sites" onClick={() => closeMenu  ()}   >Sites</   Link>
+                            <Link to="/sites">Sites</   Link>
                         </li>
                     </div>
                     <div className="navbar-right">
                         <li className="history">
-                            <Link to="/History" onClick={() => closeMenu    ()}     >History</Link>
+                            <Link to="/history">History</Link>
                         </li>
                         <li className="analytics">
-                            <Link to="/Analytics" onClick={() =>    closeMenu  ()}   >Analytics</Link>
+                            <Link to="/analytics">Analytics</Link>
                         </li>
                     </div>
                 </ul>
@@ -75,13 +75,13 @@ const Navigation = ({ items }) => {
                 <Link to="/" onClick={() => closeMenu()}>Home</Link>
             </li>
             <li className="sites">
-                <Link to="/Sites" onClick={() => closeMenu()}>Sites</   Link>
+                <Link to="/sites" onClick={() => closeMenu()}>Sites</   Link>
             </li>
             <li className="history">
-                <Link to="/History" onClick={() => closeMenu()} >History</Link>
+                <Link to="/history" onClick={() => closeMenu()} >History</Link>
             </li>
             <li className="analytics">
-                <Link to="/Analytics" onClick={() => closeMenu()}   >Analytics</Link>
+                <Link to="/analytics" onClick={() => closeMenu()}   >Analytics</Link>
             </li>
         </ul>
     </nav>

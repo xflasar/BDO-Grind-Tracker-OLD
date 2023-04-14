@@ -72,6 +72,10 @@ typings/
 .env
 .env.test
 
+# sensitive data
+auth.config.js
+db.config.js
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
