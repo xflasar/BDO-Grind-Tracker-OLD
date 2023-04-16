@@ -16,7 +16,8 @@ const sessionSchema = new mongoose.Schema({
   TimeCreated: {
     type: Date,
     default: Date.now
-  }
+  },
+  UserId: mongoose.Schema.Types.ObjectId
 });
 
 const Session = mongoose.model('Session', sessionSchema);

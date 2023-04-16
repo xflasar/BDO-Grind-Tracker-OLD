@@ -23,4 +23,8 @@ module.exports = function(app) {
         "/api/test/admin",[verifyToken, isAdmin],
         controller.adminBoard
     );
+
+    app.get("/api/user", [verifyToken], controller.UserData);
+
+    app.post("/api/user/addsession", [verifyToken], controller.AddSession);
 }

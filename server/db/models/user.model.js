@@ -6,7 +6,8 @@ const userSchema = new mongoose.Schema({
   TotalEarnings: Number,
   Sites: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Site'
+    ref: 'Site',
+    default: []
   }],
   TotalExpenses: Number,
   authenticationId: {
@@ -15,7 +16,8 @@ const userSchema = new mongoose.Schema({
   },
   Sessions: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Session'
+    ref: 'Session',
+    default: []
   }]
 });
 

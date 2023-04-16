@@ -49,7 +49,6 @@ exports.signup = async (req, res) => {
         });
   
         req.session.token = token;
-        req.session.userId = user._id;
   
         await res.status(200).send({
           id: user._id,

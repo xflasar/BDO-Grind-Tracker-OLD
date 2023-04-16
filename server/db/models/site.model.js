@@ -6,7 +6,7 @@ const siteSchema = new mongoose.Schema({
   TotalEarned: Number,
   TotalSpent: Number,
   AverageEarnings: Number,
-  _id: mongoose.Schema.Types.ObjectId
+  UserId: mongoose.Schema.Types.ObjectId
 });
 
 const Site = mongoose.model('Site', siteSchema);
