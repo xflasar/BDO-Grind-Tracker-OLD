@@ -15,6 +15,7 @@ exports.signup = async (req, res) => {
     return});
 
     const user = new User({
+        DisplayName: req.body.displayName,
         TotalTime: 0,
         TotalEarnings: 0,
         Sites: [],
@@ -48,6 +49,7 @@ exports.signup = async (req, res) => {
         });
   
         req.session.token = token;
+        req.session.userId = user._id;
   
         await res.status(200).send({
           id: user._id,
@@ -60,7 +62,7 @@ exports.signup = async (req, res) => {
 exports.signout = (req, res) => {
     try {
         req.session = null;
-        return res.status(200).send({ message: "User logged out successfully!" });
+        return res.status(200).send({ message: `User logged out successfully!`});
     }
     catch (err) {
         console.log(err);

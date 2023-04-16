@@ -48,14 +48,28 @@ require('./routes/auth.routes')(app);
 require('./routes/user.routes')(app);
 //#endregion
 
+const User = require('./db/models/user.model.js');
+
 //#region DATABASE
 db.mongoose.connect(`mongodb+srv://${dbConfig.username}:${dbConfig.password}@bdogrindtracker.mqzvwfp.mongodb.net/?retryWrites=true&w=majority`, {useNewUrlParser: true, useUnifiedTopology: true}).then(() => { console.log("Successfully connected to MongoDB.") }).catch(err => { console.error("Connection error", err); process.exit(); });
 //#endregion
 
 //#region API_CALLS
+// Main API call
 app.get("/api", (req, res) =>{
-    res.json({message: "Successfully acquired data from server!"});
-    console.log("Server received API request!");
+    res.redirect("http://localhost:3000/");
+    console.log("Server received API check request!");
+})
+
+// User API call - returns user data
+app.get("/api/user", (req, res) =>{
+    User.findOne({authenticationId: req.session.userId}).then((user) => {
+        if(user){
+            res.json(user);
+        }else{
+            res.json({message: "No user found!"});
+        }
+    }).catch(err => { res.status(500).send({ message: err })});
 })
 //#endregion
 
