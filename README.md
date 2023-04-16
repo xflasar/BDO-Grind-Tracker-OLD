@@ -1,4 +1,4 @@
-This Application is dedicated for single user use only. This might change depending on complexity but it mainly is used for myself as a tool to help me track of time spent and overall for a game named Black Desert Online ( BDO ). -> Reason why it's not multi user is there is already an existing site that does the same https://garmoth.com/.
+This Application is a tool to help keep track of time spent and overall for a game named Black Desert Online ( BDO ).
 
 ////////////////////////////////////////////////////////////////////////////////
 
