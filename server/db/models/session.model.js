@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const sessionSchema = new mongoose.Schema({
   SiteId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Site'
+    ref: 'Sites'
   },
   TimeSpent: Number,
   Earnings: Number,
@@ -20,6 +20,6 @@ const sessionSchema = new mongoose.Schema({
   UserId: mongoose.Schema.Types.ObjectId
 });
 
-const Session = mongoose.model('Session', sessionSchema);
+const Session = mongoose.model('Sessions', sessionSchema, "Sessions");
 
 module.exports = Session;

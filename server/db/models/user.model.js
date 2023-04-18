@@ -6,21 +6,19 @@ const userSchema = new mongoose.Schema({
   TotalEarnings: Number,
   Sites: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Site',
-    default: []
+    ref: 'Sites',
   }],
   TotalExpenses: Number,
   authenticationId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Auth'
+    ref: 'Auths'
   },
   Sessions: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Session',
-    default: []
+    ref: 'Sessions',
   }]
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('Users', userSchema, "Users");
 
 module.exports = User;

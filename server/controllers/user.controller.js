@@ -27,15 +27,19 @@ exports.UserData = (req, res) => {
         res.status(200).send(user);
     }).catch(err => { res.status(500).send({ message: err })});
 }
-// Issue with user.Sites.push(site._id) and user.Sessions.push(session._id) not updating in the user document
+
+// TODO: Make a validation for site to not be added twice to the same user (check if site exists in user.Sites) if it does, don't add it again but add the session to the site and update the site's data (time, earnings, expenses, etc)
 exports.AddSession = (req, res) => {
     User.findOne({authenticationId: req.userId}).then(async (user) => {
-        req.body.UserId = user._id;
-        this.AddSite(req, res);
-        Site.findOne({SiteName: req.body.SiteName}, {UserId: req.body.UserId}).then((site) => {user.Sites.push(site._id)});
+        req.body.UserId = user.id;
+        await this.AddSite(req, res);
+        await Site.findOne({SiteName: req.body.SiteName}, {UserId: req.body.UserId}).then(async site => {
+            console.log(site);
+            user.Sites.push([site._id])
+
             console.log("Site added to user");
             const session = new Session({
-                SiteId: Site.findOne({SiteName: req.body.SiteName},    {UserId: req.body.UserId})._id,
+                SiteId: site._id,
                 TimeSpent: req.body.TimeSpentSession,
                 Earnings: req.body.EarningsSession,
                 AverageEarnings: req.body.AverageEarningsSession,
@@ -45,16 +49,21 @@ exports.AddSession = (req, res) => {
                 UserId: req.body.UserId
             });
 
-            session.save().then( () => {
-                user.Sessions.push(session._id);
-                console.log(`Session ${session._id}`);
+            await session.save().then( async (savedSession) => {
+                user.Sessions.push([savedSession._id]);
+                console.log(`Session ${savedSession._id}`);
+                await user.save().then(() => {
+                    console.log(`User ${user.id} successfully updated`);
+                    res.status(200).send("Session added!");
+                }).catch(err => { res.status(500).send({ message: err })});
+                
             }).catch(err => { res.status(500).send({ message:    err })});
-        user.save().then(console.log(`User ${user._id} successfully updated`)).catch(err => { res.status(500).send({ message: err })});
-        res.status(200).send("Session added!");
+            
+        }).catch(err => { res.status(500).send({ message: err })});
     }).catch(err => { console.log(err); res.status(500).send({ message: err })});
 }
 
-exports.AddSite = (req, res) => {
+exports.AddSite = async (req, res) => {
     const site = new Site({
         SiteName: req.body.SiteName,
         TotalTime: req.body.TotalTimeSite,
@@ -64,7 +73,7 @@ exports.AddSite = (req, res) => {
         UserId: req.body.UserId
     });
 
-    site.save().then(console.log(`Site ${site._id} successfully created for user: ${req.body.UserId}`)).catch(err => { res.status(500).send({ message: err })});
+    await site.save().then(console.log(`Site ${site.id} successfully created for user: ${req.body.UserId}`)).catch(err => { res.status(500).send({ message: err })});
 }
 
 exports.ModifySession = (req, res) => {

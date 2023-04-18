@@ -6,6 +6,6 @@ const authSchema = new mongoose.Schema({
   email: String,
 });
 
-const Auth = mongoose.model('Auth', authSchema);
+const Auth = mongoose.model('Auths', authSchema, "Auths");
 
 module.exports = Auth;

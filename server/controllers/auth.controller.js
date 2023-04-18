@@ -11,20 +11,21 @@ exports.signup = async (req, res) => {
       password: await bcrypt.hash(req.body.password, 8),
     });
 
-    auth.save().catch(err => { res.status(500).send({ message: err });
+    auth.save().then(() => {
+      const user = new User({
+          DisplayName: req.body.displayName,
+          TotalTime: 0,
+          TotalEarnings: 0,
+          Sites: [],
+          TotalExpenses: 0,
+          authenticationId: auth._id,
+          Sessions: []
+      });
+
+  user.save().then(res.send({ message: "User was registered successfully!" }));}).catch(err => { res.status(500).send({ message: err });
     return});
 
-    const user = new User({
-        DisplayName: req.body.displayName,
-        TotalTime: 0,
-        TotalEarnings: 0,
-        Sites: [],
-        TotalExpenses: 0,
-        authenticationId: auth._id,
-        Sessions: []
-    });
-
-    user.save().then(res.send({ message: "User was registered successfully!" })).catch(err => { res.status(500).send({ message: err })});
+    
   };
   
   exports.signin = (req, res) => {

@@ -9,6 +9,6 @@ const siteSchema = new mongoose.Schema({
   UserId: mongoose.Schema.Types.ObjectId
 });
 
-const Site = mongoose.model('Site', siteSchema);
+const Site = mongoose.model('Sites', siteSchema, "Sites");
 
 module.exports = Site;

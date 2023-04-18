@@ -12,7 +12,7 @@ var corsOptions = {
 }
 
 //#region  DEVELOPEMENT
-if (app.get('env') === 'developement') {
+/*if (app.get('env') === 'developement') {
     app.use(function (err, req, res, next) {
         res.status(err.status || 500)
         res.render('error', {
@@ -20,7 +20,7 @@ if (app.get('env') === 'developement') {
             error: err
         });
     });
-}
+}*/
 //#endregion
 
 //#region SETUP
@@ -61,16 +61,6 @@ app.get("/api", (req, res) =>{
     console.log("Server received API check request!");
 })
 
-// User API call - returns user data
-app.get("/api/user", (req, res) =>{
-    User.findOne({authenticationId: req.session.userId}).then((user) => {
-        if(user){
-            res.json(user);
-        }else{
-            res.json({message: "No user found!"});
-        }
-    }).catch(err => { res.status(500).send({ message: err })});
-})
 //#endregion
 
 app.listen(port, "0.0.0.0", () => console.log(`Server listening on port ${port}!`))
