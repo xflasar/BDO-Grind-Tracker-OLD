@@ -32,33 +32,37 @@ exports.UserData = (req, res) => {
 exports.AddSession = (req, res) => {
     User.findOne({authenticationId: req.userId}).then(async (user) => {
         req.body.UserId = user.id;
-        await this.AddSite(req, res);
         await Site.findOne({SiteName: req.body.SiteName}, {UserId: req.body.UserId}).then(async site => {
-            console.log(site);
-            user.Sites.push([site._id])
+            if (!site) {
+                await this.AddSite(req, res);
+            } else {
+                req.body.SiteId = site.id;
+                await this.ModifySite(req, res);
+                console.log(site);
+                user.Sites.push([site._id])
 
-            console.log("Site added to user");
-            const session = new Session({
-                SiteId: site._id,
-                TimeSpent: req.body.TimeSpentSession,
-                Earnings: req.body.EarningsSession,
-                AverageEarnings: req.body.AverageEarningsSession,
-                Expenses: req.body.ExpensesSession,
-                Gear: { TotalAP: req.body.TotalAP, TotalDP: req.body.   TotalDP},
-                TimeCreated: Date.now(),
-                UserId: req.body.UserId
-            });
+                console.log("Site added to user");
+                const session = new Session({
+                    SiteId: site._id,
+                    TimeSpent: req.body.TimeSpentSession,
+                    Earnings: req.body.EarningsSession,
+                    AverageEarnings: req.body.AverageEarningsSession,
+                    Expenses: req.body.ExpensesSession,
+                    Gear: { TotalAP: req.body.TotalAP, TotalDP: req.body.TotalDP},
+                    TimeCreated: Date.now(),
+                    UserId: req.body.UserId
+                });
 
-            await session.save().then( async (savedSession) => {
-                user.Sessions.push([savedSession._id]);
-                console.log(`Session ${savedSession._id}`);
-                await user.save().then(() => {
-                    console.log(`User ${user.id} successfully updated`);
-                    res.status(200).send("Session added!");
+                await session.save().then( async (savedSession) => {
+                    user.Sessions.push([savedSession._id]);
+                    console.log(`Session ${savedSession._id}`);
+                    await user.save().then(() => {
+                        console.log(`User ${user.id} successfully updated`);
+                        res.status(200).send("Session added!");
+                    }).catch(err => { res.status(500).send({ message: err })});
+                    
                 }).catch(err => { res.status(500).send({ message: err })});
-                
-            }).catch(err => { res.status(500).send({ message:    err })});
-            
+            }
         }).catch(err => { res.status(500).send({ message: err })});
     }).catch(err => { console.log(err); res.status(500).send({ message: err })});
 }
@@ -76,16 +80,55 @@ exports.AddSite = async (req, res) => {
     await site.save().then(console.log(`Site ${site.id} successfully created for user: ${req.body.UserId}`)).catch(err => { res.status(500).send({ message: err })});
 }
 
-exports.ModifySession = (req, res) => {
+// Think about a way to separate the calls to update the user and the site so we can use them independently with res.status(200).send(); in the end
+exports.ModifySession = async (req, res) => {
+    const updateObject = {};
+    for (const key in req.body) {
+      if (Session.schema.obj.hasOwnProperty(key)) {
+        updateObject[key] = req.body[key];
+      }
+    }
+
+    const updatedUser = await Session.findByIdAndUpdate(
+      req.body.SessionId,
+      { $set: { ...updateObject } },
+      { new: true }
+    ).then(async (session) => {
+        req.body.SiteId = session.SiteId;
+        await this.ModifySite(req, res);
+        req.body.UserId = session.UserId;
+        await this.ModifyUserData(req, res);
+        res.status(200).send("Session modified!");
+    }).catch(err => { res.status(500).send({ message: err })});
+}
+
+exports.ModifySite = async (req, res) => {
+    const updateObject = {};
+    const objectToBeUpdated = await Site.findById(req.body.SiteId);
+    updateObject.TotalTime, req.body.TimeSpent = objectToBeUpdated.TotalTime + req.body.TimeSpent;
+    updateObject.TotalEarned, req.body.Earnings = objectToBeUpdated.TotalEarned + req.body.Earnings;
+    updateObject.TotalSpent, req.body.Expenses = objectToBeUpdated.TotalSpent + req.body.Expenses;
+    updateObject.AverageEarnings, req.body.AverageEarnings = objectToBeUpdated.AverageEarnings + req.body.AverageEarnings;
+
+    const updatedUser = await Site.findByIdAndUpdate(
+      req.body.SiteId,
+      { $set: { ...updateObject } },
+      { new: true }
+    );
 
 }
 
-exports.ModifySite = (req, res) => {
+exports.ModifyUserData = async (req, res) => {
+    const updateObject = {};
+    updateObject.TotalTime = req.body.TimeSpent;
+    updateObject.TotalEarnings = req.body.Earnings;
+    updateObject.TotalExpenses = req.body.Expenses;
 
-}
-
-exports.ModifyUserData = (req, res) => {
-
+    const updatedUser = await User.findByIdAndUpdate(
+      req.body.UserId,
+      { $set: { ...updateObject } },
+      { new: true }
+    );
 }
 
 exports.DeleteSession = (req, res) => {

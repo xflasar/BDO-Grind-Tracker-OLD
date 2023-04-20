@@ -27,4 +27,16 @@ module.exports = function(app) {
     app.get("/api/user", [verifyToken], controller.UserData);
 
     app.post("/api/user/addsession", [verifyToken], controller.AddSession);
+
+    app.post("/api/user/addsite", [verifyToken], controller.AddSite);
+
+    app.post("/api/user/modifysession", [verifyToken], controller.ModifySession);
+
+    app.post("/api/user/modifysite", [verifyToken], controller.ModifySite);
+
+    app.post("/api/user/deletesession", [verifyToken], controller.DeleteSession);
+
+    app.post("/api/user/deletesite", [verifyToken], controller.DeleteSite);
+
+    app.post("/api/user/modifyuserdata", [verifyToken], controller.ModifyUserData);
 }
