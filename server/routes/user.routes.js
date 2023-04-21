@@ -26,6 +26,10 @@ module.exports = function(app) {
 
     app.get("/api/user", [verifyToken], controller.UserData);
 
+    app.get("/api/user/sessions", [verifyToken], controller.UserSessions);
+
+    app.get("/api/user/sites", [verifyToken], controller.UserSites);
+
     app.post("/api/user/addsession", [verifyToken], controller.AddSession);
 
     app.post("/api/user/addsite", [verifyToken], controller.AddSite);

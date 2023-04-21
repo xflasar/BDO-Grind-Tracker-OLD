@@ -8,7 +8,7 @@ exports.signup = async (req, res) => {
     const auth = new Auth({
       username: await req.body.username,
       email: await req.body.email,
-      password: await bcrypt.hash(req.body.password, 8),
+      password: await bcrypt.hash(req.body.password, 8)
     });
 
     auth.save().then(() => {
@@ -22,9 +22,12 @@ exports.signup = async (req, res) => {
           Sessions: []
       });
 
-  user.save().then(res.send({ message: "User was registered successfully!" }));}).catch(err => { res.status(500).send({ message: err });
+  user.save().then(res.send({ message: "User was registered successfully!" }));
+  auth.UserId = user._id;
+  auth.save().catch(err => { res.status(500).send({ message: err })});
+  }).catch(err => { res.status(500).send({ message: err });
     return});
-
+  
     
   };
   
@@ -54,7 +57,8 @@ exports.signup = async (req, res) => {
         await res.status(200).send({
           id: user._id,
           username: user.username,
-          email: user.email
+          email: user.email,
+          UserId: user.UserId,
         });
       }).catch(err => { res.status(500).send({ message: err })});
   };
