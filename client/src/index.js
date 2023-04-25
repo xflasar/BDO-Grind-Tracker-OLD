@@ -6,7 +6,7 @@ import Sites from './pages/Sites/Sites';
 import Analytics from './pages/Analytics/Analytics';
 import History from './pages/History/History';
 import Navigation from './components/ui/navbar'
-import { BrowserRouter as Router, Routes, Route, BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Routes, Route, BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

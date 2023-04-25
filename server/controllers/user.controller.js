@@ -2,24 +2,7 @@ const User = require('../db/models/user.model.js');
 const Session = require('../db/models/session.model.js');
 const Site = require('../db/models/site.model.js');
 
-exports.allAcesss = (req, res) => {
-    res.status(200).send("Public Content.");
-};
-
-exports.userBoard = (req, res) => {
-    res.status(200).send("User Content.");
-}
-
-exports.adminBoard = (req, res) => {
-    res.status(200).send("Admin Content.");
-}
-
-exports.moderatorBoard = (req, res) => {
-    res.status(200).send("Moderator Content.");
-}
-
 exports.UserData = (req, res) => {
-    console.log(req.userId);
     User.findById(req.userId).populate('Sessions').populate('Sites').then(async (user) => {
         if (!user) {
             return res.status(404).send({ message: "User Not found." });
@@ -29,20 +12,15 @@ exports.UserData = (req, res) => {
 }
 
 exports.UserSessions = (req, res) => {
-    console.log(req.userId);
-
     Session.find({UserId: req.userId}).then(async (sessions) => {
         if (!sessions) {
             return res.status(404).send({ message: "No sessions found." });
         }
-        console.log(sessions);
         res.status(200).send(sessions);
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
 exports.UserSites = (req, res) => {
-    console.log(req.userId);
-
     Site.find({UserId: req.userId}).then(async (sites) => {
         if (!sites) {
             return res.status(404).send({ message: "No sites found." });
@@ -51,43 +29,20 @@ exports.UserSites = (req, res) => {
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
-exports.ModifyUserData = (req, res) => {
-    console.log(req.userId);
-    User.findOne({authenticationId: req.userId}).then(async (user) => {
-        if (!user) {
-            return res.status(404).send({ message: "User Not found." });
-        }
-        user.DisplayName = req.body.DisplayName;
-        user.TotalTime = req.body.TotalTime;
-        user.TotalEarnings = req.body.TotalEarnings;
-        user.TotalExpenses = req.body.TotalExpenses;
-
-        await user.save().then(() => {
-            res.status(200).send("User data updated!");
-        }).catch(err => { res.status(500).send({ message: err })});
-    }).catch(err => { res.status(500).send({ message: err })});
-}
-
-// TODO: Make a validation for site to not be added twice to the same user (check if site exists in user.Sites) if it does, don't add it again but add the session to the site and update the site's data (time, earnings, expenses, etc)
 exports.AddSession = (req, res) => {
     User.findById(req.userId).then(async (user) => {
         await Site.findOne({SiteName: req.body.SiteName}, {UserId: req.userId}).then(async site => {
             if (!site) {
                 await this.AddSite(req, res);
-                console.log(site);
                 user.Sites.push([site._id])
-                console.log("Site added to user");
             } else {
                 req.body.SiteId = site.id;
-                console.log(site);
                 req.body.ModifySite = true;
                 req.body.TimeSpent = req.body.TimeSpentSession;
                 req.body.TotalEarned = req.body.EarningsSession;
                 req.body.TotalSpent = req.body.ExpensesSession;
                 req.body.AverageEarnings = req.body.AverageEarningsSession;
                 await this.ModifySite(req, res);
-                console.log(site);
-                console.log("Site updated");
             }
             
             const session = new Session({
@@ -102,15 +57,13 @@ exports.AddSession = (req, res) => {
             });
             await session.save().then( async (savedSession) => {
                 user.Sessions.push([savedSession._id]);
-                console.log(`Session ${savedSession._id}`);
                 await user.save().then(() => {
-                    console.log(`User ${user.id} successfully updated`);
                     res.status(200).send("Session added!");
                 }).catch(err => { res.status(500).send({ message: err })});
                 
             }).catch(err => { res.status(500).send({ message: err })});
         }).catch(err => { res.status(500).send({ message: err })});
-    }).catch(err => { console.log(err); res.status(500).send({ message: err })});
+    }).catch(err => {res.status(500).send({ message: err })});
 }
 
 exports.AddSite = async (req, res) => {
@@ -123,7 +76,7 @@ exports.AddSite = async (req, res) => {
         UserId: req.userId
     });
 
-    await site.save().then(console.log(`Site ${site.id} successfully created for user: ${req.userId}`)).catch(err => { res.status(500).send({ message: err })});
+    await site.save().catch(err => { res.status(500).send({ message: err })});
 }
 
 // Think about a way to separate the calls to update the user and the site so we can use them independently with res.status(200).send(); in the end
@@ -153,6 +106,7 @@ exports.ModifySession = async (req, res) => {
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
+// BUG: When ModifySite is called it doesn't update the user's data, it only updates the site's data
 exports.ModifySite = async (req, res) => {
     const updateObject = {};
     if(req.body.ModifySite) {
@@ -210,19 +164,26 @@ exports.ModifyUserData = async (req, res) => {
     }
 }
 
+// This function will delete a session and update the user's data and the site's data
 exports.DeleteSession = (req, res) => {
-    
+    Session.findById(req.body.SessionId).then(async (session) => {
+        req.body.SiteId = session.SiteId;
+        req.body.TimeSpent = -session.TimeSpent;
+        req.body.TotalEarned = -session.Earnings;
+        req.body.TotalSpent = -session.Expenses;
+        req.body.AverageEarnings = -session.AverageEarnings;
+        req.body.ModifySite = true;
+        await this.ModifySite(req, res);
+        req.body.ModifyUser = true;
+        await this.ModifyUserData(req, res);
+        console.log(req.body);
+        Session.findByIdAndDelete(req.body.SessionId).then(() => {
+            res.status(200).send("Session deleted!");
+        }).catch(err => { res.status(500).send({ message: err })});
+    }).catch(err => { res.status(500).send({ message: err })});
 }
 
-exports.DeleteSite = (req, res) => {
-
-}
-
-// This is a dangerous function, it will delete all user data, including sessions and sites and authentication data
+// This is a dangerous function, it will delete all user data, including sessions and sites and authentication data | This function will be called when the user deletes his account
 exports.DeleteUserData = (req, res) => {
-
-}
-
-exports.DeleteUser = (req, res) => {
 
 }
