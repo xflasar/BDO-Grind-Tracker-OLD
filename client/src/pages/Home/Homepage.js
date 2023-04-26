@@ -9,16 +9,12 @@ function Homepage() {
 
   React.useEffect(() => {
     try {
-      fetch("/api")
+      fetch("api/user")
         .then((res) => res.json())
         .then((data) => setData(data.message));
     } catch (error) {
       setData("No data!");
     }
-    setData({
-      Title: "Test",
-      Content: "EWW"
-    });
   }, []);
   return (
     <div className="Homepage">

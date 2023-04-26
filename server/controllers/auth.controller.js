@@ -59,6 +59,7 @@ exports.signup = async (req, res) => {
           username: user.username,
           email: user.email,
           UserId: user.UserId,
+          accessToken: token
         });
       }).catch(err => { res.status(500).send({ message: err })});
   };

@@ -14,12 +14,13 @@
 
 import React, { useState} from 'react';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import '../../assets/Navbar.scss';
 
 function Navigation () {
     const [toggled, setToggled] = useState(false)
     const [desktopMode, setDesktopMode] = useState(true)
-
+    const session = Cookies.get('token');
     const screenSizes = {
         small: 800
     }
@@ -31,6 +32,18 @@ function Navigation () {
             setDesktopMode(false)
         }
     })
+
+    const logout = async () => {
+        await fetch('/api/auth/signout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+        localStorage.clear();
+        Cookies.remove('token');
+        Cookies.remove('session');
+        Cookies.remove('session.sig');
+        window.location.href = '/';
+    }
 
     const closeMenu = () => {
         setToggled(false)
@@ -67,6 +80,15 @@ function Navigation () {
                             <Link to="/analytics">Analytics</Link>
                         </li>
                     </div>
+                    {session ? <div className="Logout">
+                        <li className="logout">
+                            <Link to="/" onClick={logout}>Logout</Link>
+                        </li>
+                    </div> : <div className="login-container">
+                        <li className="login">
+                            <Link to="/login">Login</Link>
+                        </li>
+                    </div>}
                 </ul>
             </div>)}
         
