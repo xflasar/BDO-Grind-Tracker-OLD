@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './assets/index.css';
+import './assets/index.scss';
 import Homepage from './pages/Home/Homepage';
 import Sites from './pages/Sites/Sites';
 import Analytics from './pages/Analytics/Analytics';
 import History from './pages/History/History';
 import Navigation from './components/ui/navbar'
-import { BrowserRouter as Routes, Route, BrowserRouter } from 'react-router-dom';
+import {Routes, Route, BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

@@ -1,6 +1,7 @@
 const User = require('../db/models/user.model.js');
 const Session = require('../db/models/session.model.js');
 const Site = require('../db/models/site.model.js');
+const Auth = require('../db/models/auth.model.js');
 
 exports.UserData = (req, res) => {
     User.findById(req.userId).populate('Sessions').populate('Sites').then(async (user) => {
@@ -185,5 +186,22 @@ exports.DeleteSession = (req, res) => {
 
 // This is a dangerous function, it will delete all user data, including sessions and sites and authentication data | This function will be called when the user deletes his account
 exports.DeleteUserData = (req, res) => {
-
+    Site.deleteMany({ UserId: req.userId }).then(() => {
+        Session.deleteMany({ UserId: req.userId }).then(() => {
+            User.findByIdAndDelete(req.userId).then(() => {
+                Auth.findOneAndDelete({ UserId: req.userId }).then(() => {
+                    try
+                    {
+                        req.session = null;
+                        res.session.destroy();
+                        res.status(200).send("User data deleted!");
+                    }
+                    catch(err)
+                    {
+                        res.status(500).send({ message: err });
+                    }
+                }).catch(err => { res.status(500).send({ message: err })});
+            }).catch(err => { res.status(500).send({ message: err })});
+        }).catch(err => { res.status(500).send({ message: err })});
+    }).catch(err => { res.status(500).send({ message: err })});
 }

@@ -1,0 +1,32 @@
+$primary-color: #0c00b3;
+
+.box {
+    
+    background-color: $primary-color;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    background-color: $primary-color;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.box-title {
+  font-size: 1em;
+  font-weight: bold;
+  width: 60%;
+  position: relative;
+}
+
+.box-content {
+  font-size: 1.2em;
+  margin-bottom: 1em;
+}
+
+@media (max-width: 800px) {
+  .box {
+    flex: 1;
+  }
+}

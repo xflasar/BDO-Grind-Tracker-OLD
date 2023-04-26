@@ -1,8 +1,11 @@
 import React from "react";
-import "../../assets/Homepage.css";
+import Box from "../../components/ui/HomepageBox";
+import "../../assets/Homepage.scss";
 
 function Homepage() {
   const [data, setData] = React.useState(null);
+  //const [session, setSession] = React.useState(null);
+  //const [user, setUser] = React.useState(null);
 
   React.useEffect(() => {
     try {
@@ -12,18 +15,20 @@ function Homepage() {
     } catch (error) {
       setData("No data!");
     }
+    setData({
+      Title: "Test",
+      Content: "EWW"
+    });
   }, []);
-
   return (
     <div className="Homepage">
       <div className="box-container">
-        <div className="box box-1">Box 1</div>
-        <div className="box box-2">Box 2</div>
-        <div className="box box-3">Box 3</div>
-        <div className="box box-4">Box 4</div>
-        <div className="box box-5">Box 5</div>
+        <Box className="box-1" data={data ? data : ""}/>
+        <Box className="box-2" data={data ? data : ""}/>
+        <Box className="box-3" data={data ? data : ""}/>
+        <Box className="box-4" data={data ? data : ""}/>
+        <Box className="box-5" data={data ? data : ""}/>
       </div>
-      <p>{!data ? "No data!" : data}</p>
     </div>
   )
 }
