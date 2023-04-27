@@ -205,3 +205,43 @@ exports.DeleteUserData = (req, res) => {
         }).catch(err => { res.status(500).send({ message: err })});
     }).catch(err => { res.status(500).send({ message: err })});
 }
+
+// Functions for getting Data
+exports.GetHomepageData = async (req, res) => {
+       User.findById(req.userId).then(async (user) => {
+        try{
+            const data = {
+                TotalTimeO:{
+
+                    Title: "Total Time",
+                    Content: user.TotalTime
+                },
+                TotalEarningsO:{
+                    Title: "Total Earnings",
+                    Content: user.TotalEarnings
+                },
+                TotalExpensesO:{
+                    Title: "Total Expenses",
+                    Content: user.TotalExpenses
+                },
+                AverageEarningsO:{
+                    Title: "Average Earnings",
+                    Content: 0
+                },
+                SiteO:{
+                    Title: "Top Site",
+                    Content: ""
+                }
+            }
+        await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
+            data.SiteO.Content = sites.SiteName;
+            data.AverageEarningsO.Content = sites.AverageEarnings;
+        }).catch(err => { res.status(500).send({ message: err })});
+        res.status(200).send(data);
+        }
+        catch(err)
+        {
+            console.log(err);
+        }
+    }).catch(err => { console.log(err); res.status(500).send({ message: err })});
+}

@@ -1,29 +1,49 @@
 import React from "react";
 import Box from "../../components/ui/HomepageBox";
+import Cookies from "js-cookie";
 import "../../assets/Homepage.scss";
 
 function Homepage() {
   const [data, setData] = React.useState(null);
-  //const [session, setSession] = React.useState(null);
-  //const [user, setUser] = React.useState(null);
 
   React.useEffect(() => {
-    try {
-      fetch("api/user")
-        .then((res) => res.json())
-        .then((data) => setData(data.message));
-    } catch (error) {
-      setData("No data!");
+    const noDataContent = "No data!";
+    const defaultData = {
+      Box1: { Content: noDataContent },
+      Box2: { Content: noDataContent },
+      Box3: { Content: noDataContent },
+      Box4: { Content: noDataContent },
+      Box5: { Content: noDataContent },
+    };
+    const session = Cookies.get("token");
+    if (!session) {
+      setData(defaultData);
+      return;
     }
+    
+    fetch("api/user/homepage")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.message === "No token provided!" || data.length < 4) {
+          setData(defaultData);
+          return;
+        }
+        
+        setData(data);
+      })
+      .catch(() => {
+        setData(defaultData);
+      });
   }, []);
+  
   return (
     <div className="Homepage">
       <div className="box-container">
-        <Box className="box-1" data={data ? data : ""}/>
-        <Box className="box-2" data={data ? data : ""}/>
-        <Box className="box-3" data={data ? data : ""}/>
-        <Box className="box-4" data={data ? data : ""}/>
-        <Box className="box-5" data={data ? data : ""}/>
+        {data && Object.values(data).map((item, index) => {
+          return (
+          <Box key={index} className={`box-${index + 1}`} data={item}/>
+          )
+        })}
       </div>
     </div>
   )

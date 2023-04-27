@@ -27,4 +27,8 @@ module.exports = function(app) {
     app.post("/api/user/deletesession", [verifyToken], controller.DeleteSession);
 
     app.post("/api/user/modifyuserdata", [verifyToken], controller.ModifyUserData);
+
+    // Data get routes
+    // Homepage data
+    app.get("/api/user/homepage", [verifyToken], controller.GetHomepageData);
 }
