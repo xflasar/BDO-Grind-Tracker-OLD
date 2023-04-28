@@ -6,6 +6,11 @@ import "../../assets/Homepage.scss";
 function Homepage() {
   const [data, setData] = React.useState(null);
 
+  async function handleFetchData() {
+    const res = await fetch("api/user/homepage");
+    const data = await res.json();
+    return data;
+  }
   React.useEffect(() => {
     const noDataContent = "No data!";
     const defaultData = {
@@ -21,14 +26,12 @@ function Homepage() {
       return;
     }
     
-    fetch("api/user/homepage")
-      .then((res) => res.json())
+    handleFetchData()
       .then((data) => {
         if (data.message === "No token provided!" || data.length < 4) {
           setData(defaultData);
           return;
         }
-        
         setData(data);
       })
       .catch(() => {

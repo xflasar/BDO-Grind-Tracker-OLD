@@ -52,12 +52,12 @@ function Navigation () {
     return (
     <nav>
         <div className="container">
-            <div className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => setToggled(!toggled)}>
+            <button name='hamburger' className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => setToggled(!toggled)}>
                 <span className="meat"></span>
                 <span className="meat"></span>
                 <span className="meat"></span>
                 <span className="meat"></span>
-            </div>
+            </button>
         </div>
         <div className="logo"> BDO Grind Tracker </div>
         
@@ -92,7 +92,7 @@ function Navigation () {
                 </ul>
             </div>)}
         
-        <ul className={[ 'menu', toggled && 'active' ].filter(Boolean).join(' ')}>
+        <ul role='menu' className={[ 'menu', toggled && 'active' ].filter(Boolean).join(' ')}>
             <li className="home">
                 <Link to="/" onClick={() => closeMenu()}>Home</Link>
             </li>
