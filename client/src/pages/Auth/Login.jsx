@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
-  };
+    setUsername(event.target.value)
+  }
 
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
+    setPassword(event.target.value)
+  }
 
   const handleLogin = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
     try {
       const response = await fetch('/api/auth/signin', {
         method: 'POST',
@@ -22,22 +21,22 @@ const Login = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          username: username,
-          password: password
+          username,
+          password
         })
-      });
-      const res = await response.json();
-      document.cookie = `token=${res.accessToken}; path=/;`;
-      window.location.href = '/';
+      })
+      const res = await response.json()
+      document.cookie = `token=${res.accessToken}; path=/;`
+      window.location.href = '/'
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
-  };
+  }
 
+  // Implement this to send a password reset email??
   const handleForgotPassword = (event) => {
-    event.preventDefault();
-    // implement your forgot password functionality here
-  };
+    event.preventDefault()
+  }
 
   return (
     <div>
@@ -51,7 +50,7 @@ const Login = () => {
       </form>
       <a href="#" onClick={handleForgotPassword}>Forgot password?</a>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

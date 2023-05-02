@@ -1,44 +1,44 @@
-import React from "react";
-import Box from "../../components/ui/HomepageBox";
-import Cookies from "js-cookie";
-import "../../assets/Homepage.scss";
+import React from 'react'
+import Box from '../../components/ui/HomepageBox'
+import Cookies from 'js-cookie'
+import '../../assets/Homepage.scss'
 
-function Homepage() {
-  const [data, setData] = React.useState(null);
+function Homepage () {
+  const [data, setData] = React.useState(null)
 
-  async function handleFetchData() {
-    const res = await fetch("api/user/homepage");
-    const data = await res.json();
-    return data;
+  async function handleFetchData () {
+    const res = await fetch('api/user/homepage')
+    const data = await res.json()
+    return data
   }
   React.useEffect(() => {
-    const noDataContent = "No data!";
+    const noDataContent = 'No data!'
     const defaultData = {
       Box1: { Content: noDataContent },
       Box2: { Content: noDataContent },
       Box3: { Content: noDataContent },
       Box4: { Content: noDataContent },
-      Box5: { Content: noDataContent },
-    };
-    const session = Cookies.get("token");
-    if (!session) {
-      setData(defaultData);
-      return;
+      Box5: { Content: noDataContent }
     }
-    
+    const session = Cookies.get('token')
+    if (!session) {
+      setData(defaultData)
+      return
+    }
+
     handleFetchData()
       .then((data) => {
-        if (data.message === "No token provided!" || data.length < 4) {
-          setData(defaultData);
-          return;
+        if (data.message === 'No token provided!' || data.length < 4) {
+          setData(defaultData)
+          return
         }
-        setData(data);
+        setData(data)
       })
       .catch(() => {
-        setData(defaultData);
-      });
-  }, []);
-  
+        setData(defaultData)
+      })
+  }, [])
+
   return (
     <div className="Homepage">
       <div className="box-container">
@@ -51,4 +51,4 @@ function Homepage() {
     </div>
   )
 }
-export default Homepage;
+export default Homepage

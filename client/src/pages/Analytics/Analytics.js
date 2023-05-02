@@ -1,11 +1,11 @@
-import React from "react";
-//import "../../assets/Analytics.css";
+import React from 'react'
+// import "../../assets/Analytics.css";
 
-function Analytics() {
-    return (
+function Analytics () {
+  return (
         <div className="Analytics">
             Analytics
         </div>
-    )
+  )
 }
-export default Analytics;
+export default Analytics

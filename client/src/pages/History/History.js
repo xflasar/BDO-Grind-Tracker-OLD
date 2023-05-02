@@ -1,11 +1,11 @@
-import React from "react";
-//import "../../assets/History.css";
+import React from 'react'
+// import "../../assets/History.css";
 
-function History() {
-    return (
+function History () {
+  return (
         <div className="History">
             History
         </div>
-    )
+  )
 }
-export default History;
+export default History
