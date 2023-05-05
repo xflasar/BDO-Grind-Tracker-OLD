@@ -25,13 +25,13 @@ function Navigation () {
     small: 800
   }
 
-  window.addEventListener('resize', () => {
+  React.useEffect(() => {
     if (window.innerWidth > screenSizes.small) {
       setDesktopMode(true)
     } else {
       setDesktopMode(false)
     }
-  })
+  }, [])
 
   const logout = async () => {
     await fetch('/api/auth/signout', {
