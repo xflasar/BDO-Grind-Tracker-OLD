@@ -19,19 +19,18 @@ import '../../assets/Navbar.scss'
 
 function Navigation () {
   const [toggled, setToggled] = useState(false)
-  const [desktopMode, setDesktopMode] = useState(true)
+  const [mobileMode, setMobileMode] = useState(false)
   const session = Cookies.get('token')
-  const screenSizes = {
-    small: 800
-  }
 
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > screenSizes.small) {
-      setDesktopMode(true)
-    } else {
-      setDesktopMode(false)
+  React.useEffect(() => {
+    const checkScreenWidth = () => {
+      const isMobileMode = window.innerWidth <= 768
+      setMobileMode(isMobileMode)
     }
-  })
+    checkScreenWidth()
+    window.addEventListener('resize', checkScreenWidth)
+    return () => window.removeEventListener('resize', checkScreenWidth)
+  }, [])
 
   const logout = async () => {
     await fetch('/api/auth/signout', {
@@ -61,7 +60,7 @@ function Navigation () {
         </div>
         <div className="logo"> BDO Grind Tracker </div>
 
-        {desktopMode && (
+        {!mobileMode && (
             <div className="navbar-section">
                 <ul>
                     <div className="navbar-left">
