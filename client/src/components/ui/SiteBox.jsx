@@ -5,8 +5,7 @@ import '../../assets/SiteBox.scss'
 class SiteBox extends React.Component {
   render () {
     return (
-      <div className="box-site">
-        {console.log(this.props.data)}
+      <div role='siteBox' className="box-site">
         <div className="box-site-title">{this.props.data.SiteName}</div>
         <div className="box-site-content">
           <div className='box-site-content-totaltime'>
