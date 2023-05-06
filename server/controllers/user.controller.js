@@ -245,3 +245,39 @@ exports.GetHomepageData = async (req, res) => {
         }
     }).catch(err => { console.log(err); res.status(500).send({ message: err })});
 }
+
+exports.GetSiteData = async (req, res) => {
+    Site.find({ UserId: req.userId }).then(async (sites) => {
+        const data = [];
+        for(let i = 0; i < sites.length; i++)
+        {
+            data.push({
+                SiteName: sites[i].SiteName,
+                TotalTime: sites[i].TotalTime,
+                TotalEarned: sites[i].TotalEarned,
+                TotalSpent: sites[i].TotalSpent,
+                AverageEarnings: sites[i].AverageEarnings
+            });
+        }
+        res.status(200).send(data);
+    }).catch(err => { res.status(500).send({ message: err })});
+}
+
+exports.GetSessionsData = async (req, res) => {
+    Session.find({ UserId: req.userId }).then(async (sessions) => {
+        const data = [];
+        for(let i = 0; i < sessions.length; i++)
+        {
+            data.push({
+                Date: sessions[i].TimeCreated,
+                SiteName: await Site.findById(sessions[i].SiteId).then((site) => { return site.SiteName; }).catch(err => { res.status(500).send({ message: err })}),
+                TimeSpent: sessions[i].TimeSpent,
+                Earnings: sessions[i].Earnings,
+                AverageEarnings: sessions[i].AverageEarnings,
+                Expenses: sessions[i].Expenses,
+                Gear: sessions[i].Gear
+            });
+        }
+        res.status(200).send(data);
+    }).catch(err => { res.status(500).send({ message: err })});
+}

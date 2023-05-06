@@ -1,22 +1,23 @@
-import React from 'react'
-import '../../assets/Sites.scss'
-import SiteBox from '../../components/ui/SiteBox'
+import React, { useState } from 'react'
+import HistoryTable from '../../components/ui/HistoryTable'
 import Cookies from 'js-cookie'
 
-function Sites () {
-  const [data, setData] = React.useState(null)
+// import "../../assets/History.css";
+
+function History () {
+  const [data, setData] = useState(null)
 
   async function handleFetchData () {
-    const res = await fetch('api/user/sitedata')
+    const res = await fetch('api/user/historydata')
     const data = await res.json()
     return data
   }
 
   React.useEffect(() => {
-    const defaultData = {}
+    const defaultData = undefined
     const session = Cookies.get('token')
     if (!session) {
-      setData({})
+      setData(defaultData)
       return
     }
 
@@ -34,11 +35,9 @@ function Sites () {
   }, [])
 
   return (
-        <div className="sites-container">
-            {data && Object.values(data).map((item, index) => {
-              return <SiteBox key={index} data={item}/>
-            })}
+        <div role='historyContainer' className="history-table-container">
+            {data && <HistoryTable data={data} />}
         </div>
   )
 }
-export default Sites
+export default History
