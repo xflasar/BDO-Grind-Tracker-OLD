@@ -1,31 +1,46 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import '../../assets/History/HistoryTable.scss'
 
-class HistoryTable extends React.Component {
-  render () {
+const renderTableCell = (itemI, itemIindex) => {
+  if (typeof itemI === 'object') {
     return (
-        <div role='historyTable' className="history-table">
-            <div className="history-table-header">
-                <p>Header</p>
-            </div>
-            <div className="history-table-content">
-            {this.props.data && Object.values(this.props.data).map((item, index) => {
-              return (
-                <div role='historyTableItem' key={index} className="history-table-item">
-                    <div>{item.Date}</div>
-                    <div>{item.SiteName}</div>
-                    <div>{item.TimeSpent}</div>
-                    <div>{item.Earnings}</div>
-                    <div>{item.Expenses}</div>
-                    <div>{item.AverageEarnings}</div>
-                </div>
-              )
-            })}
-            </div>
-        </div>
+        <td key={itemIindex} className="history-table-item" role="historyTableItem">
+          {Object.values(itemI).map((itemII, itemIIindex) => (
+            <p key={itemIIindex}>{itemII}</p>
+          ))}
+        </td>
     )
   }
+  return (
+      <td key={itemIindex} className="history-table-item" role="historyTableItem">
+        <p>{itemI}</p>
+      </td>
+  )
 }
+
+const HistoryTable = ({ data }) => (
+    <table role="historyTable" className="history-table">
+      <thead className="history-table-header">
+        <tr>
+          <th>Date</th>
+          <th>Site Name</th>
+          <th>Time Spent</th>
+          <th>Earnings</th>
+          <th>Average Earnings</th>
+          <th>Expenses</th>
+          <th>Gear</th>
+        </tr>
+      </thead>
+      <tbody className="history-table-content">
+        {data?.map((item, index) => (
+          <tr key={index} className="history-table-row">
+            {Object.values(item).map((itemI, itemIindex) => renderTableCell(itemI, itemIindex))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+)
 
 HistoryTable.propTypes = {
   data: PropTypes.array

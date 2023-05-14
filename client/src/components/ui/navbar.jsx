@@ -92,7 +92,6 @@ function Navigation () {
                     </div>}
                 </ul>
             </div>)}
-
         <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
             <li className="home">
                 <Link to="/" onClick={() => closeMenu()}>Home</Link>

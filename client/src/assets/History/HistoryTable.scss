@@ -1,0 +1,68 @@
+@import './variables.scss';
+
+.history-table{
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: $border-radius;
+    text-align: center;
+    box-shadow: $box-shadow;
+    color: $text;
+}
+
+.history-table-header{
+    background-color: rgba(0, 0, 0, 0.5);
+    color: $text;
+    width: calc(100% / 7);
+}
+
+.history-table-content{
+    color: $text;
+    background-color: rgb(100,100,100);
+}
+
+.history-table-row{
+    margin-top: 5rem;
+    max-height: 5px;
+    border-top: 1px solid rgba(0, 0, 0, 1);
+    border-bottom: 1px solid rgba(0, 0, 0, 1);
+    height: 15px;
+}
+
+.history-table-item{
+    color: $text;
+    width: calc(100% / 7);
+    transition: transform 0.2s;
+}
+
+  
+.history-table-item:hover {
+    transform: translateY(-5px);
+  }
+  
+  .table-item h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .table-item p {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .table-item a {
+    display: block;
+    margin-top: 0.5rem;
+    color: orange;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .history-table-item {
+      width: calc(100% / 7);
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .history-table-item {
+      width: calc(100% / 7);
+    }
+  }

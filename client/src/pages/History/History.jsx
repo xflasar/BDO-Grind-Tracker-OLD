@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import HistoryTable from '../../components/ui/HistoryTable'
 import Cookies from 'js-cookie'
-
-// import "../../assets/History.css";
+import '../../assets/History/History.scss'
 
 function History () {
   const [data, setData] = useState(null)
@@ -14,7 +13,32 @@ function History () {
   }
 
   React.useEffect(() => {
-    const defaultData = undefined
+    const defaultData = [
+      {
+        Date: 'Loading...',
+        SiteName: 'Loading...',
+        TimeSpent: 'Loading...',
+        Earnings: 'Loading...',
+        AverageEarnings: 'Loading...',
+        Expenses: 'Loading...',
+        Gear: {
+          AP: 'Loading...',
+          DP: 'Loading...'
+        }
+      },
+      {
+        Date: 'Loading...',
+        SiteName: 'Loading...',
+        TimeSpent: 'Loading...',
+        Earnings: 'Loading...',
+        AverageEarnings: 'Loading...',
+        Expenses: 'Loading...',
+        Gear: {
+          AP: 'Loading...',
+          DP: 'Loading...'
+        }
+      }
+    ]
     const session = Cookies.get('token')
     if (!session) {
       setData(defaultData)
@@ -35,9 +59,14 @@ function History () {
   }, [])
 
   return (
-        <div role='historyContainer' className="history-table-container">
+    <div role='historyContainer'>
+        <div className="sessionAdd">
+            <button>Add Session</button>
+        </div>
+        <div className="history-table-container">
             {data && <HistoryTable data={data} />}
         </div>
+    </div>
   )
 }
 export default History
