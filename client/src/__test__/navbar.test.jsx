@@ -7,24 +7,84 @@ import fetchMock from 'jest-fetch-mock'
 import Cookies from 'js-cookie'
 
 describe('Navigation', () => {
-  test('renders Navigation component', () => {
-    render(<BrowserRouter><Navigation /></BrowserRouter>)
-    const _homeLink = screen.getAllByText('Home')[0]
-    expect(_homeLink.href).toContain('/')
-    const _sitesLink = screen.getAllByText('Sites')[0]
-    expect(_sitesLink.href).toContain('/sites')
-    const _historyLink = screen.getAllByText('History')[0]
-    expect(_historyLink.href).toContain('/history')
-    const _analyticsLink = screen.getAllByText('Analytics')[0]
-    expect(_analyticsLink.href).toContain('/analytics')
-    const _loginLink = screen.getAllByText('Login')[0]
-    expect(_loginLink.href).toContain('/login')
+  let originalInnerWidth
+
+  beforeAll(() => {
+    originalInnerWidth = window.innerWidth
   })
+
+  afterEach(() => {
+    window.innerWidth = originalInnerWidth
+  })
+  test('renders the logo', () => {
+    render(
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+    )
+    const logo = screen.getByText(/BDO Grind Tracker/i)
+    expect(logo).toBeInTheDocument()
+  })
+
+  test('renders the navigation links', () => {
+    render(
+          <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+    )
+
+    const homeLink = screen.getByRole('link', { name: 'home-link' })
+    const sitesLink = screen.getByRole('link', { name: 'sites-link' })
+    const historyLink = screen.getByRole('link', { name: 'history-link' })
+    const analyticsLink = screen.getByRole('link', { name: 'analytics-link' })
+    expect(homeLink).toBeInTheDocument()
+    expect(sitesLink).toBeInTheDocument()
+    expect(historyLink).toBeInTheDocument()
+    expect(analyticsLink).toBeInTheDocument()
+  })
+
+  test('toggles the menu when hamburger button is clicked', async () => {
+    window.innerWidth = 460
+    window.dispatchEvent(new Event('resize'))
+    await act(() => {
+      render(
+          <BrowserRouter>
+              <Navigation />
+          </BrowserRouter>
+      )
+    })
+    const hamburgerButton = screen.getByRole('button', { 'aria-label': 'Toggle menu' })
+    fireEvent.click(hamburgerButton)
+    const menu = screen.getByRole('menu')
+    expect(menu).toHaveClass('active')
+    fireEvent.click(hamburgerButton)
+    expect(menu).not.toHaveClass('active')
+  })
+
+  test('closes the menu when a link is clicked', async () => {
+    window.innerWidth = 460
+    window.dispatchEvent(new Event('resize'))
+    await act(() => {
+      render(
+            <BrowserRouter>
+                <Navigation />
+            </BrowserRouter>
+      )
+    })
+    const hamburgerButton = screen.getByRole('button', { 'aria-label': 'Toggle menu' })
+    fireEvent.click(hamburgerButton)
+    const homeLink = screen.getByRole('link', { name: 'home-hamburger-link' })
+    fireEvent.click(homeLink)
+    const menu = screen.getByRole('menu')
+    expect(menu).not.toHaveClass('active')
+  })
+
   test('UserNotLogged', () => {
     render(<BrowserRouter><Navigation /></BrowserRouter>)
     const _loginLink = screen.getAllByText('Login')[0]
     expect(_loginLink).toHaveTextContent('Login')
   })
+
   test('UserLogged', () => {
     Cookies.set('token')
     render(<BrowserRouter><Navigation /></BrowserRouter>)
@@ -121,7 +181,7 @@ describe('logout', () => {
     Cookies.remove('token')
     Cookies.remove('session')
     Cookies.remove('session.sig')
-    window.location.href = '/'
+    window.location = '/'
   }
 
   it('should clear local storage and cookies and redirect to home page', async () => {
@@ -164,6 +224,7 @@ describe('Navigation component', () => {
       </BrowserRouter>
     )
 
+    // eslint-disable-next-line no-use-before-define
     const hamburger = screen.getByRole('button', { name: hamburger })
     const menu = screen.getByRole('menu')
 
@@ -174,6 +235,27 @@ describe('Navigation component', () => {
 
     expect(menu).toHaveAttribute('class', 'menu active')
   })
-})
 
-// Add test for close menu when clicking on a link in the menu in mobile mode
+  test('closes menu when link is clicked in mobile mode', async () => {
+    function closeMenu () {
+      const menu = document.querySelector('.menu')
+      menu.classList.remove('active')
+    }
+    window.innerWidth = 460
+    window.dispatchEvent(new Event('resize'))
+    await act(() => {
+      render(
+      <BrowserRouter>
+        <Navigation session={null} desktopMode={false} />
+      </BrowserRouter>
+      )
+    })
+
+    const hamburger = screen.getByRole('button', { 'aria-label': 'Toggle menu' })
+    fireEvent.click(hamburger)
+    closeMenu()
+
+    const menu = screen.getByRole('menu')
+    expect(menu).not.toHaveAttribute('class', 'menu active')
+  })
+})

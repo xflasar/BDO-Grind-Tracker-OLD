@@ -50,62 +50,68 @@ function Navigation () {
 
   return (
     <nav>
+        {mobileMode && (
         <div className="container">
-            <button name='hamburger' className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => setToggled(!toggled)}>
+            <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => setToggled(!toggled)}>
                 <span className="meat"></span>
                 <span className="meat"></span>
                 <span className="meat"></span>
                 <span className="meat"></span>
             </button>
         </div>
+        )}
         <div className="logo"> BDO Grind Tracker </div>
 
         {!mobileMode && (
             <div className="navbar-section">
                 <ul>
                     <div className="navbar-left">
-                        <li className="home">
-                            <Link to="/">Home</ Link>
-                        </li>
+                        <div>
+                            <li className="home">
+                                <Link to="/" aria-label="home-link">Home</Link>
+                            </li>
+                        </div>
                         <li className="sites">
-                            <Link to="/sites">Sites</ Link>
+                            <Link to="/sites" aria-label="sites-link">Sites</ Link>
                         </li>
                     </div>
                     <div className="navbar-right">
                         <li className="history">
-                            <Link to="/history">History</Link>
+                            <Link to="/history" aria-label="history-link">History</Link>
                         </li>
                         <li className="analytics">
-                            <Link to="/analytics">Analytics</Link>
+                            <Link to="/analytics" aria-label="analytics-link">Analytics</Link>
                         </li>
                     </div>
                     {session
                       ? <div className="Logout">
                         <li className="logout">
-                            <Link to="/" onClick={logout}>Logout</Link>
+                            <Link to="/" aria-label="logout-link" onClick={logout}>Logout</Link>
                         </li>
                     </div>
                       : <div className="login-container">
                         <li className="login">
-                            <Link to="/login">Login</Link>
+                            <Link to="/login" aria-label="login-link">Login</Link>
                         </li>
                     </div>}
                 </ul>
             </div>)}
+        {mobileMode && (
         <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
             <li className="home">
-                <Link to="/" onClick={() => closeMenu()}>Home</Link>
+                <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
             </li>
             <li className="sites">
-                <Link to="/sites" onClick={() => closeMenu()}>Sites</ Link>
+                <Link to="/sites" aria-label="sites-hamburger-link" onClick={() => closeMenu()}>Sites</ Link>
             </li>
             <li className="history">
-                <Link to="/history" onClick={() => closeMenu()} >History</Link>
+                <Link to="/history" aria-label="history-hamburger-link" onClick={() => closeMenu()} >History</Link>
             </li>
             <li className="analytics">
-                <Link to="/analytics" onClick={() => closeMenu()} >Analytics</Link>
+                <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
             </li>
         </ul>
+        )}
     </nav>
   )
 }

@@ -5,6 +5,7 @@
     },
     "extends": [
         "plugin:react/recommended",
+        "plugin:jest/recommended",
         "standard"
     ],
     "overrides": [
@@ -14,7 +15,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "jest"
     ],
     "rules": {
         "no-console": 0,
@@ -23,6 +25,9 @@
     },
     "settings": {
         "react": {
+          "version": "detect"
+        },
+        "jest": {
           "version": "detect"
         }
     }

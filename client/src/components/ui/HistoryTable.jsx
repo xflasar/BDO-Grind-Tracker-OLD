@@ -34,7 +34,7 @@ const HistoryTable = ({ data }) => (
       </thead>
       <tbody className="history-table-content">
         {data?.map((item, index) => (
-          <tr key={index} className="history-table-row">
+          <tr key={index} className="history-table-row" role='historyTableRow'>
             {Object.values(item).map((itemI, itemIindex) => renderTableCell(itemI, itemIindex))}
           </tr>
         ))}

@@ -39,7 +39,7 @@ describe('HistoryTable component', () => {
 
   test('renders table rows', () => {
     render(<HistoryTable data={testData} />)
-    const rows = screen.getAllByRole('row')
-    expect(rows).toHaveLength(3) // header row + 2 data rows
+    const rows = screen.getAllByRole('historyTableRow')
+    expect(rows).toHaveLength(2) // header row + 2 data rows
   })
 })

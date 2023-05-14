@@ -5,7 +5,7 @@ import '../../assets/History/History.scss'
 
 function History () {
   const [data, setData] = useState(null)
-
+  const [session, setSession] = useState(Cookies.get('token'))
   async function handleFetchData () {
     const res = await fetch('api/user/historydata')
     const data = await res.json()
@@ -14,32 +14,8 @@ function History () {
 
   React.useEffect(() => {
     const defaultData = [
-      {
-        Date: 'Loading...',
-        SiteName: 'Loading...',
-        TimeSpent: 'Loading...',
-        Earnings: 'Loading...',
-        AverageEarnings: 'Loading...',
-        Expenses: 'Loading...',
-        Gear: {
-          AP: 'Loading...',
-          DP: 'Loading...'
-        }
-      },
-      {
-        Date: 'Loading...',
-        SiteName: 'Loading...',
-        TimeSpent: 'Loading...',
-        Earnings: 'Loading...',
-        AverageEarnings: 'Loading...',
-        Expenses: 'Loading...',
-        Gear: {
-          AP: 'Loading...',
-          DP: 'Loading...'
-        }
-      }
     ]
-    const session = Cookies.get('token')
+    setSession(Cookies.get('token'))
     if (!session) {
       setData(defaultData)
       return
@@ -59,14 +35,18 @@ function History () {
   }, [])
 
   return (
-    <div role='historyContainer'>
-        <div className="sessionAdd">
-            <button>Add Session</button>
+    <>
+      {session && (
+        <div role='historyContainer'>
+          <div className="sessionAdd">
+            <button name='sessionAdd'>Add Session</button>
+          </div>
+          <div className="history-table-container">
+            {data && data.length > 0 && <HistoryTable data={data} />}
+          </div>
         </div>
-        <div className="history-table-container">
-            {data && <HistoryTable data={data} />}
-        </div>
-    </div>
+      )}
+    </>
   )
 }
 export default History
