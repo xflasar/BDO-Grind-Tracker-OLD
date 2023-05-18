@@ -2,35 +2,43 @@ const User = require('../db/models/user.model.js');
 const Session = require('../db/models/session.model.js');
 const Site = require('../db/models/site.model.js');
 const Auth = require('../db/models/auth.model.js');
+const { dbConnect } = require('../db/method/dbconnect.js');
 
-exports.UserData = (req, res) => {
+exports.UserData = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     User.findById(req.userId).populate('Sessions').populate('Sites').then(async (user) => {
         if (!user) {
+            db.connection.close().then(() => { console.log("Connection closed!")});
             return res.status(404).send({ message: "User Not found." });
         }
         res.status(200).send(user);
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
-exports.UserSessions = (req, res) => {
+exports.UserSessions = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     Session.find({UserId: req.userId}).then(async (sessions) => {
         if (!sessions) {
+            db.connection.close().then(() => { console.log("Connection closed!")});
             return res.status(404).send({ message: "No sessions found." });
         }
         res.status(200).send(sessions);
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
-exports.UserSites = (req, res) => {
+exports.UserSites = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     Site.find({UserId: req.userId}).then(async (sites) => {
         if (!sites) {
+            db.connection.close().then(() => { console.log("Connection closed!")});
             return res.status(404).send({ message: "No sites found." });
         }
         res.status(200).send(sites);
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
-exports.AddSession = (req, res) => {
+exports.AddSession = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     User.findById(req.userId).then(async (user) => {
         await Site.findOne({SiteName: req.body.SiteName}, {UserId: req.userId}).then(async site => {
             if (!site) {
@@ -68,6 +76,7 @@ exports.AddSession = (req, res) => {
 }
 
 exports.AddSite = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     const site = new Site({
         SiteName: req.body.SiteName,
         TotalTime: req.body.TotalTime,
@@ -84,11 +93,13 @@ exports.AddSite = async (req, res) => {
 exports.ModifySession = async (req, res) => {
     const updateObject = {};
     for (const key in req.body) {
-      if (Session.schema.obj.hasOwnProperty(key)) {
-        updateObject[key] = req.body[key];
-      }
+        if (Session.schema.obj.hasOwnProperty(key)) {
+            updateObject[key] = req.body[key];
+        }
     }
 
+    // rewrite the db connection to use the dbConnect function
+    
     const updatedUser = await Session.findByIdAndUpdate(
       req.body.SessionId,
       { $set: { ...updateObject } },
@@ -109,6 +120,7 @@ exports.ModifySession = async (req, res) => {
 
 // BUG: When ModifySite is called it doesn't update the user's data, it only updates the site's data
 exports.ModifySite = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     const updateObject = {};
     if(req.body.ModifySite) {
         const objectToBeUpdated = await Site.findById(req.body.SiteId);
@@ -139,6 +151,7 @@ exports.ModifySite = async (req, res) => {
 }
 
 exports.ModifyUserData = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     const updateObject = {};
     if(req.body.ModifyUser) {
         updateObject.TotalTime = req.body.TimeSpent;
@@ -166,7 +179,8 @@ exports.ModifyUserData = async (req, res) => {
 }
 
 // This function will delete a session and update the user's data and the site's data
-exports.DeleteSession = (req, res) => {
+exports.DeleteSession = async (req, res) => {
+    // rewrite the db connection to use the dbConnect function
     Session.findById(req.body.SessionId).then(async (session) => {
         req.body.SiteId = session.SiteId;
         req.body.TimeSpent = -session.TimeSpent;
@@ -182,10 +196,12 @@ exports.DeleteSession = (req, res) => {
             res.status(200).send("Session deleted!");
         }).catch(err => { res.status(500).send({ message: err })});
     }).catch(err => { res.status(500).send({ message: err })});
+
 }
 
 // This is a dangerous function, it will delete all user data, including sessions and sites and authentication data | This function will be called when the user deletes his account
-exports.DeleteUserData = (req, res) => {
+exports.DeleteUserData = async (req, res) => {
+    let db = await dbConnect();
     Site.deleteMany({ UserId: req.userId }).then(() => {
         Session.deleteMany({ UserId: req.userId }).then(() => {
             User.findByIdAndDelete(req.userId).then(() => {
@@ -204,12 +220,23 @@ exports.DeleteUserData = (req, res) => {
             }).catch(err => { res.status(500).send({ message: err })});
         }).catch(err => { res.status(500).send({ message: err })});
     }).catch(err => { res.status(500).send({ message: err })});
+    db.connection.close().then(() => { console.log("Connection closed!")});
 }
 
 // Functions for getting Data
 exports.GetHomepageData = async (req, res) => {
-       User.findById(req.userId).then(async (user) => {
+    let db;
+    try{
+        db= await dbConnect();
+        if(!db) {
+            res.status(500).send({ message: "Error connecting to database!" });
+        }
         try{
+            let user = await User.findById(req.userId).then((user) => { return user; }).catch(err => { res.status(500).send({ message: err })});
+            if(!user) {
+                res.status(500).send({ message: "Error getting user data!" });
+                return;
+            }
             const data = {
                 TotalTimeO:{
 
@@ -233,51 +260,100 @@ exports.GetHomepageData = async (req, res) => {
                     Content: ""
                 }
             }
-        await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
-            data.SiteO.Content = sites.SiteName;
-            data.AverageEarningsO.Content = sites.AverageEarnings;
-        }).catch(err => { res.status(500).send({ message: err })});
-        res.status(200).send(data);
+
+            let site = await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then((sites) => { db.connection.close().then(() => { console.log("Connection closed!")}); return sites; }).catch   (err => { res.status(500).send({ message: err })});
+            if(!site) {
+                res.status(500).send({ message: "Error getting site data!" });
+                return;
+            }
+            data.AverageEarningsO.Content = site.AverageEarnings;
+            data.SiteO.Content = site.SiteName;
+
+            res.status(200).send(data);
         }
         catch(err)
         {
             console.log(err);
         }
-    }).catch(err => { console.log(err); res.status(500).send({ message: err })});
+    }catch(err)
+    {
+        console.log(err);
+    }
 }
 
 exports.GetSiteData = async (req, res) => {
-    Site.find({ UserId: req.userId }).then(async (sites) => {
-        const data = [];
-        for(let i = 0; i < sites.length; i++)
-        {
-            data.push({
-                SiteName: sites[i].SiteName,
-                TotalTime: sites[i].TotalTime,
-                TotalEarned: sites[i].TotalEarned,
-                TotalSpent: sites[i].TotalSpent,
-                AverageEarnings: sites[i].AverageEarnings
-            });
+    let db;
+    try {
+        db = await dbConnect();
+        if (!db) {
+            res.status(500).send({ message: "Failed to connect to database!" });
+            return;
         }
-        res.status(200).send(data);
-    }).catch(err => { res.status(500).send({ message: err })});
-}
+        try {
+            let site = await Site.find({ UserId: req.userId }).then((site) => { db.connection.close().then(() => {
+                console.log("Connection closed!");
+            }); return site; })
+            if (!site) {
+                res.status(404).send({ message: "No site found!" });
+                return;
+            }
+            const data = [];
+            for (let i = 0; i < site.length; i++) {
+                data.push({
+                    SiteName: site[i].SiteName,
+                    TotalTime: site[i].TotalTime,
+                    TotalEarned: site[i].TotalEarned,
+                    TotalSpent: site[i].TotalSpent,
+                    AverageEarnings: site[i].AverageEarnings,
+                });
+            }
+            res.status(200).send(data);
+        } catch (err) {
+            res.status(500).send({ message: err });
+            console.log(err);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+};
 
 exports.GetSessionsData = async (req, res) => {
-    Session.find({ UserId: req.userId }).then(async (sessions) => {
-        const data = [];
-        for(let i = 0; i < sessions.length; i++)
-        {
-            data.push({
-                Date: sessions[i].TimeCreated,
-                SiteName: await Site.findById(sessions[i].SiteId).then((site) => { return site.SiteName; }).catch(err => { res.status(500).send({ message: err })}),
-                TimeSpent: sessions[i].TimeSpent,
-                Earnings: sessions[i].Earnings,
-                AverageEarnings: sessions[i].AverageEarnings,
-                Expenses: sessions[i].Expenses,
-                Gear: sessions[i].Gear
-            });
+    let db;
+    try {
+        db = await dbConnect();
+        if (!db) {
+            res.status(500).send({ message: "Failed to connect to database!" });
+            return;
         }
-        res.status(200).send(data);
-    }).catch(err => { res.status(500).send({ message: err })});
+        try {
+            let session = await Session.find({ UserId: req.userId }).then((sessions) => { return sessions; })
+            if (!session) {
+                res.status(404).send({ message: "No session found!" });
+                return;
+            }
+            const data = [];
+            for(let i = 0; i < session.length; i++)
+            {
+                let date = new Date(session[i].TimeCreated);
+                let siteName = await Site.findById(session[i].SiteId).then((site) => { return site.SiteName; }).catch(err => { throw err; });
+                data.push({
+                    Date: date.getHours() + ":" + date.getMinutes() + " " + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear(),
+                    SiteName: siteName,
+                    TimeSpent: session[i].TimeSpent,
+                    Earnings: session[i].Earnings,
+                    AverageEarnings: session[i].AverageEarnings,
+                    Expenses: session[i].Expenses,
+                    Gear: session[i].Gear
+                });
+            }
+            db.connection.close().then(() => {
+                console.log("Connection closed!")});
+            res.status(200).send(data);
+        } catch (err) {
+            res.status(500).send({ message: err });
+            console.log(err);
+        }
+    } catch (err) {
+        console.log(err);
+    }
 }
