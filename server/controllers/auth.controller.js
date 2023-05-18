@@ -3,10 +3,8 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 const Auth = require("../db/models/auth.model.js");
 const User = require("../db/models/user.model.js");
-const { dbConnect } = require("../db/method/dbconnect.js");
 
 exports.signup = async (req, res) => {
-  let db = await dbConnect();
     const auth = new Auth({
       username: await req.body.username,
       email: await req.body.email,
@@ -26,21 +24,17 @@ exports.signup = async (req, res) => {
 
   user.save().then(res.send({ message: "User was registered successfully!" }));
   auth.UserId = user._id;
-  auth.save().catch(err => { 
-    res.status(500).send({ message: err })});
-  }).catch(err => { 
-    res.status(500).send({ message: err });
-    return
-  });
-  db.connection.close().then(() => { console.log("Connection closed!")});
+  auth.save().catch(err => { res.status(500).send({ message: err })});
+  }).catch(err => { res.status(500).send({ message: err });
+    return});
+  
+    
   };
   
-  exports.signin = async (req, res) => {
-    let db =  await dbConnect();
+  exports.signin = (req, res) => {
     Auth.findOne({
       username: req.body.username,
     }).then(async (user) => {
-      await db.connection.close().then(() => { console.log("Connection closed!")});
         if (!user) {
           return await res.status(404).send({ message: "User Not found." });
         }
@@ -68,7 +62,6 @@ exports.signup = async (req, res) => {
           accessToken: token
         });
       }).catch(err => { res.status(500).send({ message: err })});
-      
   };
 
 exports.signout = (req, res) => {

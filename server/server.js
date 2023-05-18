@@ -1,6 +1,8 @@
 const express = require('express')
 const cors = require('cors')
 const cookieSession = require('cookie-session');
+const dbConfig = require('./config/db.config');
+const db = require('mongoose');
 
 const app = express()
 const port = process.env.PORT || 3001;
@@ -47,6 +49,10 @@ require('./routes/user.routes')(app);
 //#endregion
 
 const User = require('./db/models/user.model.js');
+
+//#region DATABASE
+db.mongoose.connect(`mongodb+srv://${dbConfig.username}:${dbConfig.password}@bdogrindtracker.mqzvwfp.mongodb.net/?retryWrites=true&w=majority`, {useNewUrlParser: true, useUnifiedTopology: true}).then(() => { console.log("Successfully connected to MongoDB.") }).catch(err => { console.error("Connection error", err); process.exit(); });
+//#endregion
 
 //#region API_CALLS
 // Main API call
