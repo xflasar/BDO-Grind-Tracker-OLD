@@ -6,9 +6,11 @@ const renderTableCell = (itemI, itemIindex) => {
   if (typeof itemI === 'object') {
     return (
         <td key={itemIindex} className="history-table-item" role="historyTableItem">
-          {Object.values(itemI).map((itemII, itemIIindex) => (
-            <p key={itemIIindex}>{itemII}</p>
-          ))}
+          <div className="history-table-item-gear-container">
+            {Object.values(itemI).map((itemII, itemIIindex) => (
+              <p key={itemIIindex}>{itemII}</p>
+            ))}
+          </div>
         </td>
     )
   }

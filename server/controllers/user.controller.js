@@ -30,11 +30,12 @@ exports.UserSites = (req, res) => {
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
-exports.AddSession = (req, res) => {
-    User.findById(req.userId).then(async (user) => {
+exports.AddSession = async (req, res) => {
+    await User.findById(req.userId).then(async (user) => {
         await Site.findOne({SiteName: req.body.SiteName}, {UserId: req.userId}).then(async site => {
             if (!site) {
-                await this.AddSite(req, res);
+                req.body.TotalTime = req.body.TimeSpent;
+                site = await this.AddSite(req, res, true);
                 user.Sites.push([site._id])
             } else {
                 req.body.SiteId = site.id;
@@ -46,28 +47,33 @@ exports.AddSession = (req, res) => {
                 await this.ModifySite(req, res);
             }
             
+            const { TimeSpent, TotalEarned, AverageEarnings, TotalSpent, Gear } = req.body;
+            if (!TimeSpent || !TotalEarned || !AverageEarnings || !TotalSpent || !Gear) {
+              return res.status(400).send({ message: "Missing required properties in request body" });
+            }
             const session = new Session({
-                SiteId: site._id,
-                TimeSpent: req.body.TimeSpentSession,
-                Earnings: req.body.EarningsSession,
-                AverageEarnings: req.body.AverageEarningsSession,
-                Expenses: req.body.ExpensesSession,
-                Gear: { TotalAP: req.body.TotalAP, TotalDP: req.body.TotalDP},
-                TimeCreated: Date.now(),
-                UserId: req.userId
+              SiteId: site._id,
+              TimeSpent,
+              Earnings: TotalEarned,
+              AverageEarnings,
+              Expenses: TotalSpent,
+              Gear,
+              TimeCreated: Date.now(),
+              UserId: req.userId
             });
             await session.save().then( async (savedSession) => {
                 user.Sessions.push([savedSession._id]);
-                await user.save().then(() => {
-                    res.status(200).send("Session added!");
+                await user.save().then(async () => {
+                    await this.GetSessionsData(req, res);
                 }).catch(err => { res.status(500).send({ message: err })});
                 
             }).catch(err => { res.status(500).send({ message: err })});
         }).catch(err => { res.status(500).send({ message: err })});
     }).catch(err => {res.status(500).send({ message: err })});
+    
 }
 
-exports.AddSite = async (req, res) => {
+exports.AddSite = async (req, res, mCall = false) => {
     const site = new Site({
         SiteName: req.body.SiteName,
         TotalTime: req.body.TotalTime,
@@ -78,6 +84,12 @@ exports.AddSite = async (req, res) => {
     });
 
     await site.save().catch(err => { res.status(500).send({ message: err })});
+    if(!mCall) {
+        res.status(200).send("Site added!");
+    }
+    else {
+        return site;
+    }
 }
 
 // Think about a way to separate the calls to update the user and the site so we can use them independently with res.status(200).send(); in the end
@@ -268,8 +280,9 @@ exports.GetSessionsData = async (req, res) => {
         const data = [];
         for(let i = 0; i < sessions.length; i++)
         {
+            let date = new Date(sessions[i].TimeCreated);
             data.push({
-                Date: sessions[i].TimeCreated,
+                Date: date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear(),
                 SiteName: await Site.findById(sessions[i].SiteId).then((site) => { return site.SiteName; }).catch(err => { res.status(500).send({ message: err })}),
                 TimeSpent: sessions[i].TimeSpent,
                 Earnings: sessions[i].Earnings,

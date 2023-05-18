@@ -22,18 +22,30 @@
 
 .history-table-row{
     margin-top: 5rem;
-    max-height: 5px;
     border-top: 1px solid rgba(0, 0, 0, 1);
     border-bottom: 1px solid rgba(0, 0, 0, 1);
-    height: 15px;
+    font-size: 0.8rem;
+    height: 2rem;
 }
 
 .history-table-item{
     color: $text;
     width: calc(100% / 7);
     transition: transform 0.2s;
+    height: 1rem;
 }
 
+.history-table-item-gear-container {
+  p {
+    height: 10px;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+    display: block;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
   
 .history-table-item:hover {
     transform: translateY(-5px);
