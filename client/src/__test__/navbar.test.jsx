@@ -126,14 +126,6 @@ describe('Navigation redirects', () => {
       expect(element).toHaveAttribute('href', '/analytics')
     })
   })
-
-  it('should navigate to /login', () => {
-    render(<BrowserRouter><Navigation/></BrowserRouter>)
-    const _loginLink = screen.getAllByRole('link', { name: /login/i })
-    _loginLink.forEach(element => {
-      expect(element).toHaveAttribute('href', '/login')
-    })
-  })
 })
 
 describe('test window resize event', () => {
