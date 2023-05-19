@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import '../../assets/Login/Login.scss'
 
 const Login = () => {
   const [username, setUsername] = useState('')
@@ -27,28 +28,27 @@ const Login = () => {
       })
       const res = await response.json()
       document.cookie = `token=${res.accessToken}; path=/;`
-      window.location.href = '/'
+      setUsername('')
+      setPassword('')
     } catch (error) {
       console.error(error)
     }
   }
 
   // Implement this to send a password reset email??
-  const handleForgotPassword = (event) => {
+  /* const handleForgotPassword = (event) => {
     event.preventDefault()
-  }
-
+  } */
+  // Email is not yet implemented in the backend, so this is not yet implemented in the frontend
   return (
-    <div>
-      <h2>Login</h2>
+    <div className='login-container-form'>
+        <h3>Login</h3>
       <form onSubmit={handleLogin}>
-        <label htmlFor="username">Username/Email:</label>
-        <input type="text" id="username" name="username" value={username} onChange={handleUsernameChange} />
-        <label htmlFor="password">Password:</label>
-        <input type="password" id="password" name="password" value={password} onChange={handlePasswordChange} />
+        <input type="text" id="username" name="username" value={username} onChange={handleUsernameChange} placeholder='Username or Email'/>
+        <input type="password" id="password" name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/>
         <button type="submit">Login</button>
       </form>
-      <a href="#" onClick={handleForgotPassword}>Forgot password?</a>
+      { /* <a href="#" onClick={handleForgotPassword}>Forgot password?</a> */ }
     </div>
   )
 }

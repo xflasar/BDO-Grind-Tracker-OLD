@@ -28,6 +28,22 @@ ul {
     margin: 0;
     padding: 0;
 }
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    .login{
+        color:white
+    }
+    .login:hover{
+        color: #ffa600;
+    }
+    button{
+        color:white
+    }
+}
 
 .container {
     display: flex;
@@ -202,6 +218,37 @@ ul {
     
     .menu.close {
         display: none;
+    }
+    .login-container
+    {
+        top: 15%;
+        background-color: transparent;
+        position: absolute;
+        right: 0;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 10%;
+        height: auto;
+        button{
+            color:white
+        }
+        button:hover{
+            color: #ffa600;
+        }
+    }
+    .login-form-overlay
+    {
+        position: absolute;
+        top: 100%;
+        right: 5%;
+        width: 30%;
+        height: 30%;
+        z-index: 1;
+        transition: all 0.5s ease-in-out;
+        transform: scale(1);
+        transform-origin: top right;
     }
 }
 

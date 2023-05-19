@@ -15,11 +15,13 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie'
+import Login from '../form/Login'
 import '../../assets/Navbar.scss'
 
 function Navigation () {
   const [toggled, setToggled] = useState(false)
   const [mobileMode, setMobileMode] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const session = Cookies.get('token')
 
   React.useEffect(() => {
@@ -63,6 +65,20 @@ function Navigation () {
         <div className="logo"> BDO Grind Tracker </div>
 
         {!mobileMode && (
+            <>
+            {session
+              ? <div className="Logout">
+                  <li className="logout">
+                      <Link to="/" aria-label="logout-link" onClick={logout}>Logout</Link>
+                  </li>
+              </div>
+              : (<><div className="login-container">
+                        <button aria-label="login-link" onClick={() => { setShowLogin(!showLogin) }}>Login</button>
+                    </div>
+                      <div className='login-form-overlay'>
+                          {showLogin && <Login onClose={() => { setShowLogin() } }/>}
+                      </div></>
+                )}
             <div className="navbar-section">
                 <ul>
                     <div className="navbar-left">
@@ -83,19 +99,9 @@ function Navigation () {
                             <Link to="/analytics" aria-label="analytics-link">Analytics</Link>
                         </li>
                     </div>
-                    {session
-                      ? <div className="Logout">
-                        <li className="logout">
-                            <Link to="/" aria-label="logout-link" onClick={logout}>Logout</Link>
-                        </li>
-                    </div>
-                      : <div className="login-container">
-                        <li className="login">
-                            <Link to="/login" aria-label="login-link">Login</Link>
-                        </li>
-                    </div>}
                 </ul>
-            </div>)}
+            </div>
+            </>)}
         {mobileMode && (
         <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
             <li className="home">
