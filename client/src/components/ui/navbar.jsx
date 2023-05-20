@@ -22,7 +22,7 @@ function Navigation () {
   const [toggled, setToggled] = useState(false)
   const [mobileMode, setMobileMode] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
-  const session = Cookies.get('token')
+  const [session, setSession] = useState(Cookies.get('token'))
 
   React.useEffect(() => {
     const checkScreenWidth = () => {
@@ -50,11 +50,17 @@ function Navigation () {
     setToggled(false)
   }
 
+  const handleLoginSuccess = (session) => {
+    setShowLogin(false)
+    setSession(session)
+    window.location.reload()
+  }
+
   return (
     <nav>
         {mobileMode && (
         <div className="container">
-            <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => setToggled(!toggled)}>
+            <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => { setToggled(!toggled); setShowLogin(false) }}>
                 <span className="meat"></span>
                 <span className="meat"></span>
                 <span className="meat"></span>
@@ -75,9 +81,12 @@ function Navigation () {
               : (<><div className="login-container">
                         <button aria-label="login-link" onClick={() => { setShowLogin(!showLogin) }}>Login</button>
                     </div>
+                    {showLogin && (
                       <div className='login-form-overlay'>
-                          {showLogin && <Login onClose={() => { setShowLogin() } }/>}
-                      </div></>
+                           <Login onLoginSuccess={handleLoginSuccess} onClose={() => { setShowLogin() } }/>
+                      </div>
+                    )}
+                    </>
                 )}
             <div className="navbar-section">
                 <ul>
@@ -116,6 +125,22 @@ function Navigation () {
             <li className="analytics">
                 <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
             </li>
+            {session
+              ? (
+
+                <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>
+
+                )
+              : (
+                <>
+                <button aria-label="login-hamburger-link" onClick={() => { closeMenu(); setShowLogin(!showLogin) }}>Login</button>
+                {showLogin && (
+                <div className='login-form-overlay'>
+                    <Login onLoginSuccess={handleLoginSuccess} onClose={() => { setShowLogin() } }/>
+                </div>
+                )}
+                </>
+                )}
         </ul>
         )}
     </nav>

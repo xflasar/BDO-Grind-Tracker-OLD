@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import '../../assets/Login/Login.scss'
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -28,6 +29,7 @@ const Login = () => {
       })
       const res = await response.json()
       document.cookie = `token=${res.accessToken}; path=/;`
+      onLoginSuccess(res.accessToken)
       setUsername('')
       setPassword('')
     } catch (error) {
@@ -51,6 +53,10 @@ const Login = () => {
       { /* <a href="#" onClick={handleForgotPassword}>Forgot password?</a> */ }
     </div>
   )
+}
+
+Login.propTypes = {
+  onLoginSuccess: PropTypes.func.isRequired
 }
 
 export default Login
