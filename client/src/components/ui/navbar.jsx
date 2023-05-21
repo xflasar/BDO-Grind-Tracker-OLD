@@ -1,17 +1,3 @@
-///
-// Navbar component
-//
-// - Home - Will transfer to Homepage
-// - Sites - Will transfer to page with Sites
-// - Appname - Name of the application (default -> BDO Grind Tracker)
-// - History - Will transfer to History page
-// - Analytics - Will transfer to Analytics page
-//
-// Will be used as Header for application on every page will be the same.
-// For now it won't be using any backend due to being only a navigation between pages.
-//
-///
-
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie'
@@ -23,15 +9,30 @@ function Navigation () {
   const [mobileMode, setMobileMode] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [session, setSession] = useState(Cookies.get('token'))
+  const [isActive, setIsActive] = useState(false)
 
   React.useEffect(() => {
+    const handleDocumentClick = (event) => {
+      const loginFormOverlay = document.querySelector('.login-form-overlay')
+      const loginButton = document.querySelector('.login-container button')
+      if ((loginFormOverlay && !loginFormOverlay.contains(event.target)) && (loginButton && !loginButton.contains(event.target))) {
+        setIsActive(false)
+      }
+    }
+
+    document.addEventListener('click', handleDocumentClick)
+
     const checkScreenWidth = () => {
       const isMobileMode = window.innerWidth <= 768
       setMobileMode(isMobileMode)
     }
     checkScreenWidth()
     window.addEventListener('resize', checkScreenWidth)
-    return () => window.removeEventListener('resize', checkScreenWidth)
+
+    return () => {
+      window.removeEventListener('resize', checkScreenWidth)
+      document.removeEventListener('click', handleDocumentClick)
+    }
   }, [])
 
   const logout = async () => {
@@ -51,15 +52,42 @@ function Navigation () {
   }
 
   const handleLoginSuccess = (session) => {
-    setShowLogin(false)
+    setIsActive(false)
     setSession(session)
     window.location.reload()
   }
 
+  const handleLoginClick = () => {
+    if (!showLogin) {
+      setShowLogin(true)
+      setTimeout(() => {
+        setIsActive(true)
+      }, 0)
+    } else {
+      setIsActive(false)
+      setTimeout(() => {
+        setShowLogin(false)
+      }, 300)
+    }
+  }
+
+  const handleTransitionEnd = () => {
+    if (!isActive && showLogin) {
+      setShowLogin(false)
+    }
+  }
+
   return (
+    <>
+        {showLogin && (
+        <div className={`login-form-overlay ${isActive ? 'active' : ''}`}
+      onTransitionEnd={handleTransitionEnd}>
+             <Login onLoginSuccess={handleLoginSuccess} onClose={() => { setShowLogin(false) } }/>
+        </div>
+        )}
     <nav>
         {mobileMode && (
-        <div className="container">
+            <div className="container">
             <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => { setToggled(!toggled); setShowLogin(false) }}>
                 <span className="meat"></span>
                 <span className="meat"></span>
@@ -69,24 +97,15 @@ function Navigation () {
         </div>
         )}
         <div className="logo"> BDO Grind Tracker </div>
-
         {!mobileMode && (
             <>
             {session
               ? <div className="Logout">
-                  <li className="logout">
-                      <Link to="/" aria-label="logout-link" onClick={logout}>Logout</Link>
-                  </li>
+                    <button aria-label="logout-button" onClick={logout}>Logout</button>
               </div>
-              : (<><div className="login-container">
-                        <button aria-label="login-link" onClick={() => { setShowLogin(!showLogin) }}>Login</button>
+              : (<div className="login-container">
+                        <button aria-label="login-link" onClick={() => { handleLoginClick() }}>Login</button>
                     </div>
-                    {showLogin && (
-                      <div className='login-form-overlay'>
-                           <Login onLoginSuccess={handleLoginSuccess} onClose={() => { setShowLogin() } }/>
-                      </div>
-                    )}
-                    </>
                 )}
             <div className="navbar-section">
                 <ul>
@@ -112,7 +131,7 @@ function Navigation () {
             </div>
             </>)}
         {mobileMode && (
-        <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
+            <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
             <li className="home">
                 <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
             </li>
@@ -127,23 +146,19 @@ function Navigation () {
             </li>
             {session
               ? (
-
-                <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>
-
+                  <div className="Logout">
+                    <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>
+                </div>
                 )
               : (
-                <>
-                <button aria-label="login-hamburger-link" onClick={() => { closeMenu(); setShowLogin(!showLogin) }}>Login</button>
-                {showLogin && (
-                <div className='login-form-overlay'>
-                    <Login onLoginSuccess={handleLoginSuccess} onClose={() => { setShowLogin() } }/>
+                <div className="Login">
+                    <button aria-label="login-hamburger-link" onClick={() => { closeMenu(); handleLoginClick() }}>Login</button>
                 </div>
-                )}
-                </>
                 )}
         </ul>
         )}
     </nav>
+</>
   )
 }
 export default Navigation
