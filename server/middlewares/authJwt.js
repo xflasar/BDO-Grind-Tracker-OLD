@@ -19,7 +19,8 @@ verifyToken = (req, res, next) => {
 
     Auth.findById(req.authId).then(async (userAuth) => {
         if (!userAuth) {
-            await res.status(404).send({ message: "User Not found. Auth" });
+            return await res.status(404).send({ message: "User Not found. Auth" });
+
         }
         req.userId = userAuth.UserId.toString();
         next();

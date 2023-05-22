@@ -42,6 +42,22 @@
           box-shadow: 0 0 0 2px #ff9900;
         }
       }
+
+      .username.error{
+        color: red;
+        box-shadow: 0 0 0 2px red;
+      }
+
+      .password.error{
+        color: red;
+        box-shadow: 0 0 0 2px red;
+      }
+
+      .error{
+        color: red;
+        font-size: 0.8rem;
+        padding-bottom: 1rem;
+      }
   
       button[type="submit"] {
         position: relative;

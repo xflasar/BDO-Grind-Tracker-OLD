@@ -6,12 +6,17 @@ const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
+  const [usernameError, setUsernameError] = useState(false)
+  const [passwordError, setPasswordError] = useState(false)
+
   const handleUsernameChange = (event) => {
     setUsername(event.target.value)
+    setUsernameError(false)
   }
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value)
+    setPasswordError(false)
   }
 
   const handleLogin = async (event) => {
@@ -28,10 +33,22 @@ const Login = ({ onLoginSuccess }) => {
         })
       })
       const res = await response.json()
-      document.cookie = `token=${res.accessToken}; path=/;`
-      onLoginSuccess(res.accessToken)
-      setUsername('')
-      setPassword('')
+      if (res.accessToken) {
+        document.cookie = `token=${res.accessToken}; path=/;`
+        onLoginSuccess(res.accessToken)
+        setUsername('')
+        setPassword('')
+      } else {
+        if (res.message === 'User not found.') {
+          setUsernameError(true)
+          setUsername('')
+          setPassword('')
+        } else if (res.message === 'Invalid Password!') {
+          setPasswordError(true)
+          setUsername('')
+          setPassword('')
+        }
+      }
     } catch (error) {
       console.error(error)
     }
@@ -46,8 +63,10 @@ const Login = ({ onLoginSuccess }) => {
     <div className='login-container-form'>
         <h3>Login</h3>
       <form onSubmit={handleLogin}>
-        <input type="text" id="username" name="username" value={username} onChange={handleUsernameChange} placeholder='Username or Email'/>
-        <input type="password" id="password" name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/>
+        {!usernameError ? <input type="text" className='username' name="username" value={username} onChange={handleUsernameChange} placeholder='Username or Email'/> : <input type="text" className='username error' name="username" value={username} onChange={handleUsernameChange} placeholder='Username'/>}
+        {!passwordError ? <input type="password" className='password' name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/> : <input type="password" className='password error' name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/>}
+        {usernameError ? <p className='error'>Username or Email not found.</p> : null}
+        {passwordError ? <p className='error'>Invalid Password!</p> : null}
         <button type="submit">Login</button>
       </form>
       { /* <a href="#" onClick={handleForgotPassword}>Forgot password?</a> */ }

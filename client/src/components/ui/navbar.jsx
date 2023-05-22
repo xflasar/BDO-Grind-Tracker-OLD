@@ -88,74 +88,77 @@ function Navigation () {
     <nav>
         {mobileMode && (
             <div className="container">
-            <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => { setToggled(!toggled); setShowLogin(false) }}>
-                <span className="meat"></span>
-                <span className="meat"></span>
-                <span className="meat"></span>
-                <span className="meat"></span>
-            </button>
-        </div>
+                <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => { setToggled(!toggled); setShowLogin(false) }}>
+                    <span className="meat"></span>
+                    <span className="meat"></span>
+                    <span className="meat"></span>
+                    <span className="meat"></span>
+                </button>
+            </div>
         )}
-        <div className="logo"> BDO Grind Tracker </div>
         {!mobileMode && (
             <>
-            {session
-              ? <div className="Logout">
-                    <button aria-label="logout-button" onClick={logout}>Logout</button>
-              </div>
-              : (<div className="login-container">
-                        <button aria-label="login-link" onClick={() => { handleLoginClick() }}>Login</button>
-                    </div>
-                )}
-            <div className="navbar-section">
-                <ul>
-                    <div className="navbar-left">
-                        <div>
-                            <li className="home">
-                                <Link to="/" aria-label="home-link">Home</Link>
-                            </li>
-                        </div>
-                        <li className="sites">
-                            <Link to="/sites" aria-label="sites-link">Sites</ Link>
+            <div className="nav-container">
+                <div className="logo">BDO Grind Tracker</div>
+                <div className="navbar-section">
+                    <ul>
+                        <li className="home">
+                            <Link to="/" aria-label="home-link">Home</Link>
                         </li>
-                    </div>
-                    <div className="navbar-right">
+                        <li className="sites">
+                            <Link to="/sites"aria-label="sites-link">Sites</ Link>
+                        </li>
                         <li className="history">
-                            <Link to="/history" aria-label="history-link">History</Link>
+                            <Link to="/history"aria-label="history-link">History</Link>
                         </li>
                         <li className="analytics">
-                            <Link to="/analytics" aria-label="analytics-link">Analytics</Link>
+                            <Link to="/analytics"aria-label="analytics-link">Analytics</Link>
                         </li>
-                    </div>
-                </ul>
+                    </ul>
+                </div>
             </div>
+            {session
+              ? <div className='account-control'>
+                        <div className="Logout">
+                            <button aria-label="logout-button" onClick={logout}>Logout</button>
+                        </div>
+                    </div>
+              : (<div className="login-container">
+                            <button aria-label="login-link" onClick={() => { handleLoginClick() }}>Login</button>
+                        </div>
+                )
+            }
             </>)}
         {mobileMode && (
-            <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
-            <li className="home">
-                <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
-            </li>
-            <li className="sites">
-                <Link to="/sites" aria-label="sites-hamburger-link" onClick={() => closeMenu()}>Sites</ Link>
-            </li>
-            <li className="history">
-                <Link to="/history" aria-label="history-hamburger-link" onClick={() => closeMenu()} >History</Link>
-            </li>
-            <li className="analytics">
-                <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
-            </li>
-            {session
-              ? (
-                  <div className="Logout">
-                    <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>
-                </div>
-                )
-              : (
-                <div className="Login">
-                    <button aria-label="login-hamburger-link" onClick={() => { closeMenu(); handleLoginClick() }}>Login</button>
-                </div>
-                )}
-        </ul>
+            <>
+                <div className="logo">BDO Grind Tracker</div>
+                <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
+                    <li className="home">
+                        <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
+                    </li>
+                    <li className="sites">
+                        <Link to="/sites" aria-label="sites-hamburger-link" onClick={() => closeMenu()}>Sites</ Link>
+                    </li>
+                    <li className="history">
+                        <Link to="/history" aria-label="history-hamburger-link" onClick={() => closeMenu()} >History</Link>
+                    </li>
+                    <li className="analytics">
+                        <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
+                    </li>
+                    {session
+                      ? (
+                          <div className="Logout">
+                            <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>
+                        </div>
+                        )
+                      : (
+                        <div className="Login">
+                            <button aria-label="login-hamburger-link" onClick={() => { closeMenu(); handleLoginClick() }}>Login</button>
+                        </div>
+                        )
+                    }
+                </ul>
+            </>
         )}
     </nav>
 </>

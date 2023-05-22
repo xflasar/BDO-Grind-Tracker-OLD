@@ -36,7 +36,7 @@ exports.signup = async (req, res) => {
       username: req.body.username,
     }).then(async (user) => {
         if (!user) {
-          return await res.status(404).send({ message: "User Not found." });
+          return await res.status(404).send({ message: "User not found." });
         }
   
         var passwordIsValid = await bcrypt.compareSync(
