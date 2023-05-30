@@ -35,6 +35,28 @@
     height: 1rem;
 }
 
+.history-table-item.control{
+    display: flex;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    align-items: center;
+    transition: transform 0s;
+    button{
+        
+        width: auto;
+        height: auto;
+        background-color: rgba(0, 0, 0, 0);
+        border: none;
+        color: $text;
+        font-size: 0.8rem;
+        cursor: pointer;
+        
+    }
+    &:hover{
+        transform: translateY(0);
+    }
+}
+
 .history-table-item-gear-container {
   p {
     height: 10px;

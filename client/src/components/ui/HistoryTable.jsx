@@ -21,7 +21,14 @@ const renderTableCell = (itemI, itemIindex) => {
   )
 }
 
-const HistoryTable = ({ data }) => (
+const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger }) => {
+  const handleEditSession = (item) => {
+    onEditTrigger(item)
+  }
+  const handleDeleteSession = (id) => {
+    onDeleteTrigger(id)
+  }
+  return (
     <table role="historyTable" className="history-table">
       <thead className="history-table-header">
         <tr>
@@ -32,20 +39,28 @@ const HistoryTable = ({ data }) => (
           <th>Average Earnings</th>
           <th>Expenses</th>
           <th>Gear</th>
+          <th/>
         </tr>
       </thead>
       <tbody className="history-table-content">
         {data?.map((item, index) => (
           <tr key={index} className="history-table-row" role='historyTableRow'>
             {Object.values(item).map((itemI, itemIindex) => renderTableCell(itemI, itemIindex))}
+            <td className="history-table-item control" role='historyTableItem'>
+              <button className="history-table-item-button edit" role='historyTableItemButton' onClick={() => handleEditSession(item)}>Edit</button>
+              <button className="history-table-item-button delete" role='historyTableItemButton' onClick={() => handleDeleteSession(item._id)}>Delete</button>
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
-)
+  )
+}
 
 HistoryTable.propTypes = {
-  data: PropTypes.array
+  data: PropTypes.array,
+  onEditTrigger: PropTypes.func,
+  onDeleteTrigger: PropTypes.func
 }
 
 export default HistoryTable
