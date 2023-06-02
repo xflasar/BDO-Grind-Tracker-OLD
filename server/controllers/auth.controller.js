@@ -5,6 +5,7 @@ const Auth = require("../db/models/auth.model.js");
 const User = require("../db/models/user.model.js");
 
 exports.signup = async (req, res) => {
+  return // It's being in developement will be functional once Frontend will be finished
     const auth = new Auth({
       username: await req.body.username,
       email: await req.body.email,

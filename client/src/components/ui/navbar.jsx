@@ -2,12 +2,17 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import Login from '../form/Login'
+import Signup from '../form/Signup'
 import '../../assets/Navbar.scss'
+
+// TODO:
+// - SCSS for Signup component for mobile device ( broken )
 
 function Navigation () {
   const [toggled, setToggled] = useState(false)
   const [mobileMode, setMobileMode] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
+  const [showSignup, setShowSignup] = useState(false)
   const [session, setSession] = useState(Cookies.get('token'))
   const [isActive, setIsActive] = useState(false)
 
@@ -57,6 +62,12 @@ function Navigation () {
     window.location.reload()
   }
 
+  const handleSignupSuccess = (session) => {
+    setIsActive(false)
+    setSession(session)
+    window.location.reload()
+  }
+
   const handleLoginClick = () => {
     if (!showLogin) {
       setShowLogin(true)
@@ -67,6 +78,20 @@ function Navigation () {
       setIsActive(false)
       setTimeout(() => {
         setShowLogin(false)
+      }, 300)
+    }
+  }
+
+  const handleSignupClick = () => {
+    if (!showSignup) {
+      setShowSignup(true)
+      setTimeout(() => {
+        setIsActive(true)
+      }, 0)
+    } else {
+      setIsActive(false)
+      setTimeout(() => {
+        setShowSignup(false)
       }, 300)
     }
   }
@@ -84,6 +109,11 @@ function Navigation () {
       onTransitionEnd={handleTransitionEnd}>
              <Login onLoginSuccess={handleLoginSuccess} onClose={() => { setShowLogin(false) } }/>
         </div>
+        )}
+        {showSignup && (
+          <div className={`signup-form-overlay ${isActive ? 'active' : ''}`}>
+            <Signup onSignupSuccess={handleSignupSuccess} onClose={() => { setShowSignup(false) } }/>
+          </div>
         )}
     <nav>
         {mobileMode && (
@@ -105,6 +135,8 @@ function Navigation () {
                         <li className="home">
                             <Link to="/" aria-label="home-link">Home</Link>
                         </li>
+                        {session && (
+                        <ul>
                         <li className="sites">
                             <Link to="/sites"aria-label="sites-link">Sites</ Link>
                         </li>
@@ -114,6 +146,8 @@ function Navigation () {
                         <li className="analytics">
                             <Link to="/analytics"aria-label="analytics-link">Analytics</Link>
                         </li>
+                        </ul>
+                        )}
                     </ul>
                 </div>
             </div>
@@ -123,9 +157,15 @@ function Navigation () {
                             <button aria-label="logout-button" onClick={logout}>Logout</button>
                         </div>
                     </div>
-              : (<div className="login-container">
-                            <button aria-label="login-link" onClick={() => { handleLoginClick() }}>Login</button>
-                        </div>
+              : (
+                <div className="usercontrol">
+              <div className="login-container">
+                  <button aria-label="login-link" onClick={() => { handleLoginClick() }}>Login</button>
+              </div>
+              <div className="signup-container">
+                <button aria-label="signup-button" onClick={() => { handleSignupClick() }}>Signup</button>
+              </div>
+              </div>
                 )
             }
             </>)}
@@ -136,6 +176,8 @@ function Navigation () {
                     <li className="home">
                         <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
                     </li>
+                    {session && (
+                    <>
                     <li className="sites">
                         <Link to="/sites" aria-label="sites-hamburger-link" onClick={() => closeMenu()}>Sites</ Link>
                     </li>
@@ -145,6 +187,8 @@ function Navigation () {
                     <li className="analytics">
                         <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
                     </li>
+                    </>
+                    )}
                     {session
                       ? (
                           <div className="Logout">
@@ -152,9 +196,14 @@ function Navigation () {
                         </div>
                         )
                       : (
+                        <>
                         <div className="Login">
-                            <button aria-label="login-hamburger-link" onClick={() => { closeMenu(); handleLoginClick() }}>Login</button>
+                            <button aria-label="login-hamburger-button" onClick={() => { closeMenu(); handleLoginClick() }}>Login</button>
                         </div>
+                        <div className="Register">
+                          <button aria-label="register-hamburger-button" onClick={() => { closeMenu(); handleSignupClick() }}>Register</button>
+                        </div>
+                        </>
                         )
                     }
                 </ul>

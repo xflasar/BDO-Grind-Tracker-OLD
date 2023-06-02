@@ -22,7 +22,7 @@ const Login = ({ onLoginSuccess }) => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const response = await fetch('/api/auth/signin', {
+      const response = await fetch('api/auth/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

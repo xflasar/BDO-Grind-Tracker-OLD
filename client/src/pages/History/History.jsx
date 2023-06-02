@@ -4,6 +4,8 @@ import EditSession from '../../components/form/editSession'
 import Cookies from 'js-cookie'
 import '../../assets/History/History.scss'
 
+// This needs to be refactored multiple functions can be moved to components
+
 function History () {
   const [data, setData] = useState(null)
   const [editData, setEditData] = useState(null)
