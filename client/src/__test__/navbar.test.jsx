@@ -26,24 +26,45 @@ describe('Navigation', () => {
     expect(logo).toBeInTheDocument()
   })
 
-  test('renders the navigation links', () => {
+  test('renders the navigation links with user not logged in', () => {
     render(
           <BrowserRouter>
             <Navigation />
         </BrowserRouter>
     )
+    Cookies.remove('token')
 
     const homeLink = screen.getByRole('link', { name: 'home-link' })
-    const sitesLink = screen.getByRole('link', { name: 'sites-link' })
-    const historyLink = screen.getByRole('link', { name: 'history-link' })
-    const analyticsLink = screen.getByRole('link', { name: 'analytics-link' })
+    const sitesLink = screen.queryByRole('link', { name: 'sites-link' })
+    const historyLink = screen.queryByRole('link', { name: 'history-link' })
+    const analyticsLink = screen.queryByRole('link', { name: 'analytics-link' })
+    expect(homeLink).toBeInTheDocument()
+    expect(sitesLink).not.toBeInTheDocument()
+    expect(historyLink).not.toBeInTheDocument()
+    expect(analyticsLink).not.toBeInTheDocument()
+  })
+
+  test('renders the navigation links with user logged in', () => {
+    Cookies.set('token', 'test')
+    render(
+      <BrowserRouter>
+        <Navigation/>
+      </BrowserRouter>
+    )
+
+    const homeLink = screen.getByRole('link', { name: 'home-link' })
+    const sitesLink = screen.queryByRole('link', { name: 'sites-link' })
+    const historyLink = screen.queryByRole('link', { name: 'history-link' })
+    const analyticsLink = screen.queryByRole('link', { name: 'analytics-link' })
     expect(homeLink).toBeInTheDocument()
     expect(sitesLink).toBeInTheDocument()
     expect(historyLink).toBeInTheDocument()
     expect(analyticsLink).toBeInTheDocument()
+
+    Cookies.remove('token')
   })
 
-  test('toggles the menu when hamburger button is clicked', async () => {
+  test('checks if hamburger menu toggles if hamburger button is clicked after resizing and then same after clicking on it again it toggles off the menu', async () => {
     window.innerWidth = 460
     window.dispatchEvent(new Event('resize'))
     await act(() => {
@@ -53,7 +74,7 @@ describe('Navigation', () => {
           </BrowserRouter>
       )
     })
-    const hamburgerButton = screen.getByRole('button', { 'aria-label': 'Toggle menu' })
+    const hamburgerButton = screen.getByRole('button', { name: 'Toggle menu' })
     fireEvent.click(hamburgerButton)
     const menu = screen.getByRole('menu')
     expect(menu).toHaveClass('active')
@@ -71,7 +92,7 @@ describe('Navigation', () => {
             </BrowserRouter>
       )
     })
-    const hamburgerButton = screen.getByRole('button', { 'aria-label': 'Toggle menu' })
+    const hamburgerButton = screen.getByRole('button', { name: 'Toggle menu' })
     fireEvent.click(hamburgerButton)
     const homeLink = screen.getByRole('link', { name: 'home-hamburger-link' })
     fireEvent.click(homeLink)
@@ -104,6 +125,7 @@ describe('Navigation redirects', () => {
   })
 
   it('should navigate to /sites', () => {
+    Cookies.set('token', 'test')
     render(<BrowserRouter><Navigation/></BrowserRouter>)
     const _sitesLink = screen.getAllByRole('link', { name: /sites/i })
     _sitesLink.forEach(element => {
@@ -112,6 +134,7 @@ describe('Navigation redirects', () => {
   })
 
   it('should navigate to /history', () => {
+    Cookies.set('token', 'test')
     render(<BrowserRouter><Navigation/></BrowserRouter>)
     const _historyLink = screen.getAllByRole('link', { name: /history/i })
     _historyLink.forEach(element => {
@@ -120,6 +143,7 @@ describe('Navigation redirects', () => {
   })
 
   it('should navigate to /analytics', () => {
+    Cookies.set('token', 'test')
     render(<BrowserRouter><Navigation/></BrowserRouter>)
     const _analyticsLink = screen.getAllByRole('link', { name: /analytics/i })
     _analyticsLink.forEach(element => {
@@ -212,12 +236,12 @@ describe('Navigation component', () => {
   test('hamburger toggles menu when clicked', () => {
     render(
       <BrowserRouter>
-        <Navigation session={null} desktopMode={false} />
+        <Navigation session={null} mobileMode={true} />
       </BrowserRouter>
     )
 
     // eslint-disable-next-line no-use-before-define
-    const hamburger = screen.getByRole('button', { name: hamburger })
+    const hamburger = screen.getByRole('button', { name: 'Toggle menu' })
     const menu = screen.getByRole('menu')
 
     expect(menu).toHaveAttribute('class', 'menu')
@@ -238,12 +262,12 @@ describe('Navigation component', () => {
     await act(() => {
       render(
       <BrowserRouter>
-        <Navigation session={null} desktopMode={false} />
+        <Navigation session={null} mobileMode={true} />
       </BrowserRouter>
       )
     })
 
-    const hamburger = screen.getByRole('button', { 'aria-label': 'Toggle menu' })
+    const hamburger = screen.getByRole('button', { name: 'Toggle menu' })
     fireEvent.click(hamburger)
     closeMenu()
 
