@@ -60,14 +60,14 @@ const Login = ({ onLoginSuccess }) => {
   } */
   // Email is not yet implemented in the backend, so this is not yet implemented in the frontend
   return (
-    <div className='login-container-form'>
-      <form onSubmit={handleLogin}>
+    <div name='login-container' className='login-container-form'>
+      <form aria-label='login-container-form' onSubmit={handleLogin}>
         <h3>Login</h3>
-        {!usernameError ? <input type="text" className='username' name="username" value={username} onChange={handleUsernameChange} placeholder='Username or Email'/> : <input type="text" className='username error' name="username" value={username} onChange={handleUsernameChange} placeholder='Username'/>}
-        {!passwordError ? <input type="password" className='password' name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/> : <input type="password" className='password error' name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/>}
+        {!usernameError ? <input type='text' aria-label='username' className='username' name='username' value={username} onChange={handleUsernameChange} placeholder='Username or Email'/> : <input type='text' aria-label='username' className='username error' name='username' value={username} onChange={handleUsernameChange} placeholder='Username'/>}
+        {!passwordError ? <input type='password' aria-label='password' className='password' name='password' value={password} onChange={handlePasswordChange} placeholder='Password'/> : <input type='password'aria-label='password' className='password error' name='password' value={password} onChange={handlePasswordChange} placeholder='Password'/>}
         {usernameError ? <p className='error'>Username or Email not found.</p> : null}
         {passwordError ? <p className='error'>Invalid Password!</p> : null}
-        <button type="submit">Login</button>
+        <button type='submit' aria-label='loginButton'>Login</button>
       </form>
       { /* <a href="#" onClick={handleForgotPassword}>Forgot password?</a> */ }
     </div>
