@@ -18,7 +18,7 @@ function History () {
       const data = await res.json()
       return data
     } catch (error) {
-      console.error('Failed to fetch history data:', error)
+      console.log('Failed to fetch history data:', error)
       return []
     }
   }
@@ -30,6 +30,7 @@ function History () {
       setData([])
       return
     }
+
     fetchHistoryData()
       .then((data) => {
         if (data.message === 'No token provided!') {

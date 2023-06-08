@@ -27,7 +27,7 @@ describe('HistoryTable component', () => {
   test('renders table headers', () => {
     render(<HistoryTable data={testData} />)
     const headers = screen.getAllByRole('columnheader')
-    expect(headers).toHaveLength(7)
+    expect(headers).toHaveLength(8)
     expect(headers[0]).toHaveTextContent('Date')
     expect(headers[1]).toHaveTextContent('Site Name')
     expect(headers[2]).toHaveTextContent('Time Spent')
@@ -35,6 +35,7 @@ describe('HistoryTable component', () => {
     expect(headers[4]).toHaveTextContent('Average Earnings')
     expect(headers[5]).toHaveTextContent('Expenses')
     expect(headers[6]).toHaveTextContent('Gear')
+    expect(headers[7]).toHaveTextContent('')
   })
 
   test('renders table rows', () => {

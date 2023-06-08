@@ -29,33 +29,52 @@ describe('History component', () => {
 
 describe('test fetch with mocked data and render of HistoryTable', () => {
   it('should render HistoryTable component when session token is present', async () => {
-    const data = [
-      {
-        Date: 'Loading...',
-        SiteName: 'Loading...',
-        TimeSpent: 'Loading...',
-        Earnings: 'Loading...',
-        AverageEarnings: 'Loading...',
-        Expenses: 'Loading...',
-        Gear: 'Loading...'
+    const data = [{
+      _id: 'Loading..',
+      Date: 'Loading...',
+      SiteName: 'Loading...',
+      TimeSpent: 'Loading...',
+      Earnings: 'Loading...',
+      AverageEarnings: 'Loading...',
+      Expenses: 'Loading...',
+      Gear: {
+        TotalAP: 'Loading...',
+        TotalDP: 'Loading...'
       }
-    ]
-
-    jest.spyOn(global, 'fetch').mockImplementation(() =>
-      Promise.resolve({
-        json: () => Promise.resolve(data)
-      })
-    )
+    }]
+    jest.spyOn(global, 'fetch').mockImplementation(async () => {
+      try {
+        const res = await Promise.resolve({
+          json: async () => data // Assuming `data` is defined in the test scope
+        }) // Log the parsed JSON data
+        return await res
+      } catch (error) {
+        console.error('Failed to fetch history data:', error)
+        return {
+          json: async () => []
+        }
+      }
+    })
 
     Cookies.set('token', 'test')
+
+    const originalConsoleError = console.error
+    const originalConsoleLog = console.log
+    console.error = jest.fn()
+    console.log = jest.fn()
 
     await act(async () => {
       render(<History />)
     })
 
     const historyTable = screen.getByRole('historyTable')
-
     expect(historyTable).toBeInTheDocument()
+
+    expect(console.error).not.toHaveBeenCalled()
+    expect(console.log).not.toHaveBeenCalled()
+
+    console.error = originalConsoleError
+    console.log = originalConsoleLog
 
     Cookies.remove('token')
     global.fetch.mockRestore()
