@@ -33,34 +33,44 @@ exports.UserSites = (req, res) => {
 exports.AddSession = async (req, res) => {
     await User.findById(req.userId).then(async (user) => {
         await Site.findOne({SiteName: req.body.SiteName}, {UserId: req.userId}).then(async site => {
+            // This is temporary maybe
+            const BodyObj = {
+                TimeSpent: parseInt(req.body.TimeSpent),
+                TotalEarned: parseInt(req.body.TotalEarned),
+                AverageEarnings: parseInt(req.body.AverageEarnings),
+                TotalSpent: parseInt(req.body.TotalSpent),
+                AP: parseInt(req.body.AP),
+                DP: parseInt(req.body.DP)
+            }
+            console.log(BodyObj)
+            if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings || !BodyObj.TotalSpent || !BodyObj.AP || !BodyObj.DP) {
+              return res.status(400).send({ message: "Missing required properties in request body" });
+            }
             if (!site) {
-                req.body.TotalTime = req.body.TimeSpent;
+                req.body.TotalTime = BodyObj.TotalSpent;
                 site = await this.AddSite(req, res, true);
                 user.Sites.push([site._id])
             } else {
                 req.body.SiteId = site.id;
                 req.body.ModifySite = true;
-                req.body.TimeSpent = req.body.TimeSpentSession;
-                req.body.TotalEarned = req.body.EarningsSession;
-                req.body.TotalSpent = req.body.ExpensesSession;
-                req.body.AverageEarnings = req.body.AverageEarningsSession;
+                req.body.TimeSpent = BodyObj.TimeSpent;
+                req.body.TotalEarned = BodyObj.TotalEarned;
+                req.body.TotalSpent = BodyObj.TotalSpent;
+                req.body.AverageEarnings = BodyObj.AverageEarnings;
                 await this.ModifySite(req, res);
             }
             
-            const { TimeSpent, TotalEarned, AverageEarnings, TotalSpent, Gear } = req.body;
-            if (!TimeSpent || !TotalEarned || !AverageEarnings || !TotalSpent || !Gear) {
-              return res.status(400).send({ message: "Missing required properties in request body" });
-            }
             const session = new Session({
               SiteId: site._id,
-              TimeSpent,
-              Earnings: TotalEarned,
-              AverageEarnings,
-              Expenses: TotalSpent,
-              Gear,
+              TimeSpent: BodyObj.TimeSpent,
+              Earnings: BodyObj.TotalEarned,
+              AverageEarnings: BodyObj.AverageEarnings,
+              Expenses: BodyObj.TotalSpent,
+              Gear: {TotalAP: BodyObj.AP, TotalDP: BodyObj.DP},
               TimeCreated: Date.now(),
               UserId: req.userId
             });
+
             await session.save().then( async (savedSession) => {
                 user.Sessions.push([savedSession._id]);
                 await user.save().then(async () => {
@@ -85,7 +95,7 @@ exports.AddSite = async (req, res, mCall = false) => {
 
     await site.save().catch(err => { res.status(500).send({ message: err })});
     if(!mCall) {
-        res.status(200).send("Site added!");
+        res.status(200).send({ message: "Site added!" });
     }
     else {
         return site;
@@ -94,10 +104,18 @@ exports.AddSite = async (req, res, mCall = false) => {
 
 // Think about a way to separate the calls to update the user and the site so we can use them independently with res.status(200).send(); in the end
 exports.ModifySession = async (req, res) => {
+    const BodyObj = {
+        SessionId: req.body._id,
+        TimeSpent: parseInt(req.body.TimeSpent),
+        Earnings: parseInt(req.body.TotalEarned),
+        AverageEarnings: parseInt(req.body.AverageEarnings),
+        Expenses: parseInt(req.body.TotalSpent),
+        Gear: {TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP)}
+    }
     const updateObject = {};
-    for (const key in req.body) {
+    for (const key in BodyObj) {
       if (Session.schema.obj.hasOwnProperty(key)) {
-        updateObject[key] = req.body[key];
+        updateObject[key] = BodyObj[key];
       }
     }
 
@@ -115,7 +133,7 @@ exports.ModifySession = async (req, res) => {
         await this.ModifySite(req, res);
         req.body.ModifyUser = true;
         await this.ModifyUserData(req, res);
-        res.status(200).send("Session modified!");
+        res.status(200).send({ message: "Session modified!" });
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
@@ -146,7 +164,7 @@ exports.ModifySite = async (req, res) => {
             { $set: { ...updateObject } },
             { new: true }
         );
-        res.status(200).send("Site modified!");
+        res.status(200).send({ message: "Site modified!" });
     }
 }
 
@@ -173,26 +191,30 @@ exports.ModifyUserData = async (req, res) => {
             { $set: { ...updateObject } },
             { new: true }
         );
-        res.status(200).send("UserData modified!");
+        res.status(200).send({ message: "UserData modified!" });
     }
 }
 
 // This function will delete a session and update the user's data and the site's data
 exports.DeleteSession = (req, res) => {
     Session.findById(req.body.SessionId).then(async (session) => {
-        req.body.SiteId = session.SiteId;
-        req.body.TimeSpent = -session.TimeSpent;
-        req.body.TotalEarned = -session.Earnings;
-        req.body.TotalSpent = -session.Expenses;
-        req.body.AverageEarnings = -session.AverageEarnings;
-        req.body.ModifySite = true;
-        await this.ModifySite(req, res);
-        req.body.ModifyUser = true;
-        await this.ModifyUserData(req, res);
-        console.log(req.body);
-        Session.findByIdAndDelete(req.body.SessionId).then(() => {
-            res.status(200).send("Session deleted!");
-        }).catch(err => { res.status(500).send({ message: err })});
+        if(session){
+            req.body.SiteId = session.SiteId;
+            req.body.TimeSpent = -session.TimeSpent;
+            req.body.TotalEarned = -session.Earnings;
+            req.body.TotalSpent = -session.Expenses;
+            req.body.AverageEarnings = -session.AverageEarnings;
+            req.body.ModifySite = true;
+            await this.ModifySite(req, res);
+            req.body.ModifyUser = true;
+            await this.ModifyUserData(req, res);
+            Session.findByIdAndDelete(req.body.SessionId).then(() => {
+                res.status(200).send({ message: "Session deleted!" });
+            }).catch(err => { res.status(500).send({ message: err })});
+        } else{
+            console.log('User Controller: \n' + req.body)
+            console.log("User Controller: Failed to delete session!")
+        }
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
@@ -206,7 +228,7 @@ exports.DeleteUserData = (req, res) => {
                     {
                         req.session = null;
                         res.session.destroy();
-                        res.status(200).send("User data deleted!");
+                        res.status(200).send({ message: "User data deleted!" });
                     }
                     catch(err)
                     {
@@ -282,6 +304,7 @@ exports.GetSessionsData = async (req, res) => {
         {
             let date = new Date(sessions[i].TimeCreated);
             data.push({
+                _id: sessions[i]._id,
                 Date: date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear(),
                 SiteName: await Site.findById(sessions[i].SiteId).then((site) => { return site.SiteName; }).catch(err => { res.status(500).send({ message: err })}),
                 TimeSpent: sessions[i].TimeSpent,

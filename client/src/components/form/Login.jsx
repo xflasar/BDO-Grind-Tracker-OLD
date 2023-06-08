@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import '../../assets/Login/Login.scss'
+import '../../assets/components/ui/Login/Login.scss'
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('')
@@ -61,8 +61,8 @@ const Login = ({ onLoginSuccess }) => {
   // Email is not yet implemented in the backend, so this is not yet implemented in the frontend
   return (
     <div className='login-container-form'>
-        <h3>Login</h3>
       <form onSubmit={handleLogin}>
+        <h3>Login</h3>
         {!usernameError ? <input type="text" className='username' name="username" value={username} onChange={handleUsernameChange} placeholder='Username or Email'/> : <input type="text" className='username error' name="username" value={username} onChange={handleUsernameChange} placeholder='Username'/>}
         {!passwordError ? <input type="password" className='password' name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/> : <input type="password" className='password error' name="password" value={password} onChange={handlePasswordChange} placeholder='Password'/>}
         {usernameError ? <p className='error'>Username or Email not found.</p> : null}

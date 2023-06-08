@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import Login from '../form/Login'
 import Signup from '../form/Signup'
-import '../../assets/Navbar.scss'
+import '../../assets/components/ui/Navbar.scss'
 
 // TODO:
 // - SCSS for Signup component for mobile device ( broken )
+// - Signup component close
 
 function Navigation () {
   const [toggled, setToggled] = useState(false)
@@ -16,11 +17,13 @@ function Navigation () {
   const [session, setSession] = useState(Cookies.get('token'))
   const [isActive, setIsActive] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleDocumentClick = (event) => {
       const loginFormOverlay = document.querySelector('.login-form-overlay')
       const loginButton = document.querySelector('.login-container button')
-      if ((loginFormOverlay && !loginFormOverlay.contains(event.target)) && (loginButton && !loginButton.contains(event.target))) {
+      const signupFormOverlay = document.querySelector('.signup-form-overlay')
+      const signupButton = document.querySelector('.signup-container button')
+      if (((loginFormOverlay && !loginFormOverlay.contains(event.target)) && (loginButton && !loginButton.contains(event.target))) || ((signupFormOverlay && !signupFormOverlay.contains(event.target)) && (signupButton && !signupButton.contains(event.target)))) {
         setIsActive(false)
       }
     }
@@ -99,6 +102,8 @@ function Navigation () {
   const handleTransitionEnd = () => {
     if (!isActive && showLogin) {
       setShowLogin(false)
+    } else if (!isActive && showSignup) {
+      setShowSignup(false)
     }
   }
 
@@ -111,7 +116,7 @@ function Navigation () {
         </div>
         )}
         {showSignup && (
-          <div className={`signup-form-overlay ${isActive ? 'active' : ''}`}>
+          <div className={`signup-form-overlay ${isActive ? 'active' : ''}`} onTransitionEnd={handleTransitionEnd}>
             <Signup onSignupSuccess={handleSignupSuccess} onClose={() => { setShowSignup(false) } }/>
           </div>
         )}

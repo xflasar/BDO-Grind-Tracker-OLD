@@ -1,7 +1,7 @@
 import React from 'react'
-import Box from '../../components/ui/HomepageBox'
+import Box from '../../components/ui/pages/Homepage/HomepageBox'
 import Cookies from 'js-cookie'
-import '../../assets/Homepage.scss'
+import '../../assets/pages/Homepage/Homepage.scss'
 
 function Homepage () {
   const [data, setData] = React.useState(null)

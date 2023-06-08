@@ -1,5 +1,5 @@
 import React from 'react'
-import '../../assets/HomepageBox.scss'
+import '../../../../assets/components/ui/Homepage/HomepageBox.scss'
 import PropTypes from 'prop-types'
 
 class Box extends React.Component {

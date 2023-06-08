@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import '../../assets/SiteBox.scss'
+import '../../../../assets/components/ui/Sites/SiteBox.scss'
 
 class SiteBox extends React.Component {
   render () {

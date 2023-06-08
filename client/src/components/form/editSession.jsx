@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import '../../assets/components/form/editSession.scss'
 
-const EditSession = ({ data, onEditSuccess, onEditSessionSubmit }) => {
+const EditSession = ({ data, onEditSuccess, onEditSessionSubmit, onCloseClick }) => {
+  const [sessionId] = useState(data ? data._id : '')
   const [date, setDate] = useState(data
     ? () => {
-        console.log(data.Date)
         const dateParts = data.Date.split('/')
 
         const day = dateParts[0].padStart(2, '0')
@@ -12,7 +13,7 @@ const EditSession = ({ data, onEditSuccess, onEditSessionSubmit }) => {
         const year = dateParts[2]
 
         const formattedDate = year + '-' + month + '-' + day
-        return new Date(formattedDate).toISOString().substr(0, 10)
+        return new Date(formattedDate).toISOString().substring(0, 10)
       }
     : '')
   const [siteName, setSiteName] = useState(data ? data.SiteName : '')
@@ -52,6 +53,7 @@ const EditSession = ({ data, onEditSuccess, onEditSessionSubmit }) => {
     }
 
     const newSession = {
+      SessionId: sessionId,
       Date,
       SiteName,
       TimeSpent,
@@ -144,9 +146,15 @@ const EditSession = ({ data, onEditSuccess, onEditSessionSubmit }) => {
     }
   } */
 
+  const handleClose = (e) => {
+    e.preventDefault()
+    onCloseClick(false)
+  }
+
   return (
-    <div className="sessionAddForm">
+    <div className="sessionEditForm">
     <form onSubmit={handleAddSessionSubmit}>
+      <button type='button' className='close' onClick={handleClose}>X</button>
       <label htmlFor="date">Date</label>
       <input type="date" name="date" id="date" onChange={handleDateChange} value={date}/>
       <label htmlFor="siteName">Site Name</label>
@@ -162,7 +170,7 @@ const EditSession = ({ data, onEditSuccess, onEditSessionSubmit }) => {
       <label htmlFor="gear">Gear</label>
       <input type="text" name="AP" id="AP" onChange={handleGearAPChange} value={gear.TotalAP}/>
       <input type="text" name="DP" id="DP" onChange={handleGearDPChange} value={gear.TotalDP}/>
-      <button type='submit' name='sessionAddSubmit'>Submit</button>
+      <button type='submit' name='sessionEditSubmit'>Submit</button>
     </form>
   </div>
   )
@@ -171,6 +179,7 @@ const EditSession = ({ data, onEditSuccess, onEditSessionSubmit }) => {
 EditSession.propTypes = {
   onEditSuccess: PropTypes.func.isRequired,
   onEditSessionSubmit: PropTypes.func.isRequired,
+  onCloseClick: PropTypes.func.isRequired,
   data: PropTypes.object.isRequired
 }
 

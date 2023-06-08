@@ -1,6 +1,6 @@
 import React from 'react'
-import '../../assets/Sites.scss'
-import SiteBox from '../../components/ui/SiteBox'
+import '../../assets/pages/Sites/Sites.scss'
+import SiteBox from '../../components/ui/pages/Sites/SiteBox'
 import Cookies from 'js-cookie'
 
 function Sites () {

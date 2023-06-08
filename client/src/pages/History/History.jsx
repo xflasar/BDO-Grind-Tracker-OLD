@@ -1,184 +1,156 @@
-import React, { useState } from 'react'
-import HistoryTable from '../../components/ui/HistoryTable'
+import React, { useState, useEffect } from 'react'
+import HistoryTable from '../../components/ui/pages/History/HistoryTable'
 import EditSession from '../../components/form/editSession'
 import Cookies from 'js-cookie'
-import '../../assets/History/History.scss'
-
-// This needs to be refactored multiple functions can be moved to components
+import '../../assets/pages/History/History.scss'
+import AddSession from '../../components/form/addNewSession'
 
 function History () {
-  const [data, setData] = useState(null)
+  const [data, setData] = useState([])
   const [editData, setEditData] = useState(null)
   const [session, setSession] = useState(Cookies.get('token'))
   const [addSession, setAddSession] = useState(false)
   const [editSession, setEditSession] = useState(false)
 
-  async function handleFetchData () {
-    const res = await fetch('api/user/historydata')
-    const data = await res.json()
-    return data
-  }
-
-  async function handleAddSession () {
-    if (addSession === false) {
-      setAddSession(true)
-    } else {
-      setAddSession(false)
+  async function fetchHistoryData () {
+    try {
+      const res = await fetch('api/user/historydata')
+      const data = await res.json()
+      return data
+    } catch (error) {
+      console.error('Failed to fetch history data:', error)
+      return []
     }
   }
 
-  function handleEditSession (data) {
-    console.log(data)
-    setEditData(data)
-    setEditSession(true)
-  }
-
-  async function handleDeleteSession (id) {
-    console.log(id)
-    const res = await fetch('api/user/deletesession', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        id
-      })
-    })
-    const data = await res.json()
-    setData(data)
-  }
-
-  async function handleAddSessionSubmit (e) {
-    e.preventDefault()
-    const SiteName = e.target.siteName.value
-    const TimeSpent = e.target.timeSpent.value
-    const TotalEarned = e.target.earnings.value
-    const AverageEarnings = e.target.averageEarnings.value
-    const TotalSpent = e.target.expenses.value
-    const Gear = {
-      TotalAP: e.target.AP.value,
-      TotalDP: e.target.DP.value
-    }
-    const res = await fetch('api/user/addsession', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        SiteName,
-        TimeSpent,
-        TotalEarned,
-        AverageEarnings,
-        TotalSpent,
-        Gear
-      })
-    })
-    const data = await res.json()
-    setData(data)
-    setAddSession(false)
-  }
-
-  // This function is probably not needed will remove later if not used
-  async function handleEditSessionSuccess () {
-    const res = await fetch('api/user/historydata')
-    const data = await res.json()
-    setData(data)
-    setEditSession(false)
-  }
-
-  async function handleEditSessionSubmit (data) {
-    console.log(data)
-    const id = data.id
-    const Date = data.Date
-    const SiteName = data.SiteName
-    const TimeSpent = data.TimeSpent
-    const TotalEarned = data.TotalEarned
-    const AverageEarnings = data.AverageEarnings
-    const TotalSpent = data.TotalSpent
-    const Gear = {
-      TotalAP: data.Gear.TotalAP,
-      TotalDP: data.Gear.TotalDP
-    }
-
-    const res = await fetch('api/user/modifysession', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        id,
-        Date,
-        SiteName,
-        TimeSpent,
-        TotalEarned,
-        AverageEarnings,
-        TotalSpent,
-        Gear
-      })
-    })
-    const dataRes = await res.json()
-    setData(dataRes)
-    setEditSession(false)
-  }
-
-  React.useEffect(() => {
-    const defaultData = [
-    ]
+  useEffect(() => {
     setSession(Cookies.get('token'))
+
     if (!session) {
-      setData(defaultData)
+      setData([])
       return
     }
-
-    handleFetchData()
+    fetchHistoryData()
       .then((data) => {
         if (data.message === 'No token provided!') {
-          setData(defaultData)
+          setData([])
           return
         }
         setData(data)
       })
       .catch(() => {
-        setData(defaultData)
+        setData([])
       })
-  }, [])
+  }, [session])
+
+  function handleAddSession () {
+    setAddSession(!addSession)
+  }
+
+  function handleEditSession (data) {
+    if (editSession) {
+      setEditSession(false)
+      setTimeout(() => {
+        setEditData(data)
+        setEditSession(true)
+      }, 150)
+    } else {
+      setEditData(data)
+      setEditSession(true)
+    }
+  }
+
+  async function handleDeleteSession (id) {
+    try {
+      const res = await fetch('api/user/deletesession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          SessionId: id
+        })
+      })
+      const confirmation = await res.json()
+      if (confirmation.message === 'Session deleted!') {
+        fetchHistoryData().then((data) => setData(data))
+      } else {
+        // Handle Error when confirmation is false
+      }
+    } catch (error) {
+      console.error('Failed to delete session:', error)
+    }
+  }
+
+  async function handleEditSessionSubmit (data) {
+    try {
+      const res = await fetch('api/user/modifysession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      const dataRes = await res.json()
+      setData(dataRes)
+      setEditSession(false)
+    } catch (error) {
+      console.error('Failed to edit session:', error)
+    }
+  }
+
+  function handleEditSessionSuccess () {
+    fetchHistoryData()
+      .then((data) => {
+        setData(data)
+        setEditSession(false)
+      })
+      .catch((error) => {
+        console.error('Failed to fetch history data:', error)
+      })
+  }
+
+  async function handleOnAddSessionSuccess (obj) {
+    setData(obj.Data)
+    setAddSession(obj.setAddSession)
+  }
 
   return (
     <>
       {session && (
-        <div role='historyContainer'>
+        <div role="historyContainer">
           <div className="sessionAdd">
-            <button name='sessionAdd' onClick={handleAddSession}>Add Session</button>
+            <button name="sessionAdd button" onClick={handleAddSession}>
+              Add Session
+            </button>
           </div>
           {addSession && (
-            <div className="sessionAddForm">
-            <form onSubmit={handleAddSessionSubmit}>
-              <label htmlFor="siteName">Site Name</label>
-              <input type="text" name="siteName" id="siteName" />
-              <label htmlFor="timeSpent">Time Spent</label>
-              <input type="text" name="timeSpent" id="timeSpent" />
-              <label htmlFor="earnings">Earnings</label>
-              <input type="text" name="earnings" id="earnings" />
-              <label htmlFor="averageEarnings">Average Earnings</label>
-              <input type="text" name="averageEarnings" id="averageEarnings" />
-              <label htmlFor="expenses">Expenses</label>
-              <input type="text" name="expenses" id="expenses" />
-              <label htmlFor="gear">Gear</label>
-              <input type="text" name="AP" id="AP" />
-              <input type="text" name="DP" id="DP" />
-              <button type='submit' name='sessionAddSubmit'>Submit</button>
-            </form>
-          </div>
+            <AddSession
+            onAddSessionSuccess={handleOnAddSessionSuccess}
+            onCloseClick={(BoolState) => setAddSession(BoolState)}
+            />
           )}
           {editSession && (
-            <EditSession data={editData} onEditSuccess={handleEditSessionSuccess} onEditSessionSubmit={handleEditSessionSubmit}/>
+            <EditSession
+              data={editData}
+              onEditSuccess={handleEditSessionSuccess}
+              onEditSessionSubmit={handleEditSessionSubmit}
+              onCloseClick={(BoolState) => setEditSession(BoolState)}
+            />
           )}
           <div className="history-table-container">
-            {data && data.length > 0 && <HistoryTable onEditTrigger={handleEditSession} onDeleteTrigger={handleDeleteSession} data={data} />}
+            {data.length > 0 && (
+              <HistoryTable
+                onEditTrigger={handleEditSession}
+                onDeleteTrigger={handleDeleteSession}
+                data={data}
+              />
+            )}
           </div>
         </div>
       )}
     </>
   )
 }
+
 export default History

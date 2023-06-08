@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import SiteBox from '../components/ui/SiteBox'
+import SiteBox from '../components/ui/pages/Sites/SiteBox'
 
 describe('test SiteBox', () => {
   it('When data is present it should show the box with data', async () => {

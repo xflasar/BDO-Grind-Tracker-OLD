@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import '../../assets/Signup/Signup.scss'
+import '../../assets/components/ui/Signup/Signup.scss'
 
 function Signup ({ onSignupSuccess }) {
   const [username, setUsername] = useState('')

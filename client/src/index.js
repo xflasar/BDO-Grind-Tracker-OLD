@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './assets/index.scss'
+import './assets/pages/index.scss'
 import Homepage from './pages/Home/Homepage'
 import Sites from './pages/Sites/Sites'
 import Analytics from './pages/Analytics/Analytics'
