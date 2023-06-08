@@ -53,7 +53,7 @@ function Signup ({ onSignupSuccess }) {
           setUsername('')
           setPassword('')
         } else if (res.message === 'Failed! Email is already in use!') {
-          // Not implemented most likely I won't implement it but 80% I will no need for multiple accounts under same email address...
+          // Not implemented most likely I won't implement it, but 80% I will no need for multiple accounts under the same email address...
         }
       }
     } catch (error) {
@@ -62,18 +62,59 @@ function Signup ({ onSignupSuccess }) {
   }
 
   return (
-        <div className="signup-form-container">
-          <form onSubmit={handleSignup}>
-              <h2>Registration</h2>
-              <label htmlFor="username">Username:</label>
-              {!usernameError ? <input type="text" className='username' name="username" value={username} onChange={handleUsernameChange} placeholder='Username'/> : (<><input type="text" className='username error' name="username" value={username} onChange={handleUsernameChange} placeholder='Username'/> <label htmlFor="username" style={{ color: 'red' }}>Account with username already exists!</label></>)}
-              <label htmlFor="email">Email:</label>
-              <input type="text" name="email" id="email" onChange={handleEmailChange} value= {email}/>
-              <label htmlFor="password">Password:</label>
-              <input type="password" name="password" id="password" onChange= {handlePasswordChange} value={password}/>
-              <button type="submit" name="signupSubmit">Register</button>
-          </form>
-        </div>
+    <div className='signup-form-container' aria-label='signup-container'>
+      <form onSubmit={handleSignup} aria-label='signup-container-form'>
+        <h2>Registration</h2>
+        <label htmlFor='username'>Username:</label>
+        {!usernameError
+          ? (
+          <input
+            type='text'
+            className='username'
+            name='username'
+            value={username}
+            onChange={handleUsernameChange}
+            placeholder='Username'
+          />
+            )
+          : (
+          <>
+            <input
+              type='text'
+              className='username error'
+              name='username'
+              value={username}
+              onChange={handleUsernameChange}
+              placeholder='Username'
+            />
+            <label htmlFor='username' style={{ color: 'red' }}>
+              Account with username already exists!
+            </label>
+          </>
+            )}
+        <label htmlFor='email'>Email:</label>
+        <input
+          type='text'
+          name='email'
+          id='email'
+          onChange={handleEmailChange}
+          value={email}
+          placeholder='Email'
+        />
+        <label htmlFor='password'>Password:</label>
+        <input
+          type='password'
+          name='password'
+          id='password'
+          onChange={handlePasswordChange}
+          value={password}
+          placeholder='Password'
+        />
+        <button type='submit' aria-label='signup-button' name='signupSubmit'>
+          Register
+        </button>
+      </form>
+    </div>
   )
 }
 
