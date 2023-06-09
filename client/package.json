@@ -9,9 +9,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.9.0",
-    "react-router-dom": "^6.11.2",
+    "react-router-dom": "^6.12.1",
     "react-scripts": "^5.0.1",
-    "sass": "^1.62.1"
+    "sass": "^1.63.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -41,13 +41,13 @@
     ]
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.22.4",
-    "@babel/preset-react": "^7.22.3",
+    "@babel/preset-env": "^7.22.5",
+    "@babel/preset-react": "^7.22.5",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "babel-jest": "^29.5.0",
-    "dependency-cruiser": "^13.0.2",
+    "dependency-cruiser": "^13.0.3",
     "eslint": "^8.42.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",
