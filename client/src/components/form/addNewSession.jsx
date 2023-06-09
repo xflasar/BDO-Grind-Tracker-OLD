@@ -22,7 +22,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
         setAddSession: false
       })
     } catch (error) {
-      console.error('Failed to add session:', error)
+      console.log('Failed to add session:', error)
     }
   }
 
@@ -32,23 +32,23 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   }
 
   return (
-        <div className="sessionAddForm">
-              <form onSubmit={handleAddSessionSubmit}>
-              <button type='button' className='close' onClick={handleClose}>X</button>
-                <label htmlFor="SiteName">Site Name</label>
-                <input type="text" name="SiteName" id="siteName" />
-                <label htmlFor="TimeSpent">Time Spent</label>
-                <input type="text" name="TimeSpent" id="timeSpent" pattern='[0-9.]+' />
-                <label htmlFor="TotalEarned">Earnings</label>
-                <input type="text" name="TotalEarned" id="earnings" pattern='[0-9.]+'/>
-                <label htmlFor="AverageEarnings">Average Earnings</label>
-                <input type="text" name="AverageEarnings" id="averageEarnings" pattern='[0-9.]+'/>
-                <label htmlFor="TotalSpent">Expenses</label>
-                <input type="text" name="TotalSpent" id="expenses" pattern='[0-9.]+'/>
-                <label htmlFor="gear">Gear</label>
-                <input type="text" name="AP" id="AP" pattern='[0-9.]+'/>
-                <input type="text" name="DP" id="DP" pattern='[0-9.]+'/>
-                <button type="submit" name="sessionAddSubmit">
+        <div className='sessionAddForm'>
+              <form aria-label='sessionAddForm' onSubmit={handleAddSessionSubmit}>
+              <button type='button' aria-label='addSessionExitButton' className='close' onClick={handleClose}>X</button>
+                <label htmlFor='SiteName'>Site Name</label>
+                <input type='text' aria-label='Site Name' name='SiteName' id='siteName' />
+                <label htmlFor='TimeSpent'>Time Spent</label>
+                <input type='text' aria-label='Time Spent' name='TimeSpent' id='timeSpent' pattern='[0-9.]+' />
+                <label htmlFor='TotalEarned'>Earnings</label>
+                <input type='text' aria-label='Earnings' name='TotalEarned' id='earnings' pattern='[0-9.]+'/>
+                <label htmlFor='AverageEarnings'>Average Earnings</label>
+                <input type='text' aria-label='Average Earnings' name='AverageEarnings' id='averageEarnings' pattern='[0-9.]+'/>
+                <label htmlFor='TotalSpent'>Expenses</label>
+                <input type='text' aria-label='Expenses' name='TotalSpent' id='expenses' pattern='[0-9.]+'/>
+                <label htmlFor='gear'>Gear</label>
+                <input type='text' aria-label='TotalAP' name='AP' id='AP' pattern='[0-9.]+'/>
+                <input type='text' aria-label='TotalDP' name='DP' id='DP' pattern='[0-9.]+'/>
+                <button type='submit' aria-label='addSessionSubmitButton' name='sessionAddSubmit'>
                   Submit
                 </button>
             </form>
