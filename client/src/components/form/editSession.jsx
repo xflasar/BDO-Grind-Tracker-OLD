@@ -4,18 +4,20 @@ import '../../assets/components/form/editSession.scss'
 
 const EditSession = ({ data, onEditSuccess, onEditSessionSubmit, onCloseClick }) => {
   const [sessionId] = useState(data ? data._id : '')
-  const [date, setDate] = useState(data
-    ? () => {
-        const dateParts = data.Date.split('/')
+  const [date, setDate] = useState(
+    data
+      ? () => {
+          const dateParts = data.Date.split('/')
 
-        const day = dateParts[0].padStart(2, '0')
-        const month = dateParts[1].padStart(2, '0')
-        const year = dateParts[2]
+          const day = dateParts[0].padStart(2, '0')
+          const month = dateParts[1].padStart(2, '0')
+          const year = dateParts[2]
 
-        const formattedDate = year + '-' + month + '-' + day
-        return new Date(formattedDate).toISOString().substring(0, 10)
-      }
-    : '')
+          const formattedDate = `${year}-${month}-${day}`
+          return new Date(formattedDate).toISOString().substring(0, 10)
+        }
+      : ''
+  )
   const [siteName, setSiteName] = useState(data ? data.SiteName : '')
   const [timeSpent, setTimeSpent] = useState(data ? data.TimeSpent : '')
   const [earnings, setEarnings] = useState(data ? data.Earnings : '')
@@ -34,12 +36,12 @@ const EditSession = ({ data, onEditSuccess, onEditSessionSubmit, onCloseClick })
 
   const handleAddSessionSubmit = (e) => {
     e.preventDefault()
-    const Date = (function () {
+    const Date = (() => {
       const dateParts = date.split('-')
       const day = dateParts[2]
       const month = dateParts[1]
       const year = dateParts[0]
-      const formattedDate = day + '/' + month + '/' + year
+      const formattedDate = `${day}/${month}/${year}`
       return formattedDate
     })()
     const SiteName = siteName
@@ -152,27 +154,32 @@ const EditSession = ({ data, onEditSuccess, onEditSessionSubmit, onCloseClick })
   }
 
   return (
-    <div className="sessionEditForm">
-    <form onSubmit={handleAddSessionSubmit}>
-      <button type='button' className='close' onClick={handleClose}>X</button>
-      <label htmlFor="date">Date</label>
-      <input type="date" name="date" id="date" onChange={handleDateChange} value={date}/>
-      <label htmlFor="siteName">Site Name</label>
-      <input type="text" name="siteName" id="siteName" onChange={handleSiteNameChange} value={siteName}/>
-      <label htmlFor="timeSpent">Time Spent</label>
-      <input type="text" name="timeSpent" id="timeSpent" onChange={handleTimeSpentChange} value={timeSpent}/>
-      <label htmlFor="earnings">Earnings</label>
-      <input type="text" name="earnings" id="earnings" onChange={handleEarningsChange} value={earnings}/>
-      <label htmlFor="averageEarnings">Average Earnings</label>
-      <input type="text" name="averageEarnings" id="averageEarnings" onChange={handleAverageEarningsChange} value={averageEarnings}/>
-      <label htmlFor="expenses">Expenses</label>
-      <input type="text" name="expenses" id="expenses" onChange={handleExpensesChange} value={expenses}/>
-      <label htmlFor="gear">Gear</label>
-      <input type="text" name="AP" id="AP" onChange={handleGearAPChange} value={gear.TotalAP}/>
-      <input type="text" name="DP" id="DP" onChange={handleGearDPChange} value={gear.TotalDP}/>
-      <button type='submit' name='sessionEditSubmit'>Submit</button>
-    </form>
-  </div>
+    <div className='sessionEditForm'>
+      <form aria-label='sessionEditForm' onSubmit={handleAddSessionSubmit}>
+        <button type='button' aria-label='sessionEditExitButton' className='close' onClick={handleClose}>
+          X
+        </button>
+        <label htmlFor='date'>Date</label>
+        <input aria-label='dateInput' type='Date' name='date' id='date' onChange={handleDateChange} value={date} />
+        <label htmlFor='siteName'>Site Name</label>
+        <input type='text' aria-label='SiteNameInput' name='siteName' id='siteName' onChange={handleSiteNameChange} value={siteName} />
+        <label htmlFor='timeSpent'>Time Spent</label>
+        <input type='text' aria-label='TimeSpentInput' name='timeSpent' id='timeSpent' onChange={handleTimeSpentChange} value={timeSpent} />
+        <label htmlFor='earnings'>Earnings</label>
+        <input type='text' aria-label='EarningsInput' name='earnings' id='earnings' onChange={handleEarningsChange} value={earnings} />
+        <label htmlFor='averageEarnings'>Average Earnings</label>
+        <input type='text' aria-label='AverageEarningsInput' name='averageEarnings' id='averageEarnings' onChange={handleAverageEarningsChange} value={averageEarnings} />
+        <label htmlFor='expenses'>Expenses</label>
+        <input type='text' aria-label='ExpensesInput' name='expenses' id='expenses' onChange={handleExpensesChange} value={expenses} />
+        <label htmlFor='AP'>Total AP</label>
+        <input type='text' aria-label='TotalAPInput' name='AP' id='AP' onChange={handleGearAPChange} value={gear.TotalAP} />
+        <label htmlFor='DP'>Total DP</label>
+        <input type='text' aria-label='TotalDPInput' name='DP' id='DP' onChange={handleGearDPChange} value={gear.TotalDP} />
+        <button type='submit' aria-label='sessionEditSubmitButton' name='sessionEditSubmit'>
+          Submit
+        </button>
+      </form>
+    </div>
   )
 }
 
