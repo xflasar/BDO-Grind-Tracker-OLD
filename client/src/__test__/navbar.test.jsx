@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { act } from 'react-dom/test-utils'
 import fetchMock from 'jest-fetch-mock'
 import Cookies from 'js-cookie'
+import { SessionProvider } from '../contexts/SessionContext'
 
 describe('Navigation', () => {
   let originalInnerWidth
@@ -18,9 +19,11 @@ describe('Navigation', () => {
   })
   test('renders the logo', () => {
     render(
+      <SessionProvider>
         <BrowserRouter>
             <Navigation />
         </BrowserRouter>
+      </SessionProvider>
     )
     const logo = screen.getByText(/BDO Grind Tracker/i)
     expect(logo).toBeInTheDocument()
@@ -28,9 +31,11 @@ describe('Navigation', () => {
 
   test('renders the navigation links with user not logged in', () => {
     render(
-          <BrowserRouter>
-            <Navigation />
-        </BrowserRouter>
+      <SessionProvider>
+      <BrowserRouter>
+          <Navigation />
+      </BrowserRouter>
+    </SessionProvider>
     )
     Cookies.remove('token')
 
@@ -47,9 +52,11 @@ describe('Navigation', () => {
   test('renders the navigation links with user logged in', () => {
     Cookies.set('token', 'test')
     render(
-      <BrowserRouter>
-        <Navigation/>
-      </BrowserRouter>
+      <SessionProvider>
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+      </SessionProvider>
     )
 
     const homeLink = screen.getByRole('link', { name: 'home-link' })
@@ -69,9 +76,11 @@ describe('Navigation', () => {
     window.dispatchEvent(new Event('resize'))
     await act(() => {
       render(
-          <BrowserRouter>
-              <Navigation />
-          </BrowserRouter>
+        <SessionProvider>
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+      </SessionProvider>
       )
     })
     const hamburgerButton = screen.getByRole('button', { name: 'Toggle menu' })
@@ -87,9 +96,11 @@ describe('Navigation', () => {
     window.dispatchEvent(new Event('resize'))
     await act(() => {
       render(
-            <BrowserRouter>
-                <Navigation />
-            </BrowserRouter>
+        <SessionProvider>
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+      </SessionProvider>
       )
     })
     const hamburgerButton = screen.getByRole('button', { name: 'Toggle menu' })
@@ -101,14 +112,26 @@ describe('Navigation', () => {
   })
 
   test('UserNotLogged', () => {
-    render(<BrowserRouter><Navigation /></BrowserRouter>)
+    render(
+    <SessionProvider>
+      <BrowserRouter>
+          <Navigation />
+      </BrowserRouter>
+    </SessionProvider>
+    )
     const _loginLink = screen.getAllByText('Login')[0]
     expect(_loginLink).toHaveTextContent('Login')
   })
 
   test('UserLogged', () => {
     Cookies.set('token')
-    render(<BrowserRouter><Navigation /></BrowserRouter>)
+    render(
+    <SessionProvider>
+      <BrowserRouter>
+          <Navigation />
+      </BrowserRouter>
+    </SessionProvider>
+    )
     const _loginLink = screen.getAllByText('Logout')[0]
     expect(_loginLink).toHaveTextContent('Logout')
     Cookies.remove('token')
@@ -117,7 +140,13 @@ describe('Navigation', () => {
 
 describe('Navigation redirects', () => {
   it('should navigate to /', () => {
-    render(<BrowserRouter><Navigation/></BrowserRouter>)
+    render(
+    <SessionProvider>
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+      </SessionProvider>
+    )
     const _homeLink = screen.getAllByRole('link', { name: /home/i })
     _homeLink.forEach(element => {
       expect(element).toHaveAttribute('href', '/')
@@ -126,7 +155,13 @@ describe('Navigation redirects', () => {
 
   it('should navigate to /sites', () => {
     Cookies.set('token', 'test')
-    render(<BrowserRouter><Navigation/></BrowserRouter>)
+    render(
+    <SessionProvider>
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+      </SessionProvider>
+    )
     const _sitesLink = screen.getAllByRole('link', { name: /sites/i })
     _sitesLink.forEach(element => {
       expect(element).toHaveAttribute('href', '/sites')
@@ -135,7 +170,13 @@ describe('Navigation redirects', () => {
 
   it('should navigate to /history', () => {
     Cookies.set('token', 'test')
-    render(<BrowserRouter><Navigation/></BrowserRouter>)
+    render(
+    <SessionProvider>
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+      </SessionProvider>
+    )
     const _historyLink = screen.getAllByRole('link', { name: /history/i })
     _historyLink.forEach(element => {
       expect(element).toHaveAttribute('href', '/history')
@@ -144,7 +185,13 @@ describe('Navigation redirects', () => {
 
   it('should navigate to /analytics', () => {
     Cookies.set('token', 'test')
-    render(<BrowserRouter><Navigation/></BrowserRouter>)
+    render(
+    <SessionProvider>
+        <BrowserRouter>
+            <Navigation />
+        </BrowserRouter>
+      </SessionProvider>
+    )
     const _analyticsLink = screen.getAllByRole('link', { name: /analytics/i })
     _analyticsLink.forEach(element => {
       expect(element).toHaveAttribute('href', '/analytics')
@@ -235,9 +282,11 @@ describe('logout', () => {
 describe('Navigation component', () => {
   test('hamburger toggles menu when clicked', () => {
     render(
-      <BrowserRouter>
-        <Navigation session={null} mobileMode={true} />
-      </BrowserRouter>
+      <SessionProvider>
+        <BrowserRouter>
+          <Navigation session={null} mobileMode={true} />
+        </BrowserRouter>
+      </SessionProvider>
     )
 
     // eslint-disable-next-line no-use-before-define
@@ -261,9 +310,11 @@ describe('Navigation component', () => {
     window.dispatchEvent(new Event('resize'))
     await act(() => {
       render(
-      <BrowserRouter>
-        <Navigation session={null} mobileMode={true} />
-      </BrowserRouter>
+        <SessionProvider>
+          <BrowserRouter>
+            <Navigation session={null} mobileMode={true} />
+          </BrowserRouter>
+        </SessionProvider>
       )
     })
 

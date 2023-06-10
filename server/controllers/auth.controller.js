@@ -68,7 +68,7 @@ exports.signup = async (req, res) => {
 exports.signout = (req, res) => {
     try {
         req.session = null;
-        return res.status(200).send({ message: `User logged out successfully!`});
+        return res.status(200).send({ message: `Successfully signed out!`});
     }
     catch (err) {
         console.log(err);

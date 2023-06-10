@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import '../../assets/pages/Sites/Sites.scss'
 import SiteBox from '../../components/ui/pages/Sites/SiteBox'
-import Cookies from 'js-cookie'
+import { SessionContext } from '../../contexts/SessionContext'
 
 function Sites () {
-  const [data, setData] = React.useState(null)
+  const [data, setData] = useState(null)
+  const { isSignedIn } = useContext(SessionContext)
 
   async function handleFetchData () {
     const res = await fetch('api/user/sitedata')
@@ -12,10 +13,9 @@ function Sites () {
     return data
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     const defaultData = {}
-    const session = Cookies.get('token')
-    if (!session) {
+    if (!isSignedIn) {
       setData({})
       return
     }
@@ -31,7 +31,7 @@ function Sites () {
       .catch(() => {
         setData(defaultData)
       })
-  }, [])
+  }, [isSignedIn])
 
   return (
         <div className="sites-container">

@@ -1,17 +1,18 @@
-import React from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Box from '../../components/ui/pages/Homepage/HomepageBox'
-import Cookies from 'js-cookie'
 import '../../assets/pages/Homepage/Homepage.scss'
+import { SessionContext } from '../../contexts/SessionContext'
 
 function Homepage () {
-  const [data, setData] = React.useState(null)
+  const [data, setData] = useState(null)
+  const { isSignedIn } = useContext(SessionContext)
 
   async function handleFetchData () {
     const res = await fetch('api/user/homepage')
     const data = await res.json()
     return data
   }
-  React.useEffect(() => {
+  useEffect(() => {
     const noDataContent = 'No data!'
     const defaultData = {
       Box1: { Content: noDataContent },
@@ -20,8 +21,8 @@ function Homepage () {
       Box4: { Content: noDataContent },
       Box5: { Content: noDataContent }
     }
-    const session = Cookies.get('token')
-    if (!session) {
+
+    if (!isSignedIn) {
       setData(defaultData)
       return
     }
@@ -37,7 +38,7 @@ function Homepage () {
       .catch(() => {
         setData(defaultData)
       })
-  }, [])
+  }, [isSignedIn])
 
   return (
     <div className="Homepage">

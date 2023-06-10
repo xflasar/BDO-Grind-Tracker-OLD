@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, act } from '@testing-library/react'
 import Sites from '../pages/Sites/Sites'
 import Cookies from 'js-cookie'
+import { SessionProvider } from '../contexts/SessionContext'
 
 describe('test fetch with mocked data', () => {
   it('When session token is present it should set data to DataFromFetch!', async () => {
@@ -44,7 +45,7 @@ describe('test fetch with mocked data', () => {
 
     Cookies.set('token', 'test')
 
-    await act(async () => { render(<Sites />) })
+    await act(async () => { render(<SessionProvider><Sites /></SessionProvider>) })
 
     const _boxes = await screen.getAllByRole('siteBox')
 
@@ -55,7 +56,7 @@ describe('test fetch with mocked data', () => {
   })
 
   it('When session token is not present it should not show any siteBoxes', async () => {
-    const container = render(<Sites />)
+    const container = render(<SessionProvider><Sites /></SessionProvider>)
     await act(async () => container)
 
     const _boxes = await container.queryAllByRole('siteBox')

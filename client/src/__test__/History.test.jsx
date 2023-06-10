@@ -3,12 +3,13 @@ import { render, screen, act } from '@testing-library/react'
 // import userEvent from '@testing-library/user-event' // added import statement
 import History from '../pages/History/History'
 import Cookies from 'js-cookie'
+import { SessionProvider } from '../contexts/SessionContext'
 
 describe('History component', () => {
   test('renders "Add Session" button', async () => {
     Cookies.set('token', 'test')
     await act(async () => {
-      render(<History />)
+      render(<SessionProvider><History /></SessionProvider>)
     })
     const addButton = screen.getByRole('button', { name: /Add session/i })
     expect(addButton).toBeInTheDocument()
@@ -64,7 +65,7 @@ describe('test fetch with mocked data and render of HistoryTable', () => {
     console.log = jest.fn()
 
     await act(async () => {
-      render(<History />)
+      render(<SessionProvider><History /></SessionProvider>)
     })
 
     const historyTable = screen.getByRole('historyTable')
@@ -81,7 +82,7 @@ describe('test fetch with mocked data and render of HistoryTable', () => {
   })
 
   it('When session token is not present it should not show any siteBoxes', async () => {
-    const container = render(<History />)
+    const container = render(<SessionProvider><History /></SessionProvider>)
     await act(async () => container)
 
     const _boxes = await container.queryByRole('historyTable')

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import HistoryTable from '../../components/ui/pages/History/HistoryTable'
 import EditSession from '../../components/form/editSession'
-import Cookies from 'js-cookie'
 import '../../assets/pages/History/History.scss'
 import AddSession from '../../components/form/addNewSession'
+import { SessionContext } from '../../contexts/SessionContext'
 
 function History () {
   const [data, setData] = useState([])
   const [editData, setEditData] = useState(null)
-  const [session, setSession] = useState(Cookies.get('token'))
   const [addSession, setAddSession] = useState(false)
   const [editSession, setEditSession] = useState(false)
+  const { isSignedIn } = useContext(SessionContext)
 
   async function fetchHistoryData () {
     try {
@@ -24,9 +24,7 @@ function History () {
   }
 
   useEffect(() => {
-    setSession(Cookies.get('token'))
-
-    if (!session) {
+    if (!isSignedIn) {
       setData([])
       return
     }
@@ -42,7 +40,7 @@ function History () {
       .catch(() => {
         setData([])
       })
-  }, [session])
+  }, [isSignedIn])
 
   function handleAddSession () {
     setAddSession(!addSession)
@@ -118,7 +116,7 @@ function History () {
 
   return (
     <>
-      {session && (
+      {isSignedIn && (
         <div role="historyContainer">
           <div className="sessionAdd">
             <button name="sessionAdd button" onClick={handleAddSession}>

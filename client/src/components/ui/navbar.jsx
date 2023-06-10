@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
-import Cookies from 'js-cookie'
 import Login from '../form/Login'
 import Signup from '../form/Signup'
 import '../../assets/components/ui/Navbar.scss'
+import { SessionContext } from '../../contexts/SessionContext'
 
 // TODO:
 // - SCSS for Signup component for mobile device ( broken )
@@ -14,8 +14,8 @@ function Navigation () {
   const [mobileMode, setMobileMode] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
-  const [session, setSession] = useState(Cookies.get('token'))
   const [isActive, setIsActive] = useState(false)
+  const { isSignedIn, signout } = useContext(SessionContext)
 
   useEffect(() => {
     const handleDocumentClick = (event) => {
@@ -44,30 +44,29 @@ function Navigation () {
   }, [])
 
   const logout = async () => {
-    await fetch('/api/auth/signout', {
+    const res = await fetch('/api/auth/signout', {
       method: 'POST',
       credentials: 'include'
     })
-    localStorage.clear()
-    Cookies.remove('token')
-    Cookies.remove('session')
-    Cookies.remove('session.sig')
-    window.location.href = '/'
+    const data = await res.json()
+
+    if (data.message === 'Successfully signed out!') {
+      signout()
+      window.location.href = '/'
+    }
   }
 
   const closeMenu = () => {
     setToggled(false)
   }
 
-  const handleLoginSuccess = (session) => {
+  const handleLoginSuccess = () => {
     setIsActive(false)
-    setSession(session)
     window.location.reload()
   }
 
-  const handleSignupSuccess = (session) => {
+  const handleSignupSuccess = () => {
     setIsActive(false)
-    setSession(session)
     window.location.reload()
   }
 
@@ -140,7 +139,7 @@ function Navigation () {
                         <li className="home">
                             <Link to="/" aria-label="home-link">Home</Link>
                         </li>
-                        {session && (
+                        {isSignedIn && (
                         <ul>
                         <li className="sites">
                             <Link to="/sites"aria-label="sites-link">Sites</ Link>
@@ -156,7 +155,7 @@ function Navigation () {
                     </ul>
                 </div>
             </div>
-            {session
+            {isSignedIn
               ? <div className='account-control'>
                         <div className="Logout">
                             <button aria-label="logout-button" onClick={logout}>Logout</button>
@@ -181,7 +180,7 @@ function Navigation () {
                     <li className="home">
                         <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
                     </li>
-                    {session && (
+                    {isSignedIn && (
                     <>
                     <li className="sites">
                         <Link to="/sites" aria-label="sites-hamburger-link" onClick={() => closeMenu()}>Sites</ Link>
@@ -194,7 +193,7 @@ function Navigation () {
                     </li>
                     </>
                     )}
-                    {session
+                    {isSignedIn
                       ? (
                           <div className="Logout">
                             <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>

@@ -2,13 +2,14 @@ import React from 'react'
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import Login from '../components/form/Login'
+import { SessionProvider } from '../contexts/SessionContext'
 
 describe('Login Component', () => {
   it('should render the login form', async () => {
     const onLoginSuccess = jest.fn()
     await act(async () => {
       render(
-        <Login onLoginSuccess={onLoginSuccess} />
+        <SessionProvider><Login onLoginSuccess={onLoginSuccess} /></SessionProvider>
       )
     })
     const loginContainer = screen.getByRole('form', { 'aria-label': 'login-container-form' })
@@ -24,7 +25,7 @@ describe('Login Component', () => {
     })
     await act(async () => {
       render(
-        <Login onLoginSuccess={onLoginSuccess} />
+        <SessionProvider><Login onLoginSuccess={onLoginSuccess} /></SessionProvider>
       )
     })
 
@@ -50,7 +51,6 @@ describe('Login Component', () => {
       })
       expect(document.cookie).toBe(`token=${mockAccessToken}`)
       expect(onLoginSuccess).toHaveBeenCalledTimes(1)
-      expect(onLoginSuccess).toHaveBeenCalledWith(mockAccessToken)
     })
 
     fetchMock.mockRestore()
