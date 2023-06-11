@@ -1,19 +1,11 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useState } from 'react'
 import Cookies from 'js-cookie'
 import PropTypes from 'prop-types'
 
-const SessionContext = createContext(null)
+const SessionContext = createContext()
 
 const SessionProvider = ({ children }) => {
-  const [isSignedIn, setSignedIn] = useState(false)
-
-  useEffect(() => {
-    if (Cookies.get('token')) {
-      setSignedIn(true)
-    } else {
-      setSignedIn(false)
-    }
-  }, [])
+  const [isSignedIn, setSignedIn] = useState(!!Cookies.get('token'))
 
   const signin = (accessToken) => {
     setSignedIn(true)

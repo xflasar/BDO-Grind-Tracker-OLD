@@ -33,16 +33,16 @@ const App = () => {
       <Route exact path='/history' element={<ProtectedRoute element={<History />} />} />
       <Route exact path='/profile' element={<ProtectedRoute element={<Profile />} />} />
       <Route exact path='/access-denied' element={<AccessDenied/>} />
-      <Route path='*' element={<NotFound />} />
+      <Route path='*' element={<NotFound/>} />
     </Routes>
     </BrowserRouter>
   )
 }
 
 App.propTypes = {
-  path: PropTypes.string,
   element: PropTypes.any
 }
+
 const container = document.getElementById('root')
 const root = ReactDOM.createRoot(container)
 root.render(
