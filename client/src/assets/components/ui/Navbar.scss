@@ -1,139 +1,139 @@
 @media (min-width: 801px) {
-    nav {
-        position: relative;
-        display: flex;
-        flex-direction: row;
-        min-height: 60px;
-        align-items: center;
-        justify-content: space-evenly;
-        width: 100%;
-        background: radial-gradient(ellipse at center bottom, rgb(0, 0, 0) 0%, rgb(0, 0, 0) 100%);
-        top: 0;
-        z-index: 1;
-    
-        a {
-            color: #FFF;
-            text-decoration: none;
-        }
-        button {
-            cursor: pointer;
-            background: transparent;;
-            border: none;
-            font-size: 20px;
-            margin-right: 1.5%;
-            margin-top: 1.5%;
-        }
-    
-        ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
-    
-        .logo {
-            position: absolute;
-            top: 25%;
-            left: 15px;
-            max-width: 40%;
-            display: inline-block;
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            color: #ffa600;
-            margin: auto auto auto auto;
-        }
-
-        .hamburger {
-            display: none;
-        }
-
         .nav-container {
-            position: absolute;
+            position: sticky;
             top: 0;
             left: 0;
             display: flex;
             flex-direction: row;
             justify-content: space-between;
             width: 100%;
-            height: 100%;
-        }
-    
-        .navbar-section {
-            position: absolute;
-            display: flex;
-            top: 35%;
-            left: 350px;
-            width: 60%;
-            margin-top: 5px;
+            min-height: 60px;
 
-            ul {
-                margin-top: auto;
+            nav {
+                position: relative;
                 display: flex;
                 flex-direction: row;
-            }
-
-            li {
-                margin: 0 10px;
-            }
-        
-            a {
-                color: #FFF;
+                align-items: center;
+                justify-content: space-evenly;
+                width: 100%;
+                background: radial-gradient(ellipse at center bottom, rgb(0, 0, 0) 0%, rgb(0, 0, 0) 100%);
+                top: 0;
+                z-index: 1;
+                
+                a {
+                    color: #FFF;
                 text-decoration: none;
             }
-            a:hover {
-                color: #ffa600;
+            button {
+                cursor: pointer;
+                background: transparent;;
+                border: none;
+                font-size: 20px;
+                margin-right: 1.5%;
+                margin-top: 1.5%;
             }
-        }
-        .menu {
-            display: none;
-        }
-    
-        .menu.close {
-            display: none;
-        }
-        .usercontrol
-        {
-            display: sticky;
-            top: 15%;
-            background-color: transparent;
-            position: absolute;
-            right: 0;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            width: auto;
-            height: auto;
-            button{
-                color:white
-            }
-            button:hover{
-                color: #ffa600;
-            }
-        }
-
         
-    
-        .Logout {
-            top: 15%;
-            background-color: transparent;
-            position: absolute;
-            right: 0;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            width: 10%;
-            height: auto;
-            button{
-                color:white
+            ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
             }
-            button:hover{
+            
+            .logo {
+                position: absolute;
+                top: 25%;
+                left: 15px;
+                max-width: 40%;
+                display: inline-block;
+                text-align: center;
+                font-size: 2rem;
+                font-weight: 700;
                 color: #ffa600;
+                margin: auto auto auto auto;
+            }
+
+            .hamburger {
+                display: none;
+            }
+
+            .navbar-section {
+                position: absolute;
+                display: flex;
+                top: 35%;
+                left: 350px;
+                width: 60%;
+                margin-top: 5px;
+                
+                ul {
+                    margin-top: auto;
+                    display: flex;
+                    flex-direction: row;
+                }
+                
+                li {
+                    margin: 0 10px;
+                }
+                
+                a {
+                    color: #FFF;
+                    text-decoration: none;
+                }
+                a:hover {
+                    color: #ffa600;
+                }
+            }
+            .menu {
+                display: none;
+            }
+        
+            .menu.close {
+                display: none;
+            }
+
+            .account-control
+            {
+                position: sticky;
+                top: 15%;
+                background-color: transparent;
+                position: absolute;
+                right: 3rem;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                width: auto;
+                height: auto;
+
+                button{
+                    color:white
+                }
+
+                button:hover{
+                    color: #ffa600;
+                }
+
+                .Logout {
+                    top: 15%;
+                    background-color: transparent;
+                    position: absolute;
+                    right: 0;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: center;
+                    width: 10%;
+                    height: auto;
+                    button{
+                        color:white
+                    }
+                    button:hover{
+                        color: #ffa600;
+                    }
+                }
             }
         }
     }
-
+    
     .signup-form-overlay {
         position: absolute;
         top: 30vh;
@@ -152,7 +152,7 @@
             transform: scale(1);
         }
     }
-
+    
     .login-form-overlay {
         position: absolute;
         top: 60px;
@@ -163,7 +163,7 @@
         transform-origin: top right;
         transform: scale(0);
         transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    
+        
         &.active {
             opacity: 1;
             transform-origin: top right;

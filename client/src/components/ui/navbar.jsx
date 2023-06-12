@@ -119,101 +119,102 @@ function Navigation () {
             <Signup onSignupSuccess={handleSignupSuccess} onClose={() => { setShowSignup(false) } }/>
           </div>
         )}
-    <nav>
-        {mobileMode && (
-            <div className="container">
-                <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => { setToggled(!toggled); setShowLogin(false) }}>
-                    <span className="meat"></span>
-                    <span className="meat"></span>
-                    <span className="meat"></span>
-                    <span className="meat"></span>
-                </button>
-            </div>
-        )}
-        {!mobileMode && (
-            <>
-            <div className="nav-container">
-                <div className="logo">BDO Grind Tracker</div>
-                <div className="navbar-section">
-                    <ul>
-                        <li className="home">
-                            <Link to="/" aria-label="home-link">Home</Link>
-                        </li>
-                        {isSignedIn && (
-                        <ul>
-                        <li className="sites">
-                            <Link to="/sites"aria-label="sites-link">Sites</ Link>
-                        </li>
-                        <li className="history">
-                            <Link to="/history"aria-label="history-link">History</Link>
-                        </li>
-                        <li className="analytics">
-                            <Link to="/analytics"aria-label="analytics-link">Analytics</Link>
-                        </li>
-                        </ul>
-                        )}
-                    </ul>
-                </div>
-            </div>
-            {isSignedIn
-              ? <div className='account-control'>
-                        <div className="Logout">
-                            <button aria-label="logout-button" onClick={logout}>Logout</button>
-                        </div>
-                    </div>
-              : (
-                <div className="usercontrol">
-              <div className="login-container">
-                  <button aria-label="login-link" onClick={() => { handleLoginClick() }}>Login</button>
+    <div className="nav-container">
+      <nav>
+          {mobileMode && (
+              <div className="container">
+                  <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => { setToggled(!toggled); setShowLogin(false) }}>
+                      <span className="meat"></span>
+                      <span className="meat"></span>
+                      <span className="meat"></span>
+                      <span className="meat"></span>
+                  </button>
               </div>
-              <div className="signup-container">
-                <button aria-label="signup-button" onClick={() => { handleSignupClick() }}>Signup</button>
-              </div>
-              </div>
-                )
-            }
-            </>)}
-        {mobileMode && (
-            <>
-                <div className="logo">BDO Grind Tracker</div>
-                <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
-                    <li className="home">
-                        <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
-                    </li>
-                    {isSignedIn && (
-                    <>
-                    <li className="sites">
-                        <Link to="/sites" aria-label="sites-hamburger-link" onClick={() => closeMenu()}>Sites</ Link>
-                    </li>
-                    <li className="history">
-                        <Link to="/history" aria-label="history-hamburger-link" onClick={() => closeMenu()} >History</Link>
-                    </li>
-                    <li className="analytics">
-                        <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
-                    </li>
-                    </>
-                    )}
-                    {isSignedIn
-                      ? (
+          )}
+          {!mobileMode && (
+              <>
+
+                  <div className="logo">BDO Grind Tracker</div>
+                  <div className="navbar-section">
+                      <ul>
+                          <li className="home">
+                              <Link to="/" aria-label="home-link">Home</Link>
+                          </li>
+                          {isSignedIn && (
+                          <ul>
+                          <li className="sites">
+                              <Link to="/ sites"aria-label="sites-link">Sites</ Link>
+                          </li>
+                          <li className="history">
+                              <Link to="/ history"aria-label="history-link">History</ Link>
+                          </li>
+                          <li className="analytics">
+                              <Link to="/ analytics"aria-label="analytics-link">Analytics  </Link>
+                          </li>
+                          </ul>
+                          )}
+                      </ul>
+                  </div>
+              {isSignedIn
+                ? <div className='account-control'>
                           <div className="Logout">
-                            <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>
-                        </div>
-                        )
-                      : (
-                        <>
-                        <div className="Login">
-                            <button aria-label="login-hamburger-button" onClick={() => { closeMenu(); handleLoginClick() }}>Login</button>
-                        </div>
-                        <div className="Register">
-                          <button aria-label="register-hamburger-button" onClick={() => { closeMenu(); handleSignupClick() }}>Register</button>
-                        </div>
-                        </>
-                        )
-                    }
-                </ul>
-            </>
-        )}
-    </nav>
+                              <button aria-label="logout-button" onClick= {logout}>Logout</button>
+                          </div>
+                      </div>
+                : (
+                  <div className="account-control">
+                <div className="login-container">
+                    <button aria-label="login-link" onClick={() => { handleLoginClick() }}>Login</button>
+                </div>
+                <div className="signup-container">
+                  <button aria-label="signup-button" onClick={() => { handleSignupClick() }}>Signup</button>
+                </div>
+                </div>
+                  )
+              }
+              </>)}
+          {mobileMode && (
+              <>
+                  <div className="logo">BDO Grind Tracker</div>
+                  <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
+                      <li className="home">
+                          <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
+                      </li>
+                      {isSignedIn && (
+                      <>
+                      <li className="sites">
+                          <Link to="/sites" aria-label="sites-hamburger-link" onClick={() => closeMenu()}>Sites</ Link>
+                      </li>
+                      <li className="history">
+                          <Link to="/history" aria-label="history-hamburger-link" onClick={() => closeMenu()} >History</Link>
+                      </li>
+                      <li className="analytics">
+                          <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
+                      </li>
+                      </>
+                      )}
+                      {isSignedIn
+                        ? (
+                            <div className="Logout">
+                              <button aria-label="logout-hamburger-link" onClick={logout}>Logout</button>
+                          </div>
+                          )
+                        : (
+                          <>
+                          <div className="Login">
+                              <button aria-label="login-hamburger-button" onClick={() => { closeMenu(); handleLoginClick() }}>Login</button>
+                          </div>
+                          <div className="Register">
+                            <button aria-label="register-hamburger-button" onClick={() => { closeMenu(); handleSignupClick() }}>Register</button>
+                          </div>
+                          </>
+                          )
+                      }
+                  </ul>
+              </>
+          )}
+      </nav>
+    </div>
 </>
   )
 }
