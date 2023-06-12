@@ -298,22 +298,20 @@ exports.GetSiteData = async (req, res) => {
 }
 
 exports.GetSessionsData = async (req, res) => {
-    Session.find({ UserId: req.userId }).then(async (sessions) => {
-        const data = [];
-        for(let i = 0; i < sessions.length; i++)
-        {
-            let date = new Date(sessions[i].TimeCreated);
-            data.push({
-                _id: sessions[i]._id,
-                Date: date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear(),
-                SiteName: await Site.findById(sessions[i].SiteId).then((site) => { return site.SiteName; }).catch(err => { res.status(500).send({ message: err })}),
-                TimeSpent: sessions[i].TimeSpent,
-                Earnings: sessions[i].Earnings,
-                AverageEarnings: sessions[i].AverageEarnings,
-                Expenses: sessions[i].Expenses,
-                Gear: sessions[i].Gear
-            });
-        }
+    Session.find({ UserId: req.userId }).populate('SiteId', 'SiteName').then(async (sessions) => {
+        const data = sessions.map(session => {
+            const date = new Date(session.TimeCreated);
+            return {
+                _id: session._id,
+                Date: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+                SiteName: session.SiteId.SiteName,
+                TimeSpent: session.TimeSpent,
+                Earnings: session.Earnings,
+                AverageEarnings: session.AverageEarnings,
+                Expenses: session.Expenses,
+                Gear: session.Gear
+            };
+        });
         res.status(200).send(data);
     }).catch(err => { res.status(500).send({ message: err })});
 }
