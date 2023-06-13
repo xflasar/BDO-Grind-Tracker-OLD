@@ -12,6 +12,43 @@ exports.UserData = (req, res) => {
     }).catch(err => { res.status(500).send({ message: err })});
 }
 
+exports.GetUserProfileData = (req, res) => {
+    User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username').then(async (user) => {
+        if(!user){
+            return await res.status(500).send({ message: 'User not found!'});
+        }
+
+        const data = {
+            DisplayName: user.DisplayName,
+            Username: user.authenticationId.username,
+            FamilyName: user.FamilyName
+        }
+        res.status(200).send(data)
+    });
+}
+
+exports.SetUserProfileData = (req, res) => {
+    const familyName = req.body.FamilyName;
+    const displayName = req.body.DisplayName;
+    const userName = req.body.Username;
+
+    User.findByIdAndUpdate(req.userId,
+        { $set: { FamilyName: familyName } },
+        { new: true }
+    ).then(res.status(200).send({ message: 'User Profile Data updated!'})).catch(async (err) => {
+        console.log(err);
+        return await res.status(500).send({ message: 'Data not saved: ' + err})
+    })
+}
+
+exports.GetUserSecurityData = (req, res) => {
+
+}
+
+exports.GetUserSettingsData = (req, res) => {
+
+}
+
 exports.UserSessions = (req, res) => {
     Session.find({UserId: req.userId}).then(async (sessions) => {
         if (!sessions) {

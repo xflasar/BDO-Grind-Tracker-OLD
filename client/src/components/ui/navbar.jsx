@@ -138,18 +138,18 @@ function Navigation () {
                   <div className="navbar-section">
                       <ul>
                           <li className="home">
-                              <Link to="/" aria-label="home-link">Home</Link>
+                              <Link to="/"aria-label="home-link">Home</Link>
                           </li>
                           {isSignedIn && (
                           <ul>
                           <li className="sites">
-                              <Link to="/ sites"aria-label="sites-link">Sites</ Link>
+                              <Link to="/sites"aria-label="sites-link">Sites</ Link>
                           </li>
                           <li className="history">
-                              <Link to="/ history"aria-label="history-link">History</ Link>
+                              <Link to="/history"aria-label="history-link">History</ Link>
                           </li>
                           <li className="analytics">
-                              <Link to="/ analytics"aria-label="analytics-link">Analytics  </Link>
+                              <Link to="/analytics"aria-label="analytics-link">Analytics  </Link>
                           </li>
                           </ul>
                           )}

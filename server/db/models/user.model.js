@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   DisplayName: String,
+  FamilyName: String,
   TotalTime: Number,
   TotalEarnings: Number,
   Sites: [{

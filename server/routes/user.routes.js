@@ -1,5 +1,6 @@
 const { authJwt } = require("../middlewares");
 const controller = require("../controllers/user.controller");
+const { verify } = require("jsonwebtoken");
 
 module.exports = function(app) {
     app.use(function(req, res, next) {
@@ -10,7 +11,15 @@ module.exports = function(app) {
         next();
     });
 
-    app.get("/api/user", [verifyToken], controller.UserData);
+    app.get("/api/user/userdata", [verifyToken], controller.UserData);
+
+    app.get('/api/user/userprofiledata', [verifyToken], controller.GetUserProfileData);
+
+    app.post("/api/user/setuserprofiledata", [verifyToken], controller.SetUserProfileData);
+
+    app.get("/api/user/usersecuritydata", [verifyToken], controller.GetUserSecurityData);
+    
+    app.get("/api/user/usersettingsdata", [verifyToken], controller.GetUserSettingsData);
 
     app.get("/api/user/sessions", [verifyToken], controller.UserSessions);
 
