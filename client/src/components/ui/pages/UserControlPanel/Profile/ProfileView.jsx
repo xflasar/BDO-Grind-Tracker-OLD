@@ -12,7 +12,6 @@ const ProfileView = () => {
   async function fetchUserData () {
     const response = await fetch('api/user/userprofiledata')
     const data = await response.json()
-    console.log(data)
     if (data) {
       setUser(data)
       if (data.Username) setUserUsername(data.Username)

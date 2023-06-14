@@ -3,40 +3,62 @@ import '../../../../../assets/pages/UserControlPanel/ProfileSecurity/ProfileSecu
 import { SessionContext } from '../../../../../contexts/SessionContext'
 
 const ProfileSecurity = () => {
-  const [userSecurity, setUserSecurity] = useState(null)
   const { isSignedIn } = useContext(SessionContext)
+  const [userPassword, setUserPassword] = useState('')
+  const [userNewPassword, setUserNewPassword] = useState('')
+  const [userNewPasswordConfirm, setUserNewPasswordConfirm] = useState('')
 
-  /* async function FetchUserData () {
-    const response = await fetch('api/user/userdatasettings')
+  const SubmitSecurityData = async (e) => {
+    e.preventDefault()
+    if (userNewPassword !== userNewPasswordConfirm) {
+      console.log('Passwords doesn`t match!!')
+      return
+    }
+
+    const response = await fetch('api/user/setusersecuritydata', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userPassword,
+        userNewPassword
+      })
+    })
     const data = await response.json()
     console.log(data)
-    if (data) {
-      setUserSettings(data)
-    }
-  } */
+  }
+
+  const handlePasswordChange = (e) => {
+    setUserPassword(e.target.value)
+  }
+
+  const handleNewPasswordChange = (e) => {
+    setUserNewPassword(e.target.value)
+  }
+
+  const handleNewPasswordConfirmChange = (e) => {
+    setUserNewPasswordConfirm(e.target.value)
+  }
 
   useEffect(() => {
     if (!isSignedIn) {
       window.location.href = '/'
-      return
     }
-    setUserSecurity(null)
-    // FetchUserData()
   }, [])
   return (
-        <div aria-label='profileSettings-container' className='profileSettings-container'>
-            {console.log(userSecurity)}
-            {userSecurity
-              ? (
-            <form aria-label='profileSettings-container-form'>
-                <label htmlFor='serverorregion'>Server/Region:</label>
-                <input type='text' id='serverorregion' name='serverorregion' placeholder='Server/Region' value={userSecurity.ServerRegion} />
-                <label htmlFor='grindingPreference'>Grinding preference:</label>
-                <input type='text' id='displayName' name='displayName' placeholder='Display name' value={userSecurity.displayName} />
-                <label htmlFor='familyName'>Family name:</label>
-                <input type='text' id='familyName' name='familyName' placeholder='Family name' value={userSecurity.familyName} />
-            </form>)
-              : (<h1>UserSecurity not available</h1>)}
+        <div aria-label='profileSecurity-container' className='profileSecurity-container'>
+            <form aria-label='profileSecurity-container-form'>
+              <div className='profileSecurity-container-form-inputlabel'>
+                <label htmlFor='password'>Password:</label>
+                <input type='password' id='password' name='password' placeholder='Password' value={userPassword} onChange={handlePasswordChange}/>
+                <label htmlFor='newPassword'>New Password:</label>
+                <input type='password' id='newPassword' name='newPassword' placeholder='New Password' value={userNewPassword} onChange={handleNewPasswordChange} />
+                <label htmlFor='passwordConfirm'>Confirm New Password:</label>
+                <input type='password' id='passwordConfirm' name='passwordConfirm' placeholder='Confirm new password' value={userNewPasswordConfirm} onChange={handleNewPasswordConfirmChange}/>
+                </div>
+                <button id='profileSecurityChangeButton' name='profileSecurityChangeButton' onClick={SubmitSecurityData}>Change password</button>
+            </form>
         </div>
   )
 }
