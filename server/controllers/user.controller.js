@@ -2,6 +2,7 @@ const User = require('../db/models/user.model.js');
 const Session = require('../db/models/session.model.js');
 const Site = require('../db/models/site.model.js');
 const Auth = require('../db/models/auth.model.js');
+var bcrypt = require("bcryptjs");
 
 exports.UserData = (req, res) => {
     User.findById(req.userId).populate('Sessions').populate('Sites').then(async (user) => {
@@ -41,8 +42,18 @@ exports.SetUserProfileData = (req, res) => {
     })
 }
 
-exports.GetUserSecurityData = (req, res) => {
-
+exports.SetUserSecurityData = async (req, res) => {
+    await Auth.findOne({ UserId: req.userId }).then( async (auth) => {
+        if (await bcrypt.compareSync(await req.body.userPassword, auth.password)){
+            auth.password = await bcrypt.hash(req.body.userNewPassword, 8)
+            auth.save()
+            return res.status(200).send({ message: 'Confirmed!'})
+        } else {
+            return res.status(401).send({ message: 'Wrong Password!'})
+            
+        }
+    }).catch((err) => {res.status(500).send({ message: 'Errored: ' + err })})
+    
 }
 
 exports.GetUserSettingsData = (req, res) => {
