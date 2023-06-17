@@ -2,20 +2,23 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const Auth = require("../db/models/auth.model.js");
 
-verifyToken = (req, res, next) => {
+verifyToken = async (req, res, next) => {
     let token = req.session.token;
 
     if (!token) {
         return res.status(403).send({ message: "No token provided!" });
     }
 
-    jwt.verify(token, config.secret, async (err, decoded) => {
+    const isTokenValid = await jwt.verify(token, config.secret, async (err, decoded) => {
         if (err) {
-            return res.status(401).send({ message: "Unauthorized!" });
+            res.status(401).send({ message: "Unauthorized!" });
+            return false;
         }
         req.authId = decoded.id;
-        
+        return true;
     });
+
+    if(!isTokenValid) return false;
 
     Auth.findById(req.authId).then(async (userAuth) => {
         if (!userAuth) {
