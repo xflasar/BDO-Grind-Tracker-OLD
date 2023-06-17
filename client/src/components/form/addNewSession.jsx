@@ -1,15 +1,17 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import '../../assets/components/form/addNewSession.scss'
+import { SessionContext } from '../../contexts/SessionContext'
 
 const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
+  const { authorizedFetch } = useContext(SessionContext)
   async function handleAddSessionSubmit (e) {
     e.preventDefault()
     const formData = new FormData(e.target)
     const formValues = Object.fromEntries(formData.entries())
 
     try {
-      const res = await fetch('api/user/addsession', {
+      const res = await authorizedFetch('api/user/addsession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -10,11 +10,11 @@ function History () {
   const [editData, setEditData] = useState(null)
   const [addSession, setAddSession] = useState(false)
   const [editSession, setEditSession] = useState(false)
-  const { isSignedIn } = useContext(SessionContext)
+  const { isSignedIn, authorizedFetch } = useContext(SessionContext)
 
   async function fetchHistoryData () {
     try {
-      const res = await fetch('api/user/historydata')
+      const res = await authorizedFetch('api/user/historydata')
       const data = await res.json()
       return data
     } catch (error) {
@@ -61,7 +61,7 @@ function History () {
 
   async function handleDeleteSession (id) {
     try {
-      const res = await fetch('api/user/deletesession', {
+      const res = await authorizedFetch('api/user/deletesession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -83,7 +83,7 @@ function History () {
 
   async function handleEditSessionSubmit (data) {
     try {
-      const res = await fetch('api/user/modifysession', {
+      const res = await authorizedFetch('api/user/modifysession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -4,7 +4,7 @@ import '../../assets/components/ui/Login/Login.scss'
 import { SessionContext } from '../../contexts/SessionContext'
 
 const Login = ({ onLoginSuccess }) => {
-  const { signin } = useContext(SessionContext)
+  const { signin, authorizedFetch } = useContext(SessionContext)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -24,7 +24,7 @@ const Login = ({ onLoginSuccess }) => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const response = await fetch('api/auth/signin', {
+      const response = await authorizedFetch('api/auth/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

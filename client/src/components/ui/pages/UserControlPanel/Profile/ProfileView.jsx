@@ -3,14 +3,14 @@ import '../../../../../assets/pages/UserControlPanel/ProfileView/ProfileView.scs
 import { SessionContext } from '../../../../../contexts/SessionContext'
 
 const ProfileView = () => {
-  const { isSignedIn } = useContext(SessionContext)
+  const { isSignedIn, authorizedFetch } = useContext(SessionContext)
   const [user, setUser] = useState(null)
   const [userUsername, setUserUsername] = useState('')
   const [userDisplayName, setUserDisplayName] = useState('')
   const [userFamilyName, setUserFamilyName] = useState('')
 
   async function fetchUserData () {
-    const response = await fetch('api/user/userprofiledata')
+    const response = await authorizedFetch('api/user/userprofiledata')
     const data = await response.json()
     if (data) {
       setUser(data)
@@ -55,7 +55,7 @@ const ProfileView = () => {
       FamilyName: userFamilyName
     }
 
-    const response = await fetch('api/user/setuserprofiledata', {
+    const response = await authorizedFetch('api/user/setuserprofiledata', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

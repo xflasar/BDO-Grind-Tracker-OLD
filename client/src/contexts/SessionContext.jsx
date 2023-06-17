@@ -20,10 +20,27 @@ const SessionProvider = ({ children }) => {
     Cookies.remove('session.sig')
   }
 
+  const handleUnauthorized = () => {
+    signout()
+  }
+
+  const unauthorizedInterceptor = (response) => {
+    if (response.status === 401) {
+      handleUnauthorized()
+    }
+    return response
+  }
+
+  const authorizedFetch = async (url, options) => {
+    const response = await fetch(url, options)
+    return unauthorizedInterceptor(response)
+  }
+
   const sessionContextValue = {
     isSignedIn,
     signin,
-    signout
+    signout,
+    authorizedFetch
   }
 
   return (

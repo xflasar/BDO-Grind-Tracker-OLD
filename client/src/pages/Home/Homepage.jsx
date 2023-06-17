@@ -5,10 +5,10 @@ import { SessionContext } from '../../contexts/SessionContext'
 
 function Homepage () {
   const [data, setData] = useState(null)
-  const { isSignedIn } = useContext(SessionContext)
+  const { isSignedIn, authorizedFetch } = useContext(SessionContext)
 
   async function handleFetchData () {
-    const res = await fetch('api/user/homepage')
+    const res = await authorizedFetch('api/user/homepage')
     const data = await res.json()
     return data
   }

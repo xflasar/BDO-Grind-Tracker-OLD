@@ -3,7 +3,7 @@ import '../../../../../assets/pages/UserControlPanel/ProfileSecurity/ProfileSecu
 import { SessionContext } from '../../../../../contexts/SessionContext'
 
 const ProfileSecurity = () => {
-  const { isSignedIn } = useContext(SessionContext)
+  const { isSignedIn, authorizedFetch } = useContext(SessionContext)
   const [userPassword, setUserPassword] = useState('')
   const [userNewPassword, setUserNewPassword] = useState('')
   const [userNewPasswordConfirm, setUserNewPasswordConfirm] = useState('')
@@ -15,7 +15,7 @@ const ProfileSecurity = () => {
       return
     }
 
-    const response = await fetch('api/user/setusersecuritydata', {
+    const response = await authorizedFetch('api/user/setusersecuritydata', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

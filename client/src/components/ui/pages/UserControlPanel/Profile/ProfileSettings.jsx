@@ -7,7 +7,7 @@ const ProfileSettings = () => {
   const { isSignedIn } = useContext(SessionContext)
 
   /* async function FetchUserData () {
-    const response = await fetch('api/user/userdatasettings')
+    const response = await authorizedFetch('api/user/userdatasettings')
     const data = await response.json()
     console.log(data)
     if (data) {

@@ -15,7 +15,7 @@ function Navigation () {
   const [showLogin, setShowLogin] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
   const [isActive, setIsActive] = useState(false)
-  const { isSignedIn, signout } = useContext(SessionContext)
+  const { isSignedIn, signout, authorizedFetch } = useContext(SessionContext)
 
   useEffect(() => {
     const handleDocumentClick = (event) => {
@@ -44,7 +44,7 @@ function Navigation () {
   }, [])
 
   const logout = async () => {
-    const res = await fetch('/api/auth/signout', {
+    const res = await authorizedFetch('/api/auth/signout', {
       method: 'POST',
       credentials: 'include'
     })
