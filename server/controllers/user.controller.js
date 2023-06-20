@@ -31,10 +31,17 @@ exports.GetUserProfileData = (req, res) => {
 exports.SetUserProfileData = (req, res) => {
     const familyName = req.body.FamilyName;
     const displayName = req.body.DisplayName;
-    const userName = req.body.Username;
+
+    const profileData = {}
+
+    for(const key in req.body) {
+        if(User.schema.obj.hasOwnProperty(key)) {
+            profileData[key] = req.body[key]
+        }
+    }
 
     User.findByIdAndUpdate(req.userId,
-        { $set: { FamilyName: familyName } },
+        { $set: { ...profileData } },
         { new: true }
     ).then(res.status(200).send({ message: 'User Profile Data updated!'})).catch(async (err) => {
         console.log(err);
