@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Login from '../form/Login'
 import Signup from '../form/Signup'
 import '../../assets/components/ui/Navbar.scss'
@@ -16,6 +16,8 @@ function Navigation () {
   const [showSignup, setShowSignup] = useState(false)
   const [isActive, setIsActive] = useState(false)
   const { isSignedIn, signout, authorizedFetch } = useContext(SessionContext)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleDocumentClick = (event) => {
@@ -52,8 +54,12 @@ function Navigation () {
 
     if (data.message === 'Successfully signed out!') {
       signout()
-      window.location.href = '/'
+      navigate('/')
     }
+  }
+
+  const profile = () => {
+    navigate('/profile')
   }
 
   const closeMenu = () => {
@@ -157,6 +163,9 @@ function Navigation () {
                   </div>
               {isSignedIn
                 ? <div className='account-control'>
+                          <div className='Profile'>
+                            <button aria-label='profile-button' onClick={profile}>Profile</button>
+                          </div>
                           <div className="Logout">
                               <button aria-label="logout-button" onClick= {logout}>Logout</button>
                           </div>

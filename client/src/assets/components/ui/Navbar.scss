@@ -96,7 +96,7 @@
                 top: 15%;
                 background-color: transparent;
                 position: absolute;
-                right: 3rem;
+                right: 2rem;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -110,25 +110,6 @@
 
                 button:hover{
                     color: #ffa600;
-                }
-
-                .Logout {
-                    top: 15%;
-                    background-color: transparent;
-                    position: absolute;
-                    right: 0;
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: center;
-                    width: 10%;
-                    height: auto;
-                    button{
-                        color:white
-                    }
-                    button:hover{
-                        color: #ffa600;
-                    }
                 }
             }
         }
