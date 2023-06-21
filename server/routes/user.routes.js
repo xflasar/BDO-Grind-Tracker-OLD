@@ -21,6 +21,8 @@ module.exports = function(app) {
     
     app.get("/api/user/usersettingsdata", [verifyToken], controller.GetUserSettingsData);
 
+    app.post("/api/user/setusersettingsdata", [verifyToken], controller.SetUserSettingsData)
+
     app.get("/api/user/sessions", [verifyToken], controller.UserSessions);
 
     app.get("/api/user/sites", [verifyToken], controller.UserSites);

@@ -17,7 +17,11 @@ const userSchema = new mongoose.Schema({
   Sessions: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Sessions',
-  }]
+  }],
+  Settings: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserSettings'
+  }
 });
 
 const User = mongoose.model('Users', userSchema, "Users");
