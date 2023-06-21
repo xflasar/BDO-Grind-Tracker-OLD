@@ -3,6 +3,8 @@ const Session = require('../db/models/session.model.js');
 const Site = require('../db/models/site.model.js');
 const Auth = require('../db/models/auth.model.js');
 var bcrypt = require("bcryptjs");
+const UserSettings = require('../db/models/settings.model.js');
+const { Schema } = require('mongoose');
 
 exports.UserData = (req, res) => {
     User.findById(req.userId).populate('Sessions').populate('Sites').then(async (user) => {
@@ -64,8 +66,36 @@ exports.SetUserSecurityData = async (req, res) => {
 }
 
 exports.GetUserSettingsData = (req, res) => {
-
+    
 }
+
+exports.SetUserSettingsData = async (req, res) => {
+    UserSettings.findOne({userId: req.userId}).then((settings) => {
+        if(!settings) {
+            const userSettings = new UserSettings({
+                userId: req.userId,
+                region: req.body.regionServer,
+                valuePack: req.body.valuePack,
+                merchantRing: req.body.merchantRing,
+                familyFame: req.body.familyFame
+            })
+            userSettings.save().then((userSettingsSaved) => {
+                User.findById(req.userId).then((user) => {
+                    user.Settings = userSettingsSaved._id;
+                    user.save().catch((err) => {return res.status(500).send({ message: 'Failed to save User with newly updated UserSettings!' + err})});
+                }).catch((err) => { return res.status(500).send({ message: 'Failed to update User with newly created UserSettings!' + err})});
+                return res.status(200).send({ message: 'UserSettings created successfully!'})
+            }).catch((err) => {return res.status(500).send({ message: 'Error creating usersettings ' + err})})
+        } else {
+            settings.region = req.body.regionServer,
+            settings.valuePack = req.body.valuePack,
+            settings.merchantRing = req.body.merchantRing,
+            settings.familyFame = req.body.familyFame
+            
+            settings.save().then(() => res.status(200).send({ message: 'UserSettings updated successfully!'})).catch((err) => {return res.status(500).send({ message: 'Error updating usersettings! ' + err})})
+        }
+        }).catch((err) => {return res.status(500).send({ message: 'Error finding usersettings! ' + err})})
+    }
 
 exports.UserSessions = (req, res) => {
     Session.find({UserId: req.userId}).then(async (sessions) => {
