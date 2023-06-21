@@ -15,6 +15,7 @@ function Navigation () {
   const [showLogin, setShowLogin] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
   const [isActive, setIsActive] = useState(false)
+  const [activeLink, setActiveLink] = useState('')
   const { isSignedIn, signout, authorizedFetch } = useContext(SessionContext)
 
   const navigate = useNavigate()
@@ -44,6 +45,10 @@ function Navigation () {
       document.removeEventListener('click', handleDocumentClick)
     }
   }, [])
+
+  useEffect(() => {
+    setActiveLink(location.pathname)
+  }, [location.pathname])
 
   const logout = async () => {
     const res = await authorizedFetch('/api/auth/signout', {
@@ -139,23 +144,22 @@ function Navigation () {
           )}
           {!mobileMode && (
               <>
-
                   <div className="logo">BDO Grind Tracker</div>
                   <div className="navbar-section">
                       <ul>
                           <li className="home">
-                              <Link to="/"aria-label="home-link">Home</Link>
+                              <Link to="/" className={activeLink === '/' ? 'active' : ''} aria-label="home-link">Home</Link>
                           </li>
                           {isSignedIn && (
                           <ul>
                           <li className="sites">
-                              <Link to="/sites"aria-label="sites-link">Sites</ Link>
+                              <Link to="/sites" className={activeLink === '/sites' ? 'active' : ''} aria-label="sites-link">Sites</ Link>
                           </li>
                           <li className="history">
-                              <Link to="/history"aria-label="history-link">History</ Link>
+                              <Link to="/history" className={activeLink === '/history' ? 'active' : ''} aria-label="history-link">History</ Link>
                           </li>
                           <li className="analytics">
-                              <Link to="/analytics"aria-label="analytics-link">Analytics  </Link>
+                              <Link to="/analytics" className={activeLink === '/analytics' ? 'active' : ''} aria-label="analytics-link">Analytics  </Link>
                           </li>
                           </ul>
                           )}
