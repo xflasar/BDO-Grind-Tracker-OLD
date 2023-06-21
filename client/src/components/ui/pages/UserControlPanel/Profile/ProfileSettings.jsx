@@ -91,11 +91,13 @@ const ProfileSettings = () => {
                       <input type='checkbox' id='merchantRing' name='merchantRing' checked={merchantRing} onChange={handleMerchantRingChange}/>
                       <label htmlFor='familyFame'>Family Fame</label>
                       <input type='text' id='familyFame' name='familyFame' pattern='[0-9.]+' value={familyFame} onChange={handleFamilyFameChange}/>
-                      <label htmlFor='tax'>Tax</label>
-                      <div className='profileSettings-container-form-inputlabel-grindingPreference-tax'>
-                        <p>{(0.60 + tax) * 100}</p>/<p>{tax}</p>
-                      </div>
                   </div>
+                  <label htmlFor='tax'>Tax</label>
+                <div className='profileSettings-container-form-inputlabel-tax'>
+                        <input type='text' className='profileSettings-container-form-inputlabel-tax-total' disabled value={(1 + tax) * 100 + '%'} />
+                        <div className='profileSettings-container-form-inputlabel-tax-deliminator'>|</div>
+                        <input type='text' className='profileSettings-container-form-inputlabel-tax-taxed' disabled value={tax * 100 + '%'} />
+                </div>
                 </div>
                 <button id='profileSettingsSaveButton' name='profileSettingsSaveButton' onClick={SaveSettingsData}>Save</button>
             </form>)

@@ -66,18 +66,42 @@ exports.SetUserSecurityData = async (req, res) => {
 }
 
 exports.GetUserSettingsData = (req, res) => {
-    
+    UserSettings.findOne({userId: req.userId}).then(async(settings) => {
+        if (!settings) {
+            return await res.status(500).send({ message: 'UserSettings doesn\'t exists!' })
+        } else {
+            const data = {
+                RegionServer: settings.region,
+                ValuePack: settings.valuePack,
+                MerchantRing: settings.merchantRing,
+                FamilyFame: settings.familyFame,
+                Tax: settings.tax
+            }
+
+            res.status(200).send(data);
+        }
+    }).catch((err) => res.status(500).send({ message: err}))
 }
 
 exports.SetUserSettingsData = async (req, res) => {
     UserSettings.findOne({userId: req.userId}).then((settings) => {
+        let taxCalculated = 0;
+        if (req.body.valuePack && req.body.merchantRing) {
+            taxCalculated = (-0.35 + 0.2275).toFixed(4);
+        } else if (req.body.valuePack) {
+            taxCalculated = (-0.35 + 0.195).toFixed(4);
+        } else if (req.body.merchantRing) {
+            taxCalculated = (-0.35 + 0.0325).toFixed(4);
+        }
+
         if(!settings) {
             const userSettings = new UserSettings({
                 userId: req.userId,
                 region: req.body.regionServer,
                 valuePack: req.body.valuePack,
                 merchantRing: req.body.merchantRing,
-                familyFame: req.body.familyFame
+                familyFame: req.body.familyFame,
+                tax: taxCalculated
             })
             userSettings.save().then((userSettingsSaved) => {
                 User.findById(req.userId).then((user) => {
@@ -87,10 +111,11 @@ exports.SetUserSettingsData = async (req, res) => {
                 return res.status(200).send({ message: 'UserSettings created successfully!'})
             }).catch((err) => {return res.status(500).send({ message: 'Error creating usersettings ' + err})})
         } else {
-            settings.region = req.body.regionServer,
-            settings.valuePack = req.body.valuePack,
-            settings.merchantRing = req.body.merchantRing,
-            settings.familyFame = req.body.familyFame
+            settings.region = req.body.regionServer;
+            settings.valuePack = req.body.valuePack;
+            settings.merchantRing = req.body.merchantRing;
+            settings.familyFame = req.body.familyFame;
+            settings.tax = taxCalculated;
             
             settings.save().then(() => res.status(200).send({ message: 'UserSettings updated successfully!'})).catch((err) => {return res.status(500).send({ message: 'Error updating usersettings! ' + err})})
         }
