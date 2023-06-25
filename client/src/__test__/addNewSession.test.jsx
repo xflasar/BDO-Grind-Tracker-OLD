@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import AddSession from '../components/form/addNewSession'
+import { SessionProvider } from '../contexts/SessionContext'
 
 describe('AddSession Component', () => {
   const onAddSessionSuccessMock = jest.fn()
@@ -14,7 +15,9 @@ describe('AddSession Component', () => {
   it('should render the form correctly', async () => {
     await act(() => {
       render(
-      <AddSession onAddSessionSuccess={onAddSessionSuccessMock} onCloseClick={onCloseClickMock} />
+        <SessionProvider>
+          <AddSession onAddSessionSuccess={onAddSessionSuccessMock} onCloseClick={onCloseClickMock}/>
+        </SessionProvider>
       )
     })
 
@@ -42,7 +45,9 @@ describe('AddSession Component', () => {
   it('should call the onCloseClick function when the close button is clicked', async () => {
     await act(() => {
       render(
-      <AddSession onAddSessionSuccess={onAddSessionSuccessMock} onCloseClick={onCloseClickMock} />
+        <SessionProvider>
+          <AddSession onAddSessionSuccess={onAddSessionSuccessMock} onCloseClick={onCloseClickMock}/>
+        </SessionProvider>
       )
     })
 
@@ -70,7 +75,9 @@ describe('AddSession Component', () => {
 
     await act(async () => {
       render(
-        <AddSession onAddSessionSuccess={onAddSessionSuccessMock} onCloseClick={onCloseClickMock} />
+        <SessionProvider>
+          <AddSession onAddSessionSuccess={onAddSessionSuccessMock} onCloseClick={onCloseClickMock}/>
+        </SessionProvider>
       )
     })
 

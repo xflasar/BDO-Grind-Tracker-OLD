@@ -2,13 +2,16 @@ import React from 'react'
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import Signup from '../components/form/Signup'
+import { SessionProvider } from '../contexts/SessionContext'
 
 describe('Signup Component', () => {
   it('should render the signup form', async () => {
     const onSignupSuccess = jest.fn()
     await act(async () => {
       render(
-        <Signup onSignupSuccess={onSignupSuccess} />
+        <SessionProvider>
+          <Signup onSignupSuccess={onSignupSuccess} />
+        </SessionProvider>
       )
     })
 
@@ -34,7 +37,9 @@ describe('Signup Component', () => {
     })
     await act(async () => {
       render(
-        <Signup onSignupSuccess={onSignupSuccess} />
+        <SessionProvider>
+          <Signup onSignupSuccess={onSignupSuccess} />
+        </SessionProvider>
       )
     })
 

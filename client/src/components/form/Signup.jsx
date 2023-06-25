@@ -38,20 +38,15 @@ function Signup ({ onSignupSuccess }) {
         })
       })
       const res = await response.json()
-      console.log('Passed')
-      console.log(res)
       if (res.accessToken) {
-        console.log('called access!')
         document.cookie = `token=${res.accessToken}; path=/;`
         onSignupSuccess(res.accessToken)
         setUsername('')
         setEmail('')
         setPassword('')
       } else {
-        console.log('else')
         if (res.message === 'Failed! Username is already in use!') {
           setUsernameError(true)
-          console.log('called error!')
           setUsername('')
           setPassword('')
         } else if (res.message === 'Failed! Email is already in use!') {
