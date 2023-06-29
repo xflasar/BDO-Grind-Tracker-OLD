@@ -24,9 +24,9 @@ function Navigation () {
     const handleDocumentClick = (event) => {
       const loginFormOverlay = document.querySelector('.login-form-overlay')
       const loginButton = document.querySelector('.login-container button')
-      const signupFormOverlay = document.querySelector('.signup-form-overlay')
+      const signupFormContainer = document.querySelector('.signup-form-container')
       const signupButton = document.querySelector('.signup-container button')
-      if (((loginFormOverlay && !loginFormOverlay.contains(event.target)) && (loginButton && !loginButton.contains(event.target))) || ((signupFormOverlay && !signupFormOverlay.contains(event.target)) && (signupButton && !signupButton.contains(event.target)))) {
+      if (((loginFormOverlay && !loginFormOverlay.contains(event.target)) && (loginButton && !loginButton.contains(event.target))) || ((signupFormContainer && !signupFormContainer.contains(event.target)) && (signupButton && !signupButton.contains(event.target)))) {
         setIsActive(false)
       }
     }
@@ -83,6 +83,10 @@ function Navigation () {
 
   const handleLoginClick = () => {
     if (!showLogin) {
+      if (showSignup) {
+        setIsActive(false)
+        setShowSignup(false)
+      }
       setShowLogin(true)
       setTimeout(() => {
         setIsActive(true)
@@ -97,6 +101,10 @@ function Navigation () {
 
   const handleSignupClick = () => {
     if (!showSignup) {
+      if (showLogin) {
+        setIsActive(false)
+        setShowLogin(false)
+      }
       setShowSignup(true)
       setTimeout(() => {
         setIsActive(true)

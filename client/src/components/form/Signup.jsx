@@ -62,7 +62,6 @@ function Signup ({ onSignupSuccess }) {
     <div className='signup-form-container' aria-label='signup-container'>
       <form onSubmit={handleSignup} aria-label='signup-container-form'>
         <h2>Registration</h2>
-        <label htmlFor='username'>Username:</label>
         {!usernameError
           ? (
           <input
@@ -89,7 +88,6 @@ function Signup ({ onSignupSuccess }) {
             </label>
           </>
             )}
-        <label htmlFor='email'>Email:</label>
         <input
           type='text'
           name='email'
@@ -98,7 +96,6 @@ function Signup ({ onSignupSuccess }) {
           value={email}
           placeholder='Email'
         />
-        <label htmlFor='password'>Password:</label>
         <input
           type='password'
           name='password'

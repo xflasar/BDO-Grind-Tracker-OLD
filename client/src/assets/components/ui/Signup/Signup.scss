@@ -1,15 +1,17 @@
 .signup-form-container {
     position: absolute;
     display: flex;
+    left: 50%;
+    top: 50%;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 50%;
-    width: 50%;
-    background-color: #0f0e0e;
+    background-color: rgb(51, 51, 51);
+    border-radius: 12px;
     color: #ff9900;
     font-family: 'Montserrat', sans-serif;
     max-width: fit-content;
+    transform: translate(-50%, -50%);
 
     h3{
         color: #ff9900;
