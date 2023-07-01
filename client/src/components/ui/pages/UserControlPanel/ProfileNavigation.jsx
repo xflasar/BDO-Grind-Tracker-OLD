@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import '../../../../assets/pages/UserControlPanel/ProfileNavigation/ProfileNavigation.scss'
+import '../../../../assets/components/ui/UserControlPanel/ProfileNavigation/ProfileNavigation.scss'
 
 const ProfileNavigation = ({ navPage }) => {
   const handleProfileClick = () => {

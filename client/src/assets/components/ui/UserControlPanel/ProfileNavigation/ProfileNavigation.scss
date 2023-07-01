@@ -1,0 +1,29 @@
+// Define variables for the colors to make it easier to modify them later
+$hoverTextColor: rgb(255, 130, 0);
+
+// Define the styles using SCSS
+.profile-navigation-container {
+  background-color: #333;
+  position: relative;
+  width: 25%;
+  left: 0;
+  border-right: 2px solid rgba(0, 0, 0, 0.33);
+
+  li {
+    list-style-type: none;
+  }
+
+  button {
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    margin-right: 1.5%;
+    margin-top: 1.5%;
+    color: rgb(255, 255, 255);
+
+    &:hover {
+      color: $hoverTextColor;
+    }
+  }
+}
