@@ -78,6 +78,7 @@ function Navigation () {
 
   const handleSignupSuccess = () => {
     setIsActive(false)
+    setShowSignup(false)
     window.location.reload()
   }
 

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 import '../../assets/components/ui/Signup/Signup.scss'
 import { SessionContext } from '../../contexts/SessionContext'
 
-function Signup ({ onSignupSuccess }) {
-  const { authorizedFetch } = useContext(SessionContext)
+const Signup = ({ onSignupSuccess }) => {
+  const { authorizedFetch, signin } = useContext(SessionContext)
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,8 +39,8 @@ function Signup ({ onSignupSuccess }) {
       })
       const res = await response.json()
       if (res.accessToken) {
-        document.cookie = `token=${res.accessToken}; path=/;`
-        onSignupSuccess(res.accessToken)
+        signin(res.accessToken)
+        onSignupSuccess()
         setUsername('')
         setEmail('')
         setPassword('')
