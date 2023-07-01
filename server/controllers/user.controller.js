@@ -377,11 +377,17 @@ exports.GetHomepageData = async (req, res) => {
                     Content: ""
                 }
             }
-        await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
-            data.SiteO.Content = sites.SiteName;
-            data.AverageEarningsO.Content = sites.AverageEarnings;
-        }).catch(err => { res.status(500).send({ message: err })});
-        res.status(200).send(data);
+            await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
+                if(!sites)
+                {
+                    data.SiteO.Content = 'No Site';
+                    data.AverageEarningsO.Content = 0;
+                } else {
+                    data.SiteO.Content = sites.SiteName;
+                    data.AverageEarningsO.Content = sites.AverageEarnings;
+                }
+            }).catch(err => { res.status(500).send({ message: err })});
+            res.status(200).send(data);
         }
         catch(err)
         {

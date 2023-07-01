@@ -23,9 +23,15 @@ exports.signup = async (req, res) => {
           Settings: null
       });
 
-  user.save().then(res.send({ message: "User was registered successfully!" }));
+  user.save().then();
   auth.UserId = user._id;
-  auth.save().catch(err => { res.status(500).send({ message: err })});
+  auth.save().then(async (userAuth) => {
+    var token = await jwt.sign({ id: userAuth.id }, config.secret, {
+      expiresIn: 86400, // 24 hours
+    });
+    req.session.token = token;
+    res.status(200).send({ accessToken: token, message: "User was registered successfully!" });
+  }).catch(err => { res.status(500).send({ message: err })});
   }).catch(err => { res.status(500).send({ message: err });
     return});
   
