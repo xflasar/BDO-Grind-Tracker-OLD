@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
   DisplayName: String,
@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   TotalEarnings: Number,
   Sites: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Sites',
+    ref: 'Sites'
   }],
   TotalExpenses: Number,
   authenticationId: {
@@ -16,14 +16,14 @@ const userSchema = new mongoose.Schema({
   },
   Sessions: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Sessions',
+    ref: 'Sessions'
   }],
-  Settings: { 
+  Settings: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'UserSettings'
   }
-});
+})
 
-const User = mongoose.model('Users', userSchema, "Users");
+const User = mongoose.model('Users', userSchema, 'Users')
 
-module.exports = User;
+module.exports = User

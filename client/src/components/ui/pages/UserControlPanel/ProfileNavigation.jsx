@@ -5,15 +5,12 @@ import '../../../../assets/components/ui/UserControlPanel/ProfileNavigation/Prof
 const ProfileNavigation = ({ navPage }) => {
   const handleProfileClick = () => {
     navPage('Profile')
-    console.log('Clicked Profile button!!!', this)
   }
   const handleSecurityClick = () => {
     navPage('Security')
-    console.log('Clicked Security button!!!', this)
   }
   const handleSettingsClick = () => {
     navPage('Settings')
-    console.log('Clicked Settings button!!!', this)
   }
   return (
         <div aria-label='profileNavigation' className='profile-navigation-container'>

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const siteSchema = new mongoose.Schema({
   SiteName: String,
@@ -7,8 +7,8 @@ const siteSchema = new mongoose.Schema({
   TotalSpent: Number,
   AverageEarnings: Number,
   UserId: mongoose.Schema.Types.ObjectId
-});
+})
 
-const Site = mongoose.model('Sites', siteSchema, "Sites");
+const Site = mongoose.model('Sites', siteSchema, 'Sites')
 
-module.exports = Site;
+module.exports = Site

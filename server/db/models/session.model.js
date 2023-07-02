@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const sessionSchema = new mongoose.Schema({
   SiteId: {
@@ -18,8 +18,8 @@ const sessionSchema = new mongoose.Schema({
     default: Date.now
   },
   UserId: mongoose.Schema.Types.ObjectId
-});
+})
 
-const Session = mongoose.model('Sessions', sessionSchema, "Sessions");
+const Session = mongoose.model('Sessions', sessionSchema, 'Sessions')
 
-module.exports = Session;
+module.exports = Session

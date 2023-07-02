@@ -1,31 +1,27 @@
-const Auth = require("../db/models/auth.model.js");
+const Auth = require('../db/models/auth.model.js')
 
-checkDuplicateUsernameOrEmail = (req, res, next) => {
-    // Username
+const checkDuplicateUsernameOrEmail = (req, res, next) => {
+  // Username
+  Auth.findOne({
+    username: req.body.username
+  }).then(async (user) => {
+    if (user) {
+      await res.status(400).send({ message: 'Failed! Username is already in use!' })
+      return
+    }
+
+    // Email
     Auth.findOne({
-      username: req.body.username
+      email: req.body.email
     }).then(async (user) => {
       if (user) {
-        await res.status(400).send({ message: "Failed! Username is already in use!" });
-        return;
+        await res.status(400).send({ message: 'Failed! Email is already in use!' })
+        return
       }
-  
-      // Email
-      Auth.findOne({
-        email: req.body.email
-      }).then(async (user) => {
-        if (user) {
-          await res.status(400).send({ message: "Failed! Email is already in use!" });
-          return;
-        }
-  
-        next();
-      }).catch(err => { res.status(500).send({ message: err + email + username })});
-    }).catch(err => { res.status(500).send({ message: err + email + username })});
-  };
 
-const verifySignUp = {
-    checkDuplicateUsernameOrEmail
-};
+      next()
+    }).catch(err => { res.status(500).send({ message: err }) })
+  }).catch(err => { res.status(500).send({ message: err }) })
+}
 
-module.exports = verifySignUp;
+module.exports = { checkDuplicateUsernameOrEmail }

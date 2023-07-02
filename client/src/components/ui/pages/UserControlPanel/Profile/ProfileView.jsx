@@ -55,19 +55,21 @@ const ProfileView = () => {
       FamilyName: userFamilyName
     }
 
-    const response = await authorizedFetch('api/user/setuserprofiledata', {
+    await authorizedFetch('api/user/setuserprofiledata', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
+    }).then((res) => {
+      if (!res.ok) {
+        console.log('Profile update failed')
+        // Handle failed update
+        return
+      }
+      console.log('Profile update success')
+      return res.json()
     })
-
-    const res = await response.json()
-
-    if (res && !res.ok) {
-      console.log('Error occurred: ' + res.message)
-    }
   }
 
   return (

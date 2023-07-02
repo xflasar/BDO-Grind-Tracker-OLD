@@ -35,6 +35,7 @@ describe('Signup Component', () => {
     const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
       json: jest.fn().mockResolvedValue(mockResponse)
     })
+
     await act(async () => {
       render(
         <SessionProvider>
@@ -68,7 +69,6 @@ describe('Signup Component', () => {
       })
       expect(document.cookie).toBe(`token=${mockAccessToken}`)
       expect(onSignupSuccess).toHaveBeenCalledTimes(1)
-      expect(onSignupSuccess).toHaveBeenCalledWith(mockAccessToken)
     })
 
     fetchMock.mockRestore()

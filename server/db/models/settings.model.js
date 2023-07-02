@@ -1,33 +1,33 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const settingsSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: true
   },
   region: {
     type: String,
-    required: true,
+    required: true
   },
   valuePack: {
     type: Boolean,
-    default: false,
+    default: false
   },
   merchantRing: {
     type: Boolean,
-    default: false,
+    default: false
   },
   familyFame: {
     type: Number,
-    default: false,
+    default: false
   },
   tax: {
     type: Number,
-    default: -0.35,
+    default: -0.35
   }
-});
+})
 
-const UserSettings = mongoose.model('UserSettings', settingsSchema, 'UserSettings');
+const UserSettings = mongoose.model('UserSettings', settingsSchema, 'UserSettings')
 
-module.exports = UserSettings;
+module.exports = UserSettings
