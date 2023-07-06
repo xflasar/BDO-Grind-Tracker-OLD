@@ -40,7 +40,7 @@ exports.signup = async (req, res) => {
 exports.signin = (req, res) => {
   Auth.findOne({
     username: req.body.username
-  }).then(async (user) => {
+  }).populate('UserId').then(async (user) => {
     if (!user) {
       return await res.status(404).send({ message: 'User not found.' })
     }
@@ -61,10 +61,9 @@ exports.signin = (req, res) => {
     req.session.token = token
 
     await res.status(200).send({
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      UserId: user.UserId,
+      userData: {
+        ImageUrl: user.UserId.ImageUrl
+      },
       accessToken: token
     })
   }).catch(err => { res.status(500).send({ message: err }) })

@@ -4,7 +4,10 @@ const authSchema = new mongoose.Schema({
   username: String,
   password: String,
   email: String,
-  UserId: mongoose.Schema.Types.ObjectId
+  UserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users'
+  }
 })
 
 const Auth = mongoose.model('Auths', authSchema, 'Auths')

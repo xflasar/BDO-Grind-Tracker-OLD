@@ -14,6 +14,7 @@ module.exports = function (app) {
   app.post('/api/user/setuserprofiledata', [verifyToken], controller.SetUserProfileData)
   app.post('/api/user/setusersecuritydata', [verifyToken], controller.SetUserSecurityData)
   app.post('/api/user/setusersettingsdata', [verifyToken], controller.SetUserSettingsData)
+  app.post('/api/user/uploadprofilepicture', [verifyToken], controller.UploadProfilePicture)
 
   // Gets
   app.get('/api/user/userprofiledata', [verifyToken], controller.GetUserProfileData)

@@ -106,6 +106,5 @@ dist
 # Custom
 
 # sensitive data
-auth.config.js
-db.config.js
 .vscode/*
+server/config

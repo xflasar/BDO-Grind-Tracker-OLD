@@ -4,6 +4,7 @@ const Session = require('../db/models/session.model.js')
 const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
 const UserSettings = require('../db/models/settings.model.js')
+const FreeImage = require('../services/freeImage.js')
 
 // Sets
 exports.SetUserProfileData = (req, res) => {
@@ -75,6 +76,21 @@ exports.SetUserSettingsData = async (req, res) => {
   }).catch((err) => { return res.status(500).send({ message: 'Error finding usersettings! ' + err }) })
 }
 
+exports.UploadProfilePicture = async (req, res) => {
+  if (!req.body.image64base) return
+  const imgUploadResponse = await FreeImage.UploadImage(req.body.image64base)
+  if (imgUploadResponse.success) {
+    User.findById(req.userId).then(user => {
+      if (!user) {
+        return res.status(500).send({ message: 'User not found' })
+      }
+      user.ImageUrl = imgUploadResponse.image.url
+      user.save().catch((err) => { throw err })
+    }).catch((err) => { res.status(500).send({ message: err.message }) })
+    res.sendStatus(200)
+  }
+}
+
 // Gets
 exports.GetUserProfileData = (req, res) => {
   User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username').then(async (user) => {
@@ -122,10 +138,11 @@ exports.AddSession = async (req, res) => {
         AP: parseInt(req.body.AP),
         DP: parseInt(req.body.DP)
       }
-      console.log(BodyObj)
+
       if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings || !BodyObj.TotalSpent || !BodyObj.AP || !BodyObj.DP) {
         return res.status(400).send({ message: 'Missing required properties in request body' })
       }
+
       if (!site) {
         req.body.TotalTime = BodyObj.TotalSpent
         site = await this.AddSite(req, res, true)

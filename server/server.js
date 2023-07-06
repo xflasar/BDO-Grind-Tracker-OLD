@@ -3,25 +3,17 @@ const cors = require('cors')
 const cookieSession = require('cookie-session')
 const dbConfig = require('./config/db.config')
 const db = require('mongoose')
+const https = require('https')
+const http = require('http')
+const fs = require('fs')
+const path = require('path')
 
 const app = express()
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 443
 
 const corsOptions = {
   origin: 'http://localhost:3000'
 }
-
-// #region  DEVELOPEMENT
-/* if (app.get('env') === 'developement') {
-    app.use(function (err, req, res, next) {
-        res.status(err.status || 500)
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-} */
-// #endregion
 
 // #region SETUP
 app.use(cors(corsOptions))
@@ -33,22 +25,22 @@ app.use(cookieSession({
   httpOnly: true
 }))
 
-app.use(function (err, req, res, next) {
-  res.status(err.status || 500)
-  next(err)
-  res.render('error', {
-    message: err.message,
-    error: {}
-  })
+app.use(function (req, res, next) {
+  if (req.headers['x-forwarded-proto'] === 'http') {
+    return res.redirect('https://' + req.headers.host + req.url)
+  } else {
+    return next()
+  }
 })
 // #endregion
+
+const key = fs.readFileSync(path.join(__dirname, '/config/selfsigned.key'))
+const cert = fs.readFileSync(path.join(__dirname, '/config/selfsigned.crt'))
 
 // #region ROUTES
 require('./routes/auth.routes')(app)
 require('./routes/user.routes')(app)
 // #endregion
-
-const User = require('./db/models/user.model.js')
 
 // #region DATABASE
 db.mongoose.connect(`mongodb+srv://${dbConfig.username}:${dbConfig.password}@bdogrindtracker.mqzvwfp.mongodb.net/?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => { console.log('Successfully connected to MongoDB.') }).catch(err => { console.error('Connection error', err); process.exit() })
@@ -63,4 +55,5 @@ app.get('/api', (req, res) => {
 
 // #endregion
 
-app.listen(port, '0.0.0.0', () => { console.log(`Server listening on port ${port}!`) })
+http.createServer(app)
+https.createServer({ key, cert }, app).listen(port, () => { console.log(`Server listening on port ${443}!`) })
