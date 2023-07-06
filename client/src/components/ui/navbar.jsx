@@ -7,7 +7,6 @@ import { SessionContext } from '../../contexts/SessionContext'
 
 // TODO:
 // - SCSS for Signup component for mobile device ( broken )
-// - Signup component close
 
 function Navigation () {
   const [toggled, setToggled] = useState(false)
@@ -16,7 +15,10 @@ function Navigation () {
   const [showSignup, setShowSignup] = useState(false)
   const [isActive, setIsActive] = useState(false)
   const [activeLink, setActiveLink] = useState('')
-  const { isSignedIn, signout, authorizedFetch } = useContext(SessionContext)
+  const { isSignedIn, signout, authorizedFetch, userData } = useContext(SessionContext)
+
+  const [profileIcon, setProfileIcon] = useState('')
+  const [profileIconMenu, setProfileIconMenu] = useState(false)
 
   const navigate = useNavigate()
 
@@ -32,6 +34,10 @@ function Navigation () {
     }
 
     document.addEventListener('click', handleDocumentClick)
+
+    if (isSignedIn && userData) {
+      setProfileIcon(userData.ImageUrl)
+    }
 
     const checkScreenWidth = () => {
       const isMobileMode = window.innerWidth <= 768
@@ -73,13 +79,21 @@ function Navigation () {
 
   const handleLoginSuccess = () => {
     setIsActive(false)
+    if (userData) {
+      setProfileIcon(userData.ImageUrl)
+    }
     window.location.reload()
   }
 
   const handleSignupSuccess = () => {
     setIsActive(false)
     setShowSignup(false)
+    setProfileIcon('../assets/defaultProfileIcon.jpg')
     window.location.reload()
+  }
+
+  const handleProfileIconMenu = () => {
+    setProfileIconMenu(!profileIconMenu)
   }
 
   const handleLoginClick = () => {
@@ -126,6 +140,12 @@ function Navigation () {
     }
   }
 
+  const handleTestButtonFire = async () => {
+    await authorizedFetch('/api/user/uploadprofilepicture', { method: 'POST' }).then(res => res.json()).then(data => {
+      console.log(data)
+    })
+  }
+
   return (
     <>
         {showLogin && (
@@ -170,19 +190,34 @@ function Navigation () {
                           <li className="analytics">
                               <Link to="/analytics" className={activeLink === '/analytics' ? 'active' : ''} aria-label="analytics-link">Analytics  </Link>
                           </li>
+                          <li className='TestBtn'>
+                            <button aria-label="TestBtn" onClick={handleTestButtonFire}>Test</button>
+                          </li>
                           </ul>
                           )}
                       </ul>
                   </div>
               {isSignedIn
                 ? <div className='account-control'>
+                    <div className='ProfileIcon'>
+                        <img src={profileIcon}
+                            className="profile-icon" alt='Profile Icon'
+                            onClick={handleProfileIconMenu}
+                            />
+                    </div>
+                    {profileIconMenu && (
+                      <div className='ProfileIconMenu'>
+                          <>
                           <div className='Profile'>
                             <button aria-label='profile-button' onClick={profile}>Profile</button>
                           </div>
                           <div className="Logout">
                               <button aria-label="logout-button" onClick= {logout}>Logout</button>
                           </div>
+                          </>
                       </div>
+                    )}
+                  </div>
                 : (
                   <div className="account-control">
                 <div className="login-container">

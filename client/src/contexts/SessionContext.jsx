@@ -1,11 +1,13 @@
 import React, { createContext, useState } from 'react'
 import Cookies from 'js-cookie'
 import PropTypes from 'prop-types'
+import useLocalStorage from './useLocalStorage'
 
 const SessionContext = createContext()
 
 const SessionProvider = ({ children }) => {
   const [isSignedIn, setSignedIn] = useState(!!Cookies.get('token'))
+  const [userData, setUserData] = useLocalStorage('userdata')
 
   const signin = (accessToken) => {
     setSignedIn(true)
@@ -14,6 +16,7 @@ const SessionProvider = ({ children }) => {
 
   const signout = () => {
     setSignedIn(false)
+    setUserData(null)
     localStorage.clear()
     Cookies.remove('token')
     Cookies.remove('session')
@@ -36,11 +39,17 @@ const SessionProvider = ({ children }) => {
     return unauthorizedInterceptor(response)
   }
 
+  const setSessionUserData = (userdata) => {
+    setUserData(userdata)
+  }
+
   const sessionContextValue = {
     isSignedIn,
+    userData,
     signin,
     signout,
-    authorizedFetch
+    authorizedFetch,
+    setSessionUserData
   }
 
   return (

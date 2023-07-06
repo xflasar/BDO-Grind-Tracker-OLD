@@ -17,7 +17,7 @@ describe('Navigation', () => {
   afterEach(() => {
     window.innerWidth = originalInnerWidth
   })
-  test('renders the logo', () => {
+  it('renders the logo', () => {
     render(
       <SessionProvider>
         <BrowserRouter>
@@ -29,7 +29,7 @@ describe('Navigation', () => {
     expect(logo).toBeInTheDocument()
   })
 
-  test('renders the navigation links with user not logged in', () => {
+  it('renders the navigation links with user not logged in', () => {
     render(
       <SessionProvider>
       <BrowserRouter>
@@ -49,7 +49,7 @@ describe('Navigation', () => {
     expect(analyticsLink).not.toBeInTheDocument()
   })
 
-  test('renders the navigation links with user logged in', () => {
+  it('renders the navigation links with user logged in', () => {
     Cookies.set('token', 'test')
     render(
       <SessionProvider>
@@ -71,7 +71,7 @@ describe('Navigation', () => {
     Cookies.remove('token')
   })
 
-  test('checks if hamburger menu toggles if hamburger button is clicked after resizing and then same after clicking on it again it toggles off the menu', async () => {
+  it('checks if hamburger menu toggles if hamburger button is clicked after resizing and then same after clicking on it again it toggles off the menu', async () => {
     window.innerWidth = 460
     window.dispatchEvent(new Event('resize'))
     await act(() => {
@@ -91,7 +91,7 @@ describe('Navigation', () => {
     expect(menu).not.toHaveClass('active')
   })
 
-  test('closes the menu when a link is clicked', async () => {
+  it('closes the menu when a link is clicked', async () => {
     window.innerWidth = 460
     window.dispatchEvent(new Event('resize'))
     await act(() => {
@@ -111,7 +111,7 @@ describe('Navigation', () => {
     expect(menu).not.toHaveClass('active')
   })
 
-  test('UserNotLogged', () => {
+  it('UserNotLogged', () => {
     render(
     <SessionProvider>
       <BrowserRouter>
@@ -123,7 +123,7 @@ describe('Navigation', () => {
     expect(_loginLink).toHaveTextContent('Login')
   })
 
-  test('UserLogged', () => {
+  it('UserLogged', () => {
     Cookies.set('token')
     render(
     <SessionProvider>
@@ -132,6 +132,8 @@ describe('Navigation', () => {
       </BrowserRouter>
     </SessionProvider>
     )
+    const _ProfileIcon = screen.getAllByAltText('Profile Icon')[0]
+    fireEvent.click(_ProfileIcon)
     const _loginLink = screen.getAllByText('Logout')[0]
     expect(_loginLink).toHaveTextContent('Logout')
     Cookies.remove('token')
@@ -280,7 +282,7 @@ describe('logout', () => {
 })
 
 describe('Navigation component', () => {
-  test('hamburger toggles menu when clicked', () => {
+  it('hamburger toggles menu when clicked', () => {
     render(
       <SessionProvider>
         <BrowserRouter>
@@ -301,7 +303,7 @@ describe('Navigation component', () => {
     expect(menu).toHaveAttribute('class', 'menu active')
   })
 
-  test('closes menu when link is clicked in mobile mode', async () => {
+  it('closes menu when link is clicked in mobile mode', async () => {
     function closeMenu () {
       const menu = document.querySelector('.menu')
       menu.classList.remove('active')

@@ -100,7 +100,7 @@
                 top: 15%;
                 background-color: transparent;
                 position: absolute;
-                right: 2rem;
+                right: 1rem;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -114,6 +114,30 @@
 
                 button:hover{
                     color: #ffa600;
+                }
+
+                .ProfileIcon img {
+                    opacity: 1;
+                    display: inline-block;
+                    border-radius: 50%;
+                    width: 45px;
+                    height: 45px;
+                    max-width: 45px;
+                    max-height: 45px;
+                    cursor: pointer;
+                }
+
+                .ProfileIconMenu {
+                    display: block;
+                    position: absolute;
+                    top: 100%;
+                    background-color: rgb(51, 51, 51);
+                    border-radius: 5px;
+                    button {
+                        text-decoration: none;
+                        font-size: 18px;
+                        font-family: 'Roboto', sans-serif;
+                    }
                 }
             }
         }

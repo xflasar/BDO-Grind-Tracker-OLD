@@ -4,7 +4,7 @@ import '../../assets/components/ui/Login/Login.scss'
 import { SessionContext } from '../../contexts/SessionContext'
 
 const Login = ({ onLoginSuccess }) => {
-  const { signin, authorizedFetch } = useContext(SessionContext)
+  const { signin, authorizedFetch, setSessionUserData } = useContext(SessionContext)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -36,6 +36,9 @@ const Login = ({ onLoginSuccess }) => {
       })
       const res = await response.json()
       if (res.accessToken) {
+        if (res.userData) {
+          setSessionUserData(res.userData)
+        }
         signin(res.accessToken)
         onLoginSuccess() // Think if we want to make the page refreshed or just update the session state
         setUsername('')
