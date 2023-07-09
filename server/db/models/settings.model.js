@@ -8,7 +8,7 @@ const settingsSchema = new mongoose.Schema({
   },
   region: {
     type: String,
-    required: true
+    default: ''
   },
   valuePack: {
     type: Boolean,
@@ -20,7 +20,7 @@ const settingsSchema = new mongoose.Schema({
   },
   familyFame: {
     type: Number,
-    default: false
+    default: 0
   },
   tax: {
     type: Number,

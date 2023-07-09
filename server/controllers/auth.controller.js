@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const config = require('../config/auth.config.js')
 const Auth = require('../db/models/auth.model.js')
 const User = require('../db/models/user.model.js')
+const UserSettings = require('../db/models/settings.model.js')
 
 exports.signup = async (req, res) => {
   const auth = new Auth({
@@ -23,7 +24,9 @@ exports.signup = async (req, res) => {
       Settings: null
     })
 
-    user.save().then()
+    user.save()
+    user.Settings = new UserSettings({ userId: user._id })
+    user.Settings.save()
     auth.UserId = user._id
     auth.save().then(async (userAuth) => {
       const token = await jwt.sign({ id: userAuth.id }, config.secret, {
