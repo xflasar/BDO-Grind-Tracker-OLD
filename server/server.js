@@ -22,14 +22,21 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieSession({
   name: 'session',
   secret: 'COOKIE_SECRET',
-  httpOnly: true
+  httpOnly: true,
+  secure: false,
+  maxAge: 24 * 60 * 60 * 1000
 }))
 
 app.use(function (req, res, next) {
-  if (req.headers['x-forwarded-proto'] === 'http') {
-    return res.redirect('https://' + req.headers.host + req.url)
+  req.session.nowInMinutes = Math.floor(Date.now() / 60e3)
+  next()
+})
+
+app.get('*', function (req, res, next) {
+  if (req.secure) {
+    next()
   } else {
-    return next()
+    res.redirect(307, 'https://' + req.headers.host + req.url)
   }
 })
 // #endregion
@@ -55,5 +62,5 @@ app.get('/api', (req, res) => {
 
 // #endregion
 
-http.createServer(app)
-https.createServer({ key, cert }, app).listen(port, () => { console.log(`Server listening on port ${443}!`) })
+http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))
+https.createServer({ key, cert }, app).listen(port, () => console.log('Https Server running on port ' + port))

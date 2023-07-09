@@ -6,7 +6,7 @@ const Auth = require('../db/models/auth.model.js')
 const UserSettings = require('../db/models/settings.model.js')
 const FreeImage = require('../services/freeImage.js')
 
-// Sets
+// #region Sets
 exports.SetUserProfileData = (req, res) => {
   const profileData = {}
 
@@ -90,8 +90,9 @@ exports.UploadProfilePicture = async (req, res) => {
     res.sendStatus(200)
   }
 }
+// #endregion
 
-// Gets
+// #region Gets
 exports.GetUserProfileData = (req, res) => {
   User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username').then(async (user) => {
     if (!user) {
@@ -125,7 +126,17 @@ exports.GetUserSettingsData = (req, res) => {
   }).catch((err) => res.status(500).send({ message: err }))
 }
 
-// Data Add
+exports.GetAddSessionSites = (req, res) => {
+  Site.find({ UserId: req.userId }, '_id SiteName').then((sites) => {
+    if (!sites) {
+      return res.status(500).send({ message: 'No sites found!' })
+    }
+    res.status(200).send(sites)
+  })
+}
+// #endregion
+
+// #region Data Add
 exports.AddSession = async (req, res) => {
   await User.findById(req.userId).then(async (user) => {
     await Site.findOne({ SiteName: req.body.SiteName }, { UserId: req.userId }).then(async site => {
@@ -195,7 +206,9 @@ exports.AddSite = async (req, res, mCall = false) => {
     return site
   }
 }
-// Data Modify
+// #endregion
+
+// #region Data Modify
 exports.ModifySession = async (req, res) => {
   const BodyObj = {
     SessionId: req.body._id,
@@ -287,8 +300,9 @@ exports.ModifyUserData = async (req, res) => {
     res.status(200).send({ message: 'UserData modified!' })
   }
 }
+// #endregion
 
-// Data Delete
+// #region Data Delete
 exports.DeleteSession = (req, res) => {
   Session.findById(req.body.SessionId).then(async (session) => {
     if (session) {
@@ -329,8 +343,9 @@ exports.DeleteUserData = (req, res) => {
     }).catch(err => { res.status(500).send({ message: err }) })
   }).catch(err => { res.status(500).send({ message: err }) })
 }
+// #endregion
 
-// Data Get routes
+// #region Data Get routes
 // Homepage data
 exports.GetHomepageData = async (req, res) => {
   User.findById(req.userId).then(async (user) => {
@@ -410,3 +425,4 @@ exports.GetSessionsData = async (req, res) => {
     res.status(200).send(data)
   }).catch(err => { res.status(500).send({ message: err }) })
 }
+// #endregion
