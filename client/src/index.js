@@ -14,8 +14,9 @@ import { SessionContext, SessionProvider } from './contexts/SessionContext'
 import PropTypes from 'prop-types'
 
 const App = () => {
+  const { isSignedIn } = useContext(SessionContext)
+
   const ProtectedRoute = ({ element }) => {
-    const { isSignedIn } = useContext(SessionContext)
     if (isSignedIn) {
       return element
     } else {
