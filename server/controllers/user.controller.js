@@ -140,25 +140,25 @@ exports.GetAddSessionSites = (req, res) => {
 exports.AddSession = async (req, res) => {
   await User.findById(req.userId).then(async (user) => {
     await Site.findOne({ SiteName: req.body.SiteName }, { UserId: req.userId }).then(async site => {
-      // This is temporary maybe
-      const BodyObj = {
-        TimeSpent: parseInt(req.body.TimeSpent),
-        TotalEarned: parseInt(req.body.TotalEarned),
-        AverageEarnings: parseInt(req.body.AverageEarnings),
-        TotalSpent: parseInt(req.body.TotalSpent),
-        AP: parseInt(req.body.AP),
-        DP: parseInt(req.body.DP)
-      }
-
-      if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings || !BodyObj.TotalSpent || !BodyObj.AP || !BodyObj.DP) {
-        return res.status(400).send({ message: 'Missing required properties in request body' })
-      }
-
       if (!site) {
-        req.body.TotalTime = BodyObj.TotalSpent
+        return res.status(500).send({ message: 'Failed to find Site!' })
+        /* req.body.TotalTime = BodyObj.TotalSpent
         site = await this.AddSite(req, res, true)
-        user.Sites.push([site._id])
+        user.Sites.push([site._id]) */
       } else {
+        const BodyObj = {
+          TimeSpent: parseInt(req.body.TimeSpent),
+          TotalEarned: parseInt(req.body.TotalEarned),
+          AverageEarnings: parseInt(req.body.AverageEarnings),
+          TotalSpent: parseInt(req.body.TotalSpent),
+          AP: parseInt(req.body.AP),
+          DP: parseInt(req.body.DP)
+        }
+
+        if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings ||   !BodyObj.TotalSpent || !BodyObj.AP || !BodyObj.DP) {
+          return res.status(400).send({ message: 'Missing required properties in  request body' })
+        }
+
         req.body.SiteId = site.id
         req.body.ModifySite = true
         req.body.TimeSpent = BodyObj.TimeSpent
@@ -166,45 +166,27 @@ exports.AddSession = async (req, res) => {
         req.body.TotalSpent = BodyObj.TotalSpent
         req.body.AverageEarnings = BodyObj.AverageEarnings
         await this.ModifySite(req, res)
-      }
 
-      const session = new Session({
-        SiteId: site._id,
-        TimeSpent: BodyObj.TimeSpent,
-        Earnings: BodyObj.TotalEarned,
-        AverageEarnings: BodyObj.AverageEarnings,
-        Expenses: BodyObj.TotalSpent,
-        Gear: { TotalAP: BodyObj.AP, TotalDP: BodyObj.DP },
-        TimeCreated: Date.now(),
-        UserId: req.userId
-      })
+        const session = new Session({
+          SiteId: site._id,
+          TimeSpent: BodyObj.TimeSpent,
+          Earnings: BodyObj.TotalEarned,
+          AverageEarnings: BodyObj.AverageEarnings,
+          Expenses: BodyObj.TotalSpent,
+          Gear: { TotalAP: BodyObj.AP, TotalDP: BodyObj.DP },
+          TimeCreated: Date.now(),
+          UserId: req.userId
+        })
 
-      await session.save().then(async (savedSession) => {
-        user.Sessions.push([savedSession._id])
-        await user.save().then(async () => {
-          await this.GetSessionsData(req, res)
+        await session.save().then(async (savedSession) => {
+          user.Sessions.push([savedSession._id])
+          await user.save().then(async () => {
+            await this.GetSessionsData(req, res)
+          }).catch(err => { res.status(500).send({ message: err }) })
         }).catch(err => { res.status(500).send({ message: err }) })
-      }).catch(err => { res.status(500).send({ message: err }) })
+      }
     }).catch(err => { res.status(500).send({ message: err }) })
   }).catch(err => { res.status(500).send({ message: err }) })
-}
-
-exports.AddSite = async (req, res, mCall = false) => {
-  const site = new Site({
-    SiteName: req.body.SiteName,
-    TotalTime: req.body.TotalTime,
-    TotalEarned: req.body.TotalEarned,
-    TotalSpent: req.body.TotalSpent,
-    AverageEarnings: req.body.AverageEarnings,
-    UserId: req.userId
-  })
-
-  await site.save().catch(err => { res.status(500).send({ message: err }) })
-  if (!mCall) {
-    res.status(200).send({ message: 'Site added!' })
-  } else {
-    return site
-  }
 }
 // #endregion
 
