@@ -108,15 +108,16 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     setActiveSite(siteId)
   }
 
-  /* const handleClose = (e) => {
+  const handleClose = (e) => {
     e.preventDefault()
     onCloseClick(false)
-  } */
+  }
 
   return (
     <div className='sessionAddOverlay'>
       <div className='sessionAddOverlay-Content'>
       <form aria-label='sessionAddForm' onSubmit={handleAddSessionSubmit}>
+        <button type='button' className='sessionAddOverlay-Content-Close' onClick={handleClose}>X</button>
         <div className='sessionSiteChoosing'>
           <div className='sessionSiteChoosing-Header'>
             <h3>Sites</h3>
@@ -146,9 +147,9 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                 <p>0</p>
               </div>
             </div>
-            <div className='SessionMainContent-HeaderContent-SilverPreHourBeforeTaxes'>
+            <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes'>
               <h4>Silver Pre Hour Before Taxes</h4>
-              <div className='SessionMainContent-HeaderContent-SilverPreHourBeforeTaxes-Content'>
+              <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes-Content'>
                 <p>0</p>
               </div>
             </div>
