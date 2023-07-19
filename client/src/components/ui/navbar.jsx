@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Login from '../form/Login'
+import Login from '../form/Login/Login'
 import Signup from '../form/Signup'
 import '../../assets/components/ui/Navbar.scss'
 import { SessionContext } from '../../contexts/SessionContext'
