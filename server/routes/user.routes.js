@@ -20,10 +20,10 @@ module.exports = function (app) {
   app.get('/api/user/userprofiledata', [verifyToken], controller.GetUserProfileData)
   app.get('/api/user/usersettingsdata', [verifyToken], controller.GetUserSettingsData)
   app.get('/api/user/getaddsessionsites', [verifyToken], controller.GetAddSessionSites)
+  app.get('/api/user/getaddsessionsitesitemdata', [verifyToken], controller.GetAddSessionSitesItemData)
 
   // Data Add
   app.post('/api/user/addsession', [verifyToken], controller.AddSession)
-  app.post('/api/user/addsite', [verifyToken], controller.AddSite)
 
   // Data Modify
   app.post('/api/user/modifysession', [verifyToken], controller.ModifySession)

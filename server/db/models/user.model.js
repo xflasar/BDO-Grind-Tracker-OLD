@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
   Settings: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'UserSettings'
+  },
+  UserLoadouts: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Loadout'
   }
 })
 

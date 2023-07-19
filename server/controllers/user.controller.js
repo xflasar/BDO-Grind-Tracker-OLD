@@ -127,11 +127,21 @@ exports.GetUserSettingsData = (req, res) => {
 }
 
 exports.GetAddSessionSites = (req, res) => {
-  Site.find({ UserId: req.userId }, '_id SiteName').then((sites) => {
+  Site.find('_id SiteName').then((sites) => {
     if (!sites) {
       return res.status(500).send({ message: 'No sites found!' })
     }
     res.status(200).send(sites)
+  })
+}
+
+exports.GetAddSessionSitesItemData = (req, res) => {
+  Site.findById(req.body.siteId).then((site) => {
+    if (!site) {
+      return res.status(500).send({ message: 'No site found!' })
+    } else {
+      res.status(200).send(site.DroppedItems)
+    }
   })
 }
 // #endregion

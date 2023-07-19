@@ -9,15 +9,11 @@ const sessionSchema = new mongoose.Schema({
   Earnings: Number,
   AverageEarnings: Number,
   Expenses: Number,
-  Gear: {
-    TotalAP: Number,
-    TotalDP: Number
-  },
+  Gear: mongoose.Schema.Types.ObjectId,
   TimeCreated: {
     type: Date,
     default: Date.now
-  },
-  UserId: mongoose.Schema.Types.ObjectId
+  }
 })
 
 const Session = mongoose.model('Sessions', sessionSchema, 'Sessions')

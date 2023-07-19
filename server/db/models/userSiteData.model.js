@@ -5,10 +5,6 @@ const userSiteDataSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Site'
   },
-  UserId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
   TotalTime: Number,
   TotalEarned: Number,
   AverageEarnings: Number,

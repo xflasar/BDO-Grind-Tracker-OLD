@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const GrindItems = require('./grindItems.model')
 
 const siteSchema = new mongoose.Schema({
   SiteName: String,
@@ -8,7 +7,12 @@ const siteSchema = new mongoose.Schema({
   RecommendedAP: Number,
   RecommendedDP: Number,
   AverageGlobalSilverEarnings: Number,
-  DroppedItems: [GrindItems]
+  DroppedItems: [
+    {
+      itemName: String,
+      amount: Number
+    }
+  ]
 })
 
 const Site = mongoose.model('Sites', siteSchema, 'Sites')
