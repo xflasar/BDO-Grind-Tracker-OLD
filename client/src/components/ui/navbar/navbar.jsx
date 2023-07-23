@@ -1,47 +1,49 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useEffect, useContext, useReducer } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Login from '../form/Login'
-import Signup from '../form/Signup'
-import '../../assets/components/ui/Navbar.scss'
-import { SessionContext } from '../../contexts/SessionContext'
+import Login from '../../form/Login/Login'
+import Signup from '../../form/Signup/Signup'
+import '../../../assets/components/ui/Navbar.scss'
+import { SessionContext } from '../../../contexts/SessionContext'
+import { INITIAL_STATE, navbarReducer } from './navbarReducer'
 
 // TODO:
 // - SCSS for Signup component for mobile device ( broken )
 
 function Navigation () {
-  const [toggled, setToggled] = useState(false)
-  const [mobileMode, setMobileMode] = useState(false)
-  const [showLogin, setShowLogin] = useState(false)
-  const [showSignup, setShowSignup] = useState(false)
-  const [isActive, setIsActive] = useState(false)
-  const [activeLink, setActiveLink] = useState('')
   const { isSignedIn, signout, authorizedFetch, userData } = useContext(SessionContext)
-
-  const [profileIcon, setProfileIcon] = useState('')
-  const [profileIconMenu, setProfileIconMenu] = useState(false)
-
   const navigate = useNavigate()
+  const [state, dispatch] = useReducer(navbarReducer, INITIAL_STATE)
+
+  const isClickOutsideElements = (event) => {
+    const clickTarget = event.target
+    const loginFormOverlay = document.querySelector('.login-form-overlay')
+    const loginButton = document.querySelector('.login-container button')
+    const signupFormContainer = document.querySelector('.signup-form-container')
+    const signupButton = document.querySelector('.signup-container button')
+
+    return (
+      ((loginFormOverlay && !loginFormOverlay.contains(clickTarget)) &&
+        (loginButton && !loginButton.contains(clickTarget))) ||
+      ((signupFormContainer && !signupFormContainer.contains(clickTarget)) &&
+        (signupButton && !signupButton.contains(clickTarget)))
+    )
+  }
+  const handleDocumentClick = (event) => {
+    if (isClickOutsideElements(event)) {
+      dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
+    }
+  }
 
   useEffect(() => {
-    const handleDocumentClick = (event) => {
-      const loginFormOverlay = document.querySelector('.login-form-overlay')
-      const loginButton = document.querySelector('.login-container button')
-      const signupFormContainer = document.querySelector('.signup-form-container')
-      const signupButton = document.querySelector('.signup-container button')
-      if (((loginFormOverlay && !loginFormOverlay.contains(event.target)) && (loginButton && !loginButton.contains(event.target))) || ((signupFormContainer && !signupFormContainer.contains(event.target)) && (signupButton && !signupButton.contains(event.target)))) {
-        setIsActive(false)
-      }
-    }
-
     document.addEventListener('click', handleDocumentClick)
 
     if (isSignedIn && userData) {
-      setProfileIcon(userData.ImageUrl)
+      dispatch({ type: 'PROFILE_ICON_UPDATE', payload: userData.ImageUrl })
     }
 
     const checkScreenWidth = () => {
       const isMobileMode = window.innerWidth <= 768
-      setMobileMode(isMobileMode)
+      dispatch({ type: 'MOBILE_MODE_UPDATE', payload: isMobileMode })
     }
     checkScreenWidth()
     window.addEventListener('resize', checkScreenWidth)
@@ -53,7 +55,7 @@ function Navigation () {
   }, [])
 
   useEffect(() => {
-    setActiveLink(location.pathname)
+    dispatch({ type: 'ACTIVE_LINK_UPDATE', payload: location.pathname })
   }, [location.pathname])
 
   const logout = async () => {
@@ -74,69 +76,67 @@ function Navigation () {
   }
 
   const closeMenu = () => {
-    setToggled(false)
+    dispatch({ type: 'TOGGLE_MOBILE_MENU', payload: false })
   }
 
   const handleLoginSuccess = () => {
-    setIsActive(false)
+    dispatch({ type: 'SIGNIN_OVERLAY_HIDE' })
     if (userData) {
-      setProfileIcon(userData.ImageUrl)
+      dispatch({ type: 'PROFILE_ICON_UPDATE', payload: userData.ImageUrl })
     }
     window.location.reload()
   }
 
   const handleSignupSuccess = () => {
-    setIsActive(false)
-    setShowSignup(false)
-    setProfileIcon('../assets/defaultProfileIcon.jpg')
+    dispatch({ type: 'SIGNUP_SUCCESS', payload: '../assets/defaultProfileIcon.jpg' }) // showSignup false
     window.location.reload()
   }
 
   const handleProfileIconMenu = () => {
-    setProfileIconMenu(!profileIconMenu)
+    dispatch({ type: 'TOGGLE_PROFILE_ICON_MENU', payload: !state.profileIconMenu })
   }
 
   const handleLoginClick = () => {
-    if (!showLogin) {
-      if (showSignup) {
-        setIsActive(false)
-        setShowSignup(false)
+    if (!state.showSignin) {
+      if (state.showSignup) {
+        dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
+        dispatch({ type: 'SIGNUP_OVERLAY_HIDE' })
       }
-      setShowLogin(true)
+      dispatch({ type: 'SIGNIN_OVERLAY_SHOW' })
       setTimeout(() => {
-        setIsActive(true)
+        dispatch({ type: 'TOGGLE_OVERLAY', payload: true })
       }, 0)
     } else {
-      setIsActive(false)
+      dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
       setTimeout(() => {
-        setShowLogin(false)
+        dispatch({ type: 'SIGNIN_OVERLAY_HIDE' })
       }, 300)
     }
   }
 
   const handleSignupClick = () => {
-    if (!showSignup) {
-      if (showLogin) {
-        setIsActive(false)
-        setShowLogin(false)
+    if (!state.showSignup) {
+      if (state.showSignin) {
+        dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
+        dispatch({ type: 'SIGNIN_OVERLAY_HIDE' })
       }
-      setShowSignup(true)
+      dispatch({ type: 'SIGNUP_OVERLAY_SHOW' })
       setTimeout(() => {
-        setIsActive(true)
+        dispatch({ type: 'TOGGLE_OVERLAY', payload: true })
       }, 0)
     } else {
-      setIsActive(false)
+      dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
       setTimeout(() => {
-        setShowSignup(false)
+        dispatch({ type: 'SIGNUP_OVERLAY_HIDE' })
       }, 300)
     }
   }
 
   const handleTransitionEnd = () => {
-    if (!isActive && showLogin) {
-      setShowLogin(false)
-    } else if (!isActive && showSignup) {
-      setShowSignup(false)
+    if (!state.overlayActive && state.showSignin) {
+      dispatch({ type: 'SIGNIN_OVERLAY_HIDE' })
+    } else if (!state.overlayActive && state.showSignup) {
+      dispatch({ type: 'SIGNUP_OVERLAY_HIDE' })
     }
   }
 
@@ -148,22 +148,22 @@ function Navigation () {
 
   return (
     <>
-        {showLogin && (
-        <div className={`login-form-overlay ${isActive ? 'active' : ''}`}
+        {state.showSignin && (
+        <div className={`login-form-overlay ${state.overlayActive ? 'active' : ''}`}
       onTransitionEnd={handleTransitionEnd}>
-             <Login onLoginSuccess={handleLoginSuccess} onClose={() => { setShowLogin(false) } }/>
+             <Login onLoginSuccess={handleLoginSuccess} onClose={() => { dispatch({ type: 'SIGNIN_OVERLAY_HIDE', payload: false }) } }/>
         </div>
         )}
-        {showSignup && (
-          <div className={`signup-form-overlay ${isActive ? 'active' : ''}`} onTransitionEnd={handleTransitionEnd}>
-            <Signup onSignupSuccess={handleSignupSuccess} onClose={() => { setShowSignup(false) } }/>
+        {state.showSignup && (
+          <div className={`signup-form-overlay ${state.overlayActive ? 'active' : ''}`} onTransitionEnd={handleTransitionEnd}>
+            <Signup onSignupSuccess={handleSignupSuccess} onClose={() => { dispatch({ type: 'SIGNUP_OVERLAY_HIDE', payload: false }) } }/>
           </div>
         )}
     <div className="nav-container">
       <nav>
-          {mobileMode && (
+          {state.mobileMode && (
               <div className="container">
-                  <button aria-label="Toggle menu" className={toggled ? 'hamburger close' : 'hamburger'} onClick={() => { setToggled(!toggled); setShowLogin(false) }}>
+                  <button aria-label="Toggle menu" className={state.toggleMobileMenu ? 'hamburger close' : 'hamburger'} onClick={() => { dispatch({ type: 'TOGGLE_MOBILE_MENU', payload: !state.toggleMobileMenu }) }}>
                       <span className="meat"></span>
                       <span className="meat"></span>
                       <span className="meat"></span>
@@ -171,24 +171,24 @@ function Navigation () {
                   </button>
               </div>
           )}
-          {!mobileMode && (
+          {!state.mobileMode && (
               <>
                   <div className="logo">BDO Grind Tracker</div>
                   <div className="navbar-section">
                       <ul>
                           <li className="home">
-                              <Link to="/" className={activeLink === '/' ? 'active' : ''} aria-label="home-link">Home</Link>
+                              <Link to="/" className={state.activeLink === '/' ? 'active' : ''} aria-label="home-link">Home</Link>
                           </li>
                           {isSignedIn && (
                           <ul>
                           <li className="sites">
-                              <Link to="/sites" className={activeLink === '/sites' ? 'active' : ''} aria-label="sites-link">Sites</ Link>
+                              <Link to="/sites" className={state.activeLink === '/sites' ? 'active' : ''} aria-label="sites-link">Sites</ Link>
                           </li>
                           <li className="history">
-                              <Link to="/history" className={activeLink === '/history' ? 'active' : ''} aria-label="history-link">History</ Link>
+                              <Link to="/history" className={state.activeLink === '/history' ? 'active' : ''} aria-label="history-link">History</ Link>
                           </li>
                           <li className="analytics">
-                              <Link to="/analytics" className={activeLink === '/analytics' ? 'active' : ''} aria-label="analytics-link">Analytics  </Link>
+                              <Link to="/analytics" className={state.activeLink === '/analytics' ? 'active' : ''} aria-label="analytics-link">Analytics  </Link>
                           </li>
                           <li className='TestBtn'>
                             <button aria-label="TestBtn" onClick={handleTestButtonFire}>Test</button>
@@ -200,12 +200,12 @@ function Navigation () {
               {isSignedIn
                 ? <div className='account-control'>
                     <div className='ProfileIcon'>
-                        <img src={profileIcon}
+                        <img src={state.profileIcon}
                             className="profile-icon" alt='Profile Icon'
                             onClick={handleProfileIconMenu}
                             />
                     </div>
-                    {profileIconMenu && (
+                    {state.profileIconMenu && (
                       <div className='ProfileIconMenu'>
                           <>
                           <div className='Profile'>
@@ -230,10 +230,10 @@ function Navigation () {
                   )
               }
               </>)}
-          {mobileMode && (
+          {state.mobileMode && (
               <>
                   <div className="logo">BDO Grind Tracker</div>
-                  <ul role='menu' className={['menu', toggled && 'active'].filter(Boolean).join(' ')}>
+                  <ul role='menu' className={['menu', state.toggleMobileMenu && 'active'].filter(Boolean).join(' ')}>
                       <li className="home">
                           <Link to="/" aria-label="home-hamburger-link" onClick={() => closeMenu()}>Home</Link>
                       </li>

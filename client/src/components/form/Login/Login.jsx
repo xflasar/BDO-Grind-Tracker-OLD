@@ -1,28 +1,28 @@
-import React, { useContext, useState } from 'react'
+import React, { useReducer, useContext } from 'react'
 import PropTypes from 'prop-types'
-import '../../assets/components/ui/Login/Login.scss'
-import { SessionContext } from '../../contexts/SessionContext'
+import '../../../assets/components/ui/Login/Login.scss'
+import { SessionContext } from '../../../contexts/SessionContext'
+import { INITIAL_STATE, loginReducer } from './loginReducer'
 
 const Login = ({ onLoginSuccess }) => {
   const { signin, authorizedFetch, setSessionUserData } = useContext(SessionContext)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-
-  const [usernameError, setUsernameError] = useState(false)
-  const [passwordError, setPasswordError] = useState(false)
+  const [state, dispatch] = useReducer(loginReducer, INITIAL_STATE)
 
   const handleUsernameChange = (event) => {
-    setUsername(event.target.value)
-    setUsernameError(false)
+    dispatch({ type: 'LOGIN_INPUT_UPDATE', payload: { name: event.target.name, value: event.target.value } })
+    console.log(state.username)
   }
 
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value)
-    setPasswordError(false)
+    dispatch({ type: 'LOGIN_INPUT_UPDATE', payload: { name: event.target.name, value: event.target.value } })
   }
 
   const handleLogin = async (event) => {
     event.preventDefault()
+
+    const username = state.username
+    const password = state.password
+    console.log(state)
     try {
       const response = await authorizedFetch('api/auth/signin', {
         method: 'POST',
@@ -40,18 +40,15 @@ const Login = ({ onLoginSuccess }) => {
           setSessionUserData(res.userData)
         }
         signin(res.accessToken)
+        dispatch('LOGIN_SUCCESS')
         onLoginSuccess() // Think if we want to make the page refreshed or just update the session state
-        setUsername('')
-        setPassword('')
       } else {
         if (res.message === 'User not found.') {
-          setUsernameError(true)
-          setUsername('')
-          setPassword('')
+          dispatch({ type: 'LOGIN_FAIL_USERNAME' })
+          console.log(state.usernameError)
         } else if (res.message === 'Invalid Password!') {
-          setPasswordError(true)
-          setUsername('')
-          setPassword('')
+          dispatch({ type: 'LOGIN_FAIL_PASSWORD' })
+          console.log(state.passwordError)
         }
       }
     } catch (error) {
@@ -68,17 +65,17 @@ const Login = ({ onLoginSuccess }) => {
     <div name='login-container' className='login-container-form'>
       <form aria-label='login-container-form' onSubmit={handleLogin}>
         <h3>Login</h3>
-        {!usernameError
-          ? <input type='text' aria-label='username' className='username' name='username' value={username} onChange={handleUsernameChange} placeholder='Username or Email'/>
-          : <input type='text' aria-label='username' className='username error' name='username' value={username} onChange={handleUsernameChange} placeholder='Username'/>
+        {!state.usernameError
+          ? <input type='text' aria-label='username' className='username' name='username' value={state.username} onChange={handleUsernameChange} placeholder='Username or Email'/>
+          : <input type='text' aria-label='username' className='username error' name='username' value={state.username} onChange={handleUsernameChange} placeholder='Username'/>
         }
-        {!passwordError
-          ? <input type='password' aria-label='password' className='password' name='password' value={password} onChange={handlePasswordChange} placeholder='Password'/>
-          : <input type='password'aria-label='password' className='password error' name='password' value={password} onChange={handlePasswordChange} placeholder='Password'/>}
-        {usernameError
-          ? <p className='error'>Username or Email not found.</p>
+        {!state.passwordError
+          ? <input type='password' aria-label='password' className='password' name='password' value={state.password} onChange={handlePasswordChange} placeholder='Password'/>
+          : <input type='password'aria-label='password' className='password error' name='password' value={state.password} onChange={handlePasswordChange} placeholder='Password'/>}
+        {state.usernameError
+          ? <p className='error'>Username not found.</p>
           : null}
-        {passwordError
+        {state.passwordError
           ? <p className='error'>Invalid Password!</p>
           : null}
         <button type='submit' aria-label='loginButton'>Login</button>

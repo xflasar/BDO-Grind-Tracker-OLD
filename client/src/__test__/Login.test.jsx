@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import Login from '../components/form/Login'
+import Login from '../components/form/Login/Login'
 import { SessionProvider } from '../contexts/SessionContext'
 
 describe('Login Component', () => {
