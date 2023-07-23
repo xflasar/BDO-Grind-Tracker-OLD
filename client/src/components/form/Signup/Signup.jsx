@@ -1,30 +1,32 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useReducer } from 'react'
 import PropTypes from 'prop-types'
-import '../../assets/components/ui/Signup/Signup.scss'
-import { SessionContext } from '../../contexts/SessionContext'
+import '../../../assets//components/ui/Signup/Signup.scss'
+import { SessionContext } from '../../../contexts/SessionContext'
+import { INITIAL_STATE, signupReducer } from './signupReducer'
 
 const Signup = ({ onSignupSuccess }) => {
   const { authorizedFetch, signin } = useContext(SessionContext)
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [usernameError, setUsernameError] = useState(false)
+  const [state, dispatch] = useReducer(signupReducer, INITIAL_STATE)
 
   const handleUsernameChange = (e) => {
-    setUsername(e.target.value)
-    setUsernameError(false)
+    dispatch({ type: 'SIGUNP_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
   }
 
   const handleEmailChange = (e) => {
-    setEmail(e.target.value)
+    dispatch({ type: 'SIGNUP_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
   }
 
   const handlePasswordChange = (e) => {
-    setPassword(e.target.value)
+    dispatch({ type: 'SIGNUP_INPUT_CHANGE', payload: { name: e.targe.name, value: e.target.value } })
   }
 
   const handleSignup = async (event) => {
     event.preventDefault()
+
+    const username = state.username
+    const email = state.email
+    const password = state.password
+
     try {
       const response = await authorizedFetch('api/auth/signup', {
         method: 'POST',
@@ -41,14 +43,10 @@ const Signup = ({ onSignupSuccess }) => {
       if (res.accessToken) {
         signin(res.accessToken)
         onSignupSuccess()
-        setUsername('')
-        setEmail('')
-        setPassword('')
+        dispatch({ type: 'SIGNUP_SUCCESS' })
       } else {
         if (res.message === 'Failed! Username is already in use!') {
-          setUsernameError(true)
-          setUsername('')
-          setPassword('')
+          dispatch({ type: 'SIGNUP_FAIL' })
         } else if (res.message === 'Failed! Email is already in use!') {
           // Not implemented most likely I won't implement it, but 80% I will no need for multiple accounts under the same email address...
         }
@@ -62,13 +60,13 @@ const Signup = ({ onSignupSuccess }) => {
     <div className='signup-form-container' aria-label='signup-container'>
       <form onSubmit={handleSignup} aria-label='signup-container-form'>
         <h2>Registration</h2>
-        {!usernameError
+        {!state.usernameError
           ? (
           <input
             type='text'
             className='username'
             name='username'
-            value={username}
+            value={state.username}
             onChange={handleUsernameChange}
             placeholder='Username'
           />
@@ -79,7 +77,7 @@ const Signup = ({ onSignupSuccess }) => {
               type='text'
               className='username error'
               name='username'
-              value={username}
+              value={state.username}
               onChange={handleUsernameChange}
               placeholder='Username'
             />
@@ -93,7 +91,7 @@ const Signup = ({ onSignupSuccess }) => {
           name='email'
           id='email'
           onChange={handleEmailChange}
-          value={email}
+          value={state.email}
           placeholder='Email'
         />
         <input
@@ -101,7 +99,7 @@ const Signup = ({ onSignupSuccess }) => {
           name='password'
           id='password'
           onChange={handlePasswordChange}
-          value={password}
+          value={state.password}
           placeholder='Password'
         />
         <button type='submit' aria-label='signup-button' name='signupSubmit'>

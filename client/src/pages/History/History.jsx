@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
 import HistoryTable from '../../components/ui/pages/History/HistoryTable'
-import EditSession from '../../components/form/editSession'
+import EditSession from '../../components/form/EditSession/editSession'
 import '../../assets/pages/History/History.scss'
 import AddSession from '../../components/form/addNewSession'
 import { SessionContext } from '../../contexts/SessionContext'
@@ -81,6 +81,7 @@ function History () {
     }
   }
 
+  // Edit Session - Fix Data response being problematic with sometimes not getting data and only a response of successful response
   async function handleEditSessionSubmit (data) {
     try {
       const res = await authorizedFetch('api/user/modifysession', {

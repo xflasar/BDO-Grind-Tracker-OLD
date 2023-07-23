@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { render, screen, renderHook, cleanup, fireEvent } from '@testing-library/react'
-import Navigation from '../components/ui/navbar'
+import Navigation from '../components/ui/navbar/navbar'
 import { BrowserRouter } from 'react-router-dom'
 import { act } from 'react-dom/test-utils'
 import fetchMock from 'jest-fetch-mock'
