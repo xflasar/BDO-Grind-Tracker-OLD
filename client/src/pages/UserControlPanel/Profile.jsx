@@ -3,7 +3,7 @@ import '../../assets/pages/UserControlPanel/Profile.scss'
 import { SessionContext } from '../../contexts/SessionContext'
 import ProfileNavigation from '../../components/ui/pages/UserControlPanel/ProfileNavigation'
 import ProfileView from '../../components/ui/pages/UserControlPanel/Profile/ProfileView'
-import ProfileSettings from '../../components/ui/pages/UserControlPanel/Profile/ProfileSettings'
+import ProfileSettings from '../../components/ui/pages/UserControlPanel/Profile/ProfileSettings/ProfileSettings'
 import ProfileSecurity from '../../components/ui/pages/UserControlPanel/Profile/ProfileSecurity'
 
 function Profile () {

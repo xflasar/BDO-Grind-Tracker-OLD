@@ -109,20 +109,19 @@ exports.GetUserProfileData = (req, res) => {
 }
 
 exports.GetUserSettingsData = (req, res) => {
-  UserSettings.findOne({ userId: req.userId }).then(async (settings) => {
-    if (!settings) {
-      return await res.status(500).send({ message: 'UserSettings doesn\'t exists!' })
-    } else {
-      const data = {
-        RegionServer: settings.region,
-        ValuePack: settings.valuePack,
-        MerchantRing: settings.merchantRing,
-        FamilyFame: settings.familyFame,
-        Tax: settings.tax
-      }
-
-      res.status(200).send(data)
+  User.findById(req.userId, 'Settings').populate('Settings').then(async (user) => {
+    if (!user) {
+      return await res.status(500).send({ message: 'User not found!' })
     }
+
+    const data = {
+      RegionServer: user.Settings.region,
+      ValuePack: user.Settings.valuePack,
+      MerchantRing: user.Settings.merchantRing,
+      FamilyFame: user.Settings.familyFame,
+      Tax: user.Settings.tax
+    }
+    res.status(200).send(data)
   }).catch((err) => res.status(500).send({ message: err }))
 }
 
