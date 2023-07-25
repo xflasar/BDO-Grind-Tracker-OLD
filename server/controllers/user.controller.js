@@ -233,7 +233,7 @@ exports.ModifySession = async (req, res) => {
     await this.ModifySite(req, res)
     req.body.ModifyUser = true
     await this.ModifyUserData(req, res)
-    res.status(200).send({ message: 'Session modified!' })
+    this.GetSessionsData(req, res)
   }).catch(err => { res.status(500).send({ message: err }) })
 }
 

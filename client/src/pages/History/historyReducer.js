@@ -1,0 +1,51 @@
+export const INITIAL_STATE = {
+  data: [],
+  editData: null,
+  showAddSession: false,
+  showEditSession: false
+}
+
+export const historyReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_HISTORY':
+      return {
+        ...state,
+        data: action.payload
+      }
+    case 'SHOW_ADD_SESSION':
+      return {
+        ...state,
+        showAddSession: true
+      }
+    case 'HIDE_ADD_SESSION':
+      return {
+        ...state,
+        showAddSession: false
+      }
+    case 'HIDE_EDIT_SESSION':
+      return {
+        ...state,
+        showEditSession: false
+      }
+    case 'HANDLE_SHOW_EDIT_SESSION':
+      return {
+        ...state,
+        showEditSession: true,
+        editData: action.payload
+      }
+    case 'HANDLE_EDIT_SESSION_SUCCESS':
+      return {
+        ...state,
+        data: action.payload,
+        showEditSession: false
+      }
+    case 'HANDLE_ADD_SESSION_SUCCESS':
+      return {
+        ...state,
+        data: action.payload,
+        showAddSession: false
+      }
+    default:
+      return state
+  }
+}

@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useEffect, useContext, useReducer } from 'react'
 import HistoryTable from '../../components/ui/pages/History/HistoryTable'
 import EditSession from '../../components/form/EditSession/editSession'
 import '../../assets/pages/History/History.scss'
-import AddSession from '../../components/form/addNewSession'
+import AddSession from '../../components/form/AddSession/addSession'
 import { SessionContext } from '../../contexts/SessionContext'
+import { INITIAL_STATE, historyReducer } from './historyReducer'
 
 function History () {
-  const [data, setData] = useState([])
-  const [editData, setEditData] = useState(null)
-  const [addSession, setAddSession] = useState(false)
-  const [editSession, setEditSession] = useState(false)
   const { isSignedIn, authorizedFetch } = useContext(SessionContext)
+  const [state, dispatch] = useReducer(historyReducer, INITIAL_STATE)
 
   async function fetchHistoryData () {
     try {
@@ -25,37 +23,35 @@ function History () {
 
   useEffect(() => {
     if (!isSignedIn) {
-      setData([])
+      dispatch({ type: 'SET_HISTORY', payload: [] })
       return
     }
 
     fetchHistoryData()
       .then((data) => {
         if (data.message === 'No token provided!') {
-          setData([])
+          dispatch({ type: 'SET_HISTORY', payload: [] })
           return
         }
-        setData(data)
+        dispatch({ type: 'SET_HISTORY', payload: data })
       })
       .catch(() => {
-        setData([])
+        dispatch({ type: 'SET_HISTORY', payload: [] })
       })
   }, [isSignedIn])
 
   function handleAddSession () {
-    setAddSession(!addSession)
+    dispatch({ type: 'SHOW_ADD_SESSION' })
   }
 
   function handleEditSession (data) {
-    if (editSession) {
-      setEditSession(false)
+    if (state.showEditSession) {
+      dispatch({ type: 'HIDE_EDIT_SESSION' })
       setTimeout(() => {
-        setEditData(data)
-        setEditSession(true)
+        dispatch({ type: 'HANDLE_SHOW_EDIT_SESSION', payload: data })
       }, 150)
     } else {
-      setEditData(data)
-      setEditSession(true)
+      dispatch({ type: 'HANDLE_SHOW_EDIT_SESSION', payload: data })
     }
   }
 
@@ -72,7 +68,7 @@ function History () {
       })
       const confirmation = await res.json()
       if (confirmation.message === 'Session deleted!') {
-        fetchHistoryData().then((data) => setData(data))
+        fetchHistoryData().then((data) => dispatch({ type: 'SET_HISTORY', payload: data })) // This is network expensive different approach needed!
       } else {
         // Handle Error when confirmation is false
       }
@@ -81,38 +77,13 @@ function History () {
     }
   }
 
-  // Edit Session - Fix Data response being problematic with sometimes not getting data and only a response of successful response
-  async function handleEditSessionSubmit (data) {
-    try {
-      const res = await authorizedFetch('api/user/modifysession', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      const dataRes = await res.json()
-      setData(dataRes)
-      setEditSession(false)
-    } catch (error) {
-      console.error('Failed to edit session:', error)
-    }
+  // Isn't it better to just return the data from API at the success of the edit post?
+  const handleEditSessionSuccess = (data) => {
+    dispatch({ type: 'HANDLE_EDIT_SESSION_SUCCESS', payload: data })
   }
 
-  function handleEditSessionSuccess () {
-    fetchHistoryData()
-      .then((data) => {
-        setData(data)
-        setEditSession(false)
-      })
-      .catch((error) => {
-        console.error('Failed to fetch history data:', error)
-      })
-  }
-
-  async function handleOnAddSessionSuccess (obj) {
-    setData(obj.Data)
-    setAddSession(obj.setAddSession)
+  const handleOnAddSessionSuccess = async (data) => {
+    dispatch({ type: 'HANDLE_ADD_SESSION_SUCCESS', payload: data })
   }
 
   return (
@@ -124,26 +95,27 @@ function History () {
               Add Session
             </button>
           </div>
-          {addSession && (
+          {state.showAddSession && (
             <AddSession
             onAddSessionSuccess={handleOnAddSessionSuccess}
-            onCloseClick={(BoolState) => setAddSession(BoolState)}
+            authorizedFetch={authorizedFetch}
+            onCloseClick={() => dispatch({ type: 'HIDE_ADD_SESSION' })}
             />
           )}
-          {editSession && (
+          {state.showEditSession && (
             <EditSession
-              data={editData}
+              data={state.editData}
               onEditSuccess={handleEditSessionSuccess}
-              onEditSessionSubmit={handleEditSessionSubmit}
-              onCloseClick={(BoolState) => setEditSession(BoolState)}
+              authorizedFetch={authorizedFetch}
+              onCloseClick={() => dispatch({ type: 'HIDE_EDIT_SESSION' })}
             />
           )}
           <div className="history-table-container">
-            {data.length > 0 && (
+            {state.data.length > 0 && (
               <HistoryTable
                 onEditTrigger={handleEditSession}
                 onDeleteTrigger={handleDeleteSession}
-                data={data}
+                data={state.data}
               />
             )}
           </div>
