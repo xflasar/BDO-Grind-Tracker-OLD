@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import AddSession from '../components/form/addNewSession'
+import AddSession from '../components/form/AddSession/addSession'
 import { SessionProvider } from '../contexts/SessionContext'
 
 describe('AddSession Component', () => {

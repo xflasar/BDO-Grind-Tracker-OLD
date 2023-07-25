@@ -5,7 +5,6 @@ import { SessionContext } from '../../../../../contexts/SessionContext'
 const ProfileView = () => {
   const { isSignedIn, authorizedFetch } = useContext(SessionContext)
   const [user, setUser] = useState(null)
-  const [userUsername, setUserUsername] = useState('')
   const [userDisplayName, setUserDisplayName] = useState('')
   const [userFamilyName, setUserFamilyName] = useState('')
 
@@ -14,7 +13,6 @@ const ProfileView = () => {
     const data = await response.json()
     if (data) {
       setUser(data)
-      if (data.Username) setUserUsername(data.Username)
       if (data.DisplayName) setUserDisplayName(data.DisplayName)
       if (data.FamilyName) setUserFamilyName(data.FamilyName)
     }
@@ -35,10 +33,6 @@ const ProfileView = () => {
     return <h1>UserProfileData not available</h1>
   }
 
-  const handleUsernameChange = (e) => {
-    setUserUsername(e.target.value)
-  }
-
   const handleDisplayNameChange = (e) => {
     setUserDisplayName(e.target.value)
   }
@@ -50,7 +44,6 @@ const ProfileView = () => {
   const handleButtonUpdate = async (e) => {
     e.preventDefault()
     const data = {
-      Username: userUsername,
       DisplayName: userDisplayName,
       FamilyName: userFamilyName
     }
@@ -79,7 +72,7 @@ const ProfileView = () => {
       <form aria-label='profileView-container-form'>
         <div className='profileView-container-form-inputlabel'>
           <label htmlFor='username'>Username:</label>
-          <input type='text' id='username' name='username' placeholder='Username' value={userUsername} onChange={handleUsernameChange} disabled={true}/>
+          <input type='text' id='username' name='username' placeholder='Username' value={user.Username} disabled={true}/>
           <label htmlFor='displayName'>Display name:</label>
           <input type='text' id='displayName' name='displayName' placeholder='Display name' value={userDisplayName} onChange={handleDisplayNameChange} />
           <label htmlFor='familyName'>Family name:</label>
