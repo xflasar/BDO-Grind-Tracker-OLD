@@ -27,11 +27,6 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }))
 
-app.use(function (req, res, next) {
-  req.session.nowInMinutes = Math.floor(Date.now() / 60e3)
-  next()
-})
-
 app.get('*', function (req, res, next) {
   if (req.secure) {
     next()
