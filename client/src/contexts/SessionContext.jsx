@@ -28,9 +28,10 @@ const SessionProvider = ({ children }) => {
   }
 
   const unauthorizedInterceptor = (response) => {
+    console.log(response)
     if (response.status === 401) {
       handleUnauthorized()
-    } else if (response.message === 'No token provided!') {
+    } else if (response.statusText === 'Forbidden') {
       handleUnauthorized()
     }
     return response
