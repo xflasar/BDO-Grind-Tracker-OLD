@@ -2,7 +2,12 @@ export const INITIAL_STATE = {
   username: '',
   email: '',
   password: '',
-  usernameError: false
+  usernameError: false,
+  usernameErrorMsg: '',
+  emailError: false,
+  emailErrorMsg: '',
+  passwordError: false,
+  passwordErrorMsg: ''
 }
 
 export const signupReducer = (state, action) => {
@@ -11,7 +16,8 @@ export const signupReducer = (state, action) => {
       return {
         ...state,
         [action.payload.name]: action.payload.value,
-        usernameError: false
+        [action.payload.name + 'Error']: false,
+        [action.payload.name + 'ErrorMsg']: ''
       }
     case 'SIGNUP_SUCCESS':
       return {
@@ -20,11 +26,23 @@ export const signupReducer = (state, action) => {
         email: '',
         password: ''
       }
-    case 'SIGNUP_FAIL':
+    case 'SIGNUP_USERNAME_ERROR':
       return {
         ...state,
-        password: '',
-        usernameError: true
+        usernameError: true,
+        usernameErrorMsg: action.payload.msg
+      }
+    case 'SIGNUP_EMAIL_ERROR':
+      return {
+        ...state,
+        emailError: true,
+        emailErrorMsg: action.payload.msg
+      }
+    case 'SIGNUP_PASSWORD_ERROR':
+      return {
+        ...state,
+        passwordError: true,
+        passwordErrorMsg: action.payload.msg
       }
     default:
       return state
