@@ -50,9 +50,7 @@ const Signup = ({ onSignupSuccess }) => {
     const email = checkValidationOfData('email', state.email) ? state.email : false
     const password = checkValidationOfData('password', state.password) ? state.password : false
 
-    if (username === false || email === false || password === false) {
-      return
-    }
+    if (username === false || email === false || password === false) return
 
     try {
       const response = await authorizedFetch('api/auth/signup', {

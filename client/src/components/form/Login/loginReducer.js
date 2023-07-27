@@ -2,24 +2,27 @@ export const INITIAL_STATE = {
   username: '',
   password: '',
   usernameError: false,
-  passwordError: false
+  passwordError: false,
+  usernameErrorMsg: '',
+  passwordErrorMsg: ''
 }
 
 export const loginReducer = (state, action) => {
   switch (action.type) {
-    case 'LOGIN_FAIL_USERNAME':
-      console.log('LOGIN FAIL USERNAME CALLED')
-      return {
-        ...state,
-        password: '',
-        usernameError: true
-      }
     case 'LOGIN_FAIL_PASSWORD':
-      console.log('LOGIN FAIL PASSWORD CALLED')
       return {
         ...state,
+        username: '',
         password: '',
-        passwordError: true
+        passwordError: true,
+        passwordErrorMsg: action.payload.msg
+      }
+    case 'LOGIN_INPUT_ERROR':
+      return {
+        ...state,
+        [action.payload.name]: '',
+        [action.payload.name + 'Error']: true,
+        [action.payload.name + 'ErrorMsg']: action.payload.msg
       }
     case 'LOGIN_SUCCESS':
       return {
