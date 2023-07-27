@@ -6,6 +6,12 @@ const User = require('../db/models/user.model.js')
 const UserSettings = require('../db/models/settings.model.js')
 
 exports.signup = async (req, res) => {
+  const validationErrors = await validateRegistrationData(req.body.username, req.body.email, req.body.password)
+
+  if (validationErrors.length > 0) {
+    return res.status(400).send({ message: 'Validation fail.', errorsList: validationErrors })
+  }
+
   const auth = new Auth({
     username: await req.body.username,
     email: await req.body.email,
@@ -44,7 +50,7 @@ exports.signin = (req, res) => {
     username: req.body.username
   }).populate('UserId').then(async (user) => {
     if (!user) {
-      return await res.status(404).send({ message: 'User not found.' })
+      return await res.status(401).send({ message: 'User not found.' })
     }
 
     const passwordIsValid = await bcrypt.compareSync(
@@ -78,4 +84,18 @@ exports.signout = (req, res) => {
   } catch (err) {
     console.log(err)
   }
+}
+
+const validateRegistrationData = (username, email, password) => {
+  const validationErrors = []
+  if (username.length < 3 || username.length > 20) {
+    validationErrors.push({ type: 'username', message: 'Username must be at least 3 characters long.' })
+  }
+  if (!email.includes('@')) {
+    validationErrors.push({ type: 'email', message: 'Email must be in a valid format.' })
+  }
+  if (password.length < 8) {
+    validationErrors.push({ type: 'password', message: 'Password must be at least 8 characters long.' })
+  }
+  return validationErrors
 }
