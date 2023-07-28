@@ -8,8 +8,6 @@ export const INITIAL_STATE = {
 }
 
 export const profileSettingsReducer = (state, action) => {
-  console.log(action)
-  console.log(state)
   switch (action.type) {
     case 'PROFILE_SETTINGS_UPDATE_FETCH':
       return {

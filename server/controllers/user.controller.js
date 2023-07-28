@@ -71,7 +71,16 @@ exports.SetUserSettingsData = async (req, res) => {
       settings.familyFame = req.body.familyFame
       settings.tax = taxCalculated
 
-      settings.save().then(() => res.status(200).send({ message: 'UserSettings updated successfully!' })).catch((err) => { return res.status(500).send({ message: 'Error updating usersettings! ' + err }) })
+      // Temporary object
+      const dataBack = {
+        RegionServer: settings.region,
+        ValuePack: settings.valuePack,
+        MerchantRing: settings.merchantRing,
+        FamilyFame: settings.familyFame,
+        Tax: settings.tax
+      }
+
+      settings.save().then(() => res.status(200).send(dataBack)).catch((err) => { return res.status(500).send({ message: 'Error updating usersettings! ' + err }) })
     }
   }).catch((err) => { return res.status(500).send({ message: 'Error finding usersettings! ' + err }) })
 }

@@ -72,11 +72,11 @@ const ProfileSettings = () => {
         familyFame
       })
     })
-    const data = await response.json()
-    if (data.status !== 200) {
-      if (data.message === 'Failed to edit data!') {
-        console.log('Data failed to be edited.')
-      }
+    if (response.ok) {
+      const data = await response.json()
+      dispatch({ type: 'PROFILE_SETTINGS_UPDATE_FETCH', payload: data })
+    } else {
+      console.log('Failed to save settings data')
     }
   }
 
