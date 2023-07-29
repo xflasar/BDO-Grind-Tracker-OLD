@@ -39,15 +39,15 @@ const ProfileSettings = () => {
   }
 
   const handleFamilyFameChange = (e) => {
-    let tempFamilyFame = e.target.value
-    // Fix this it writes NaN if we delete the last number character
-    if (isNaN(e.target.value)) {
+    let tempFamilyFame = e.target.value.trim()
+
+    if (tempFamilyFame === '' || isNaN(tempFamilyFame)) {
       tempFamilyFame = 0
     } else {
-      if (e.target.validity.valid) {
-        tempFamilyFame = parseInt(e.target.value)
-      } else {
-        tempFamilyFame = parseInt(state.familyFame.toString().replace(/\D/g, ''))
+      tempFamilyFame = parseInt(tempFamilyFame, 10)
+
+      if (isNaN(tempFamilyFame)) {
+        tempFamilyFame = 0
       }
     }
     dispatch({ type: 'PROFILE_SETTINGS_INPUT_CHANGE', payload: { name: e.target.name, value: tempFamilyFame } })
