@@ -7,6 +7,9 @@ const https = require('https')
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
+const cron = require('cron')
+
+const BDOAPI = require('./services/bdo_api')
 
 const app = express()
 const port = process.env.PORT || 443
@@ -60,6 +63,16 @@ app.get('/api', (req, res) => {
 })
 
 // #endregion
+
+// cron setup
+// const getBDOMarketplaceDBDump = new cron.CronJob('0 */1 * * * *', function () {
+// BDOAPI.GetDatabaseDump()
+// })
+// getBDOMarketplaceDBDump.start()
+
+// tests
+// BDOAPI.GetDatabaseDump()
+// BDOAPI.UpdateMarketItemPrices()
 
 http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))
 https.createServer({ key, cert }, app).listen(port, () => console.log('Https Server running on port ' + port))
