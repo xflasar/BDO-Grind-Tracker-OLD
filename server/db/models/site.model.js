@@ -4,7 +4,7 @@ const siteSchema = new mongoose.Schema({
   SiteName: String,
   TotalTime: Number,
   TotalEarned: Number,
-  TotalSpent: Number,
+  TotalExpenses: Number,
   AverageEarnings: Number,
   UserId: mongoose.Schema.Types.ObjectId
 })

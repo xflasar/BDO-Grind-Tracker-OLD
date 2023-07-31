@@ -5,12 +5,13 @@ const userSchema = new mongoose.Schema({
   FamilyName: String,
   ImageUrl: String,
   TotalTime: Number,
-  TotalEarnings: Number,
+  TotalEarned: Number,
+  TotalExpenses: Number,
+  AverageEarnings: Number,
   Sites: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Sites'
   }],
-  TotalExpenses: Number,
   authenticationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Auths'

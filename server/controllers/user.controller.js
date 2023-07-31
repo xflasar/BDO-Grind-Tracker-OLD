@@ -147,24 +147,26 @@ exports.AddSession = async (req, res) => {
         DP: parseInt(req.body.DP)
       }
 
+      // Check of properties
       if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings || !BodyObj.TotalSpent || !BodyObj.AP || !BodyObj.DP) {
         return res.status(400).send({ message: 'Missing required properties in request body' })
       }
 
+      // Site section
       if (!site) {
         req.body.TotalTime = BodyObj.TotalSpent
+        req.body.TotalExpenses = BodyObj.TotalSpent
         site = await this.AddSite(req, res, true)
         user.Sites.push([site._id])
       } else {
-        req.body.SiteId = site.id
-        req.body.ModifySite = true
-        req.body.TimeSpent = BodyObj.TimeSpent
-        req.body.TotalEarned = BodyObj.TotalEarned
-        req.body.TotalSpent = BodyObj.TotalSpent
-        req.body.AverageEarnings = BodyObj.AverageEarnings
-        await this.ModifySite(req, res)
+        site.TotalTime = BodyObj.TimeSpent
+        site.TotalEarned = BodyObj.TotalEarned
+        site.TotalExpenses = BodyObj.TotalSpent
+        site.AverageEarnings = BodyObj.AverageEarnings
+        site.save().catch((error) => res.status(500).send({ message: error }))
       }
 
+      // Session section
       const session = new Session({
         SiteId: site._id,
         TimeSpent: BodyObj.TimeSpent,
@@ -178,10 +180,29 @@ exports.AddSession = async (req, res) => {
 
       await session.save().then(async (savedSession) => {
         user.Sessions.push([savedSession._id])
+        user.TotalEarned += savedSession.Earnings
+        user.TotalExpenses += savedSession.Expenses
+        user.TotalTime += savedSession.TimeSpent
+        user.AverageEarnings += savedSession.AverageEarnings
         await user.save().then(async () => {
           await this.GetSessionsData(req, res)
-        }).catch(err => { res.status(500).send({ message: err }) })
-      }).catch(err => { res.status(500).send({ message: err }) })
+        }).catch(err => {
+          Session.deleteOne({ _id: savedSession._id })
+          req.body.TotalTime *= -1
+          req.body.TotalEarned *= -1
+          req.body.TotalExpenses *= -1
+          req.body.AverageEarnings *= -1
+          this.ModifySite(req, res)
+          res.status(500).send({ message: err })
+        })
+      }).catch(err => {
+        req.body.TotalTime *= -1
+        req.body.TotalEarned *= -1
+        req.body.TotalExpenses *= -1
+        req.body.AverageEarnings *= -1
+        this.ModifySite(req, res)
+        res.status(500).send({ message: err })
+      })
     }).catch(err => { res.status(500).send({ message: err }) })
   }).catch(err => { res.status(500).send({ message: err }) })
 }
@@ -191,7 +212,7 @@ exports.AddSite = async (req, res, mCall = false) => {
     SiteName: req.body.SiteName,
     TotalTime: req.body.TotalTime,
     TotalEarned: req.body.TotalEarned,
-    TotalSpent: req.body.TotalSpent,
+    TotalExpenses: req.body.TotalSpent,
     AverageEarnings: req.body.AverageEarnings,
     UserId: req.userId
   })
@@ -229,9 +250,9 @@ exports.ModifySession = async (req, res) => {
     { new: true }
   ).then(async (session) => {
     req.body.SiteId = session.SiteId
-    req.body.TimeSpent = session.TimeSpent
+    req.body.TotalTime = session.TimeSpent
     req.body.TotalEarned = session.Earnings
-    req.body.TotalSpent = session.Expenses
+    req.body.TotalExpenses = session.Expenses
     req.body.AverageEarnings = session.AverageEarnings
     req.body.ModifySite = true
     await this.ModifySite(req, res)
@@ -245,10 +266,11 @@ exports.ModifySite = async (req, res) => {
   const updateObject = {}
   if (req.body.ModifySite) {
     const objectToBeUpdated = await Site.findById(req.body.SiteId)
-    updateObject.TotalTime = req.body.TimeSpent = objectToBeUpdated.TotalTime + req.body.TimeSpent
-    updateObject.TotalEarned = req.body.TotalEarned = objectToBeUpdated.TotalEarned + req.body.TotalEarned
-    updateObject.TotalSpent = req.body.TotalSpent = objectToBeUpdated.TotalSpent + req.body.TotalSpent
-    updateObject.AverageEarnings = req.body.AverageEarnings = objectToBeUpdated.AverageEarnings + req.body.AverageEarnings
+
+    objectToBeUpdated.TotalTime += req.body.TotalTime
+    objectToBeUpdated.TotalEarned += req.body.TotalEarned
+    objectToBeUpdated.TotalExpenses += req.body.TotalExpenses
+    objectToBeUpdated.AverageEarnings += req.body.AverageEarnings
 
     await Site.findByIdAndUpdate(
       req.body.SiteId,
@@ -258,7 +280,7 @@ exports.ModifySite = async (req, res) => {
   } else {
     updateObject.TotalTime = req.body.TimeSpent
     updateObject.TotalEarned = req.body.TotalEarned
-    updateObject.TotalSpent = req.body.TotalSpent
+    updateObject.TotalExpenses = req.body.TotalExpenses
     updateObject.AverageEarnings = req.body.AverageEarnings
 
     await Site.findByIdAndUpdate(
@@ -276,6 +298,7 @@ exports.ModifyUserData = async (req, res) => {
     updateObject.TotalTime = req.body.TimeSpent
     updateObject.TotalEarnings = req.body.Earnings
     updateObject.TotalExpenses = req.body.Expenses
+    updateObject.AverageEarnings = req.body.AverageEarnings
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -286,6 +309,7 @@ exports.ModifyUserData = async (req, res) => {
     updateObject.TotalTime = req.body.TotalTime
     updateObject.TotalEarnings = req.body.TotalEarned
     updateObject.TotalExpenses = req.body.TotalSpent
+    updateObject.AverageEarnings = req.body.AverageEarnings
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -297,18 +321,31 @@ exports.ModifyUserData = async (req, res) => {
 }
 
 // Data Delete
-exports.DeleteSession = (req, res) => {
-  Session.findById(req.body.SessionId).then(async (session) => {
+exports.DeleteSession = async (req, res) => {
+  await Session.findById(req.body.SessionId).then(async (session) => {
     if (session) {
-      req.body.SiteId = session.SiteId
-      req.body.TimeSpent = -session.TimeSpent
-      req.body.TotalEarned = -session.Earnings
-      req.body.TotalSpent = -session.Expenses
-      req.body.AverageEarnings = -session.AverageEarnings
-      req.body.ModifySite = true
-      await this.ModifySite(req, res)
-      req.body.ModifyUser = true
-      await this.ModifyUserData(req, res)
+      await User.findById(session.UserId).then(async (user) => {
+        if (user) {
+          user.Sessions = user.Sessions.filter(sessionId => sessionId.toString() !== session._id.toString())
+          user.TotalTime -= session.TimeSpent
+          user.TotalEarned -= session.Earnings
+          user.TotalExpenses -= session.Expenses
+          user.AverageEarnings -= session.AverageEarnings
+
+          await user.save()
+        }
+      })
+      await Site.findById(session.SiteId).then(async (site) => {
+        if (site) {
+          site.TotalTime -= session.TimeSpent
+          site.TotalEarned -= session.Earnings
+          site.TotalExpenses -= session.Expenses
+          site.AverageEarnings -= session.AverageEarnings
+
+          await site.save()
+        }
+      })
+
       Session.findByIdAndDelete(req.body.SessionId).then(() => {
         res.status(200).send({ message: 'Session deleted!' })
       }).catch(err => { res.status(500).send({ message: err }) })
@@ -351,7 +388,7 @@ exports.GetHomepageData = async (req, res) => {
         },
         TotalEarningsO: {
           Title: 'Total Earnings',
-          Content: user.TotalEarnings
+          Content: user.TotalEarned
         },
         TotalExpensesO: {
           Title: 'Total Expenses',
@@ -359,7 +396,7 @@ exports.GetHomepageData = async (req, res) => {
         },
         AverageEarningsO: {
           Title: 'Average Earnings',
-          Content: 0
+          Content: user.AverageEarnings
         },
         SiteO: {
           Title: 'Top Site',
@@ -369,10 +406,8 @@ exports.GetHomepageData = async (req, res) => {
       await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
         if (!sites) {
           data.SiteO.Content = 'No Site'
-          data.AverageEarningsO.Content = 0
         } else {
           data.SiteO.Content = sites.SiteName
-          data.AverageEarningsO.Content = sites.AverageEarnings
         }
       }).catch(err => { res.status(500).send({ message: err }) })
       res.status(200).send(data)
@@ -391,7 +426,7 @@ exports.GetSiteData = async (req, res) => {
         SiteName: sites[i].SiteName,
         TotalTime: sites[i].TotalTime,
         TotalEarned: sites[i].TotalEarned,
-        TotalSpent: sites[i].TotalSpent,
+        TotalExpenses: sites[i].TotalExpenses,
         AverageEarnings: sites[i].AverageEarnings
       })
     }

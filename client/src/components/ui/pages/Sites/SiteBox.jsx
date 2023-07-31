@@ -18,7 +18,7 @@ class SiteBox extends React.Component {
           </div>
             <div className='box-site-content-totalspent'>
                 <h2>TotalSpent</h2>
-                <p>{this.props.data.TotalSpent}</p>
+                <p>{this.props.data.TotalExpenses}</p>
             </div>
             <div className='box-site-content-averageearnings'>
                 <h2>AverageEarnings</h2>
