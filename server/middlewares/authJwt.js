@@ -14,6 +14,9 @@ const verifyToken = async (req, res, next) => {
       res.status(401).send({ message: 'Unauthorized!' })
       return false
     }
+    decoded.exp = 1 * 24 * 60 * 60 * 1000
+    const newAccessToken = jwt.sign(decoded, config.secret)
+    res.cookie('token', newAccessToken, { httpOnly: true, maxAge: 1 * 24 * 60 * 60 * 1000 })
     req.authId = decoded.id
     return true
   })
