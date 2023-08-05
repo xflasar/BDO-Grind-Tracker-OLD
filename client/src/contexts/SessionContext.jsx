@@ -11,10 +11,11 @@ const SessionProvider = ({ children }) => {
 
   const signin = (accessToken) => {
     setSignedIn(true)
-    document.cookie = `token=${accessToken}; path=/;`
+    Cookies.set('token', accessToken)
   }
 
   const signout = () => {
+    console.log('called signout')
     setSignedIn(false)
     setUserData(null)
     localStorage.clear()
@@ -28,6 +29,7 @@ const SessionProvider = ({ children }) => {
   }
 
   const unauthorizedInterceptor = (response) => {
+    console.log(response)
     if (response.status === 401) {
       handleUnauthorized()
     } else if (response.statusText === 'Forbidden') {
