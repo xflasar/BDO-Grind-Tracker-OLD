@@ -1,0 +1,38 @@
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgb(0, 0, 0);
+  text-align: center;
+
+  .footer-content {
+    padding: 20px;
+  }
+
+  .footer-nav {
+    ul {
+      display: flex;
+      justify-content: center;
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin: 0 10px;
+
+        a {
+          text-decoration: none;
+          color: white;
+
+          &:hover {
+            color: #ffa600;
+          }
+        }
+      }
+    }
+  }
+
+  .footer-text {
+    margin: 0;
+  }
+}
