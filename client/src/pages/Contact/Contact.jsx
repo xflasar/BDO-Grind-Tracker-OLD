@@ -4,21 +4,24 @@ import '../../assets/pages/Contact/Contact.scss'
 // WIP
 // TODO:
 // - Add validation (Depends)
-// - response Errors
-// - response Success
 // - We might not need even API just give user mailto
+// - rework from useState to useReducer
+// - Styles
 
 const Contact = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [responseMessage, setResponseMessage] = useState('')
-  const [responseError, setResponseError] = useState(false)
   const [responseStatus, setResponseStatus] = useState(false)
+  const [responseStatusError, setResponseStatusError] = useState(false)
 
   const postData = async () => {
     const response = await fetch('/api/contactsend', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         name,
         email,
@@ -26,20 +29,20 @@ const Contact = () => {
       })
     })
     if (response.ok) {
-      const res = await response.json()
-      setResponseMessage(res)
-      console.log(res)
+      setResponseMessage('Thank you for contacting us.')
+      setResponseStatusError(false)
       setName('')
       setEmail('')
       setMessage('')
     } else {
-      setResponseMessage('Something went wrong')
-      setResponseError(true)
+      const res = await response.json()
+      setResponseMessage(res.message ? 'Something went wrong. ' + res.message : 'Something went wrong. Please try again later.')
+      setResponseStatusError(true)
     }
     setResponseStatus(true)
-    /* setTimeout(() => {
+    setTimeout(() => {
       setResponseStatus(false)
-    }, 3000) */
+    }, 3000)
   }
 
   const handleContactSubmit = (e) => {
@@ -79,7 +82,7 @@ const Contact = () => {
             <br />
           </div>
           <div className='contact-form-content-bottom'>
-            {responseStatus ? <label className={responseError ? 'contact-form-content-bottom-response-message error' : 'contact-form-content-bottom-response-message'}>{responseMessage}</label> : null}
+            {responseStatus ? <label className={responseStatusError ? 'contact-form-content-bottom-response-message error' : 'contact-form-content-bottom-response-message'}>{responseMessage}</label> : null}
             <button type="button" onClick={(e) => handleContactSubmit(e)}>Send Email</button>
           </div>
         </form>

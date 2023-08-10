@@ -31,13 +31,18 @@ app.get('*', function (req, res, next) {
   if (req.secure) {
     next()
   } else {
-    if (req.method === 'POST') {
-      res.redirect(307, 'https://' + req.headers.host + req.url)
-    } else {
-      res.redirect(308, 'https://' + req.headers.host + req.url) // This is for GET requests.
-    }
+    res.redirect(308, 'https://' + req.headers.host + req.url)
   }
 })
+
+app.post('*', function (req, res, next) {
+  if (req.secure) {
+    next()
+  } else {
+    res.redirect(307, 'https://' + req.headers.host + req.url)
+  }
+})
+
 // #endregion
 
 const key = fs.readFileSync(path.join(__dirname, '/config/selfsigned.key'))
@@ -46,10 +51,12 @@ const cert = fs.readFileSync(path.join(__dirname, '/config/selfsigned.crt'))
 // #region ROUTES
 require('./routes/auth.routes')(app)
 require('./routes/user.routes')(app)
+require('./routes/app.routes')(app)
+
 // #endregion
 
 // #region DATABASE
-db.mongoose.connect(`mongodb+srv://${dbConfig.username}:${dbConfig.password}@bdogrindtracker.mqzvwfp.mongodb.net/?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => { console.log('Successfully connected to MongoDB.') }).catch(err => { console.error('Connection error', err); process.exit() })
+db.mongoose.connect(dbConfig.uri, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => { console.log('Successfully connected to MongoDB.') }).catch(err => { console.error('Connection error', err); process.exit() })
 // #endregion
 
 // #region API_CALLS
