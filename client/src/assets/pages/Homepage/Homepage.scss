@@ -7,13 +7,6 @@
   font-family: sans-serif;
 }
 
-main {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 1rem;
-  padding: 1rem;
-}
-
 .box-container {
   display: grid;
   margin: 1% 5% 0 5%;

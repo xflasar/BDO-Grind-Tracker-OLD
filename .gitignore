@@ -106,5 +106,5 @@ dist
 # Custom
 
 # sensitive data
-.vscode/*
+.vscode
 server/config

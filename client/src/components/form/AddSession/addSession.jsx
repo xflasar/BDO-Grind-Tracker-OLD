@@ -9,12 +9,12 @@ const AddSession = ({ onAddSessionSuccess, authorizedFetch, onCloseClick }) => {
     e.preventDefault()
     const sessionData = {
       SiteName: state.SiteName,
-      TimeSpent: state.TimeSpent,
-      TotalEarned: state.TotalEarned,
-      AverageEarnings: state.AverageEarnings,
-      TotalSpent: state.TotalSpent,
-      AP: state.AP,
-      DP: state.DP
+      TimeSpent: parseInt(state.TimeSpent),
+      TotalEarned: parseInt(state.TotalEarned),
+      AverageEarnings: parseInt(state.AverageEarnings),
+      TotalSpent: parseInt(state.TotalSpent),
+      AP: parseInt(state.AP),
+      DP: parseInt(state.DP)
     }
 
     try {

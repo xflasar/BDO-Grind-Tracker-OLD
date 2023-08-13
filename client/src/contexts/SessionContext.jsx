@@ -11,10 +11,11 @@ const SessionProvider = ({ children }) => {
 
   const signin = (accessToken) => {
     setSignedIn(true)
-    document.cookie = `token=${accessToken}; path=/;`
+    Cookies.set('token', accessToken)
   }
 
   const signout = () => {
+    console.log('called signout')
     setSignedIn(false)
     setUserData(null)
     localStorage.clear()
