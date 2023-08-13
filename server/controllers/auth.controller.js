@@ -5,7 +5,7 @@ const Auth = require('../db/models/auth.model.js')
 const User = require('../db/models/user.model.js')
 const UserSettings = require('../db/models/settings.model.js')
 
-exports.signup = async (req, res) => {
+exports.SignUp = async (req, res) => {
   const validationErrors = await validateRegistrationData(req.body.username, req.body.email, req.body.password)
 
   if (validationErrors.length > 0) {
@@ -46,7 +46,7 @@ exports.signup = async (req, res) => {
   })
 }
 
-exports.signin = (req, res) => {
+exports.SignIn = (req, res) => {
   Auth.findOne({
     username: req.body.username
   }).populate('UserId').then(async (user) => {
@@ -77,7 +77,7 @@ exports.signin = (req, res) => {
   }).catch(err => { res.status(500).send({ message: err }) })
 }
 
-exports.signout = (req, res) => {
+exports.SignOut = (req, res) => {
   try {
     req.session = null
     return res.status(200).send({ message: 'Successfully signed out!' })

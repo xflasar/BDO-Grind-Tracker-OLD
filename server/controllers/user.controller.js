@@ -5,6 +5,7 @@ const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
 const UserSettings = require('../db/models/settings.model.js')
 const FreeImage = require('../services/freeImage.js')
+const Items = require('../db/models/item.model.js')
 
 // Sets
 exports.SetUserProfileData = (req, res) => {
@@ -452,4 +453,24 @@ exports.GetSessionsData = async (req, res) => {
     })
     res.status(200).send(data)
   }).catch(err => { res.status(500).send({ message: err }) })
+}
+
+// Marketplace
+exports.GetMarketplaceData = async (req, res) => {
+  Items.find({ validMarketplace: true }).then(async (items) => {
+    if (!items) {
+      return res.status(500).send({ message: 'No items found!' })
+    }
+
+    const data = items.map(item => {
+      return {
+        _id: item._id,
+        Name: item.Name,
+        Price: item.Price,
+        Description: item.Description,
+        Image: item.Image
+      }
+    })
+    res.status(200).send(data)
+  })
 }

@@ -8,9 +8,9 @@ const https = require('https')
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
-const cron = require('cron')
+// const cron = require('cron')
 
-const BDOAPI = require('./services/bdo_api')
+// const BDOAPI = require('./services/bdo_api')
 
 const app = express()
 const port = process.env.PORT || 443

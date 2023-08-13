@@ -44,6 +44,7 @@ const SessionProvider = ({ children }) => {
   }
 
   const unauthorizedInterceptor = (response) => {
+    console.log('unauthorizedInterceptor', response)
     if (response.status === 401) {
       handleUnauthorized()
     } else if (response.statusText === 'Forbidden') {
