@@ -72,8 +72,7 @@ exports.signin = (req, res) => {
     await res.status(200).send({
       userData: {
         ImageUrl: user.UserId.ImageUrl
-      },
-      accessToken: token
+      }
     })
   }).catch(err => { res.status(500).send({ message: err }) })
 }
@@ -85,6 +84,15 @@ exports.signout = (req, res) => {
   } catch (err) {
     console.log(err)
   }
+}
+
+exports.CheckAuth = (req, res) => {
+  jwt.verify(req.session.token, config.secret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: 'Unauthorized!' + err })
+    }
+    return res.status(200).send({ message: 'Authorized!' })
+  })
 }
 
 const validateRegistrationData = (username, email, password) => {

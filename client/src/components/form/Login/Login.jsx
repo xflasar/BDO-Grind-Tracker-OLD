@@ -55,15 +55,16 @@ const Login = ({ onLoginSuccess }) => {
           password
         })
       })
-      const res = await response.json()
-      if (res.accessToken) {
+      if (response.ok) {
+        const res = await response.json()
         if (res.userData) {
           setSessionUserData(res.userData)
         }
-        signin(res.accessToken)
+        signin()
         dispatch('LOGIN_SUCCESS')
         onLoginSuccess() // Think if we want to make the page refreshed or just update the session state
       } else {
+        const res = await response.json()
         if (res.message === 'User not found.') {
           dispatch({ type: 'LOGIN_INPUT_ERROR', payload: { name: 'username', msg: res.message } })
         } else if (res.message === 'Invalid Password!') {

@@ -35,11 +35,13 @@ function Navigation () {
   }
 
   useEffect(() => {
-    document.addEventListener('click', handleDocumentClick)
-
     if (isSignedIn && userData) {
       dispatch({ type: 'PROFILE_ICON_UPDATE', payload: userData.ImageUrl })
     }
+  }, [isSignedIn])
+
+  useEffect(() => {
+    document.addEventListener('click', handleDocumentClick)
 
     const checkScreenWidth = () => {
       const isMobileMode = window.innerWidth <= 768
