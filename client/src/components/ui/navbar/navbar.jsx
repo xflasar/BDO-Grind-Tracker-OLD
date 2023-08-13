@@ -8,6 +8,7 @@ import { INITIAL_STATE, navbarReducer } from './navbarReducer'
 
 // TODO:
 // - SCSS for Signup component for mobile device ( broken )
+// - Most likely I can make this more organized
 
 function Navigation () {
   const { isSignedIn, signout, authorizedFetch, userData } = useContext(SessionContext)
@@ -16,23 +17,35 @@ function Navigation () {
 
   const isClickOutsideElements = (event) => {
     const clickTarget = event.target
-    const loginFormOverlay = document.querySelector('.login-form-overlay')
+    const loginFormOverlay = document.querySelector('.login-container-form')
     const loginButton = document.querySelector('.login-container button')
     const signupFormContainer = document.querySelector('.signup-form-container')
     const signupButton = document.querySelector('.signup-container button')
+    const profileIcon = document.querySelector('.ProfileIcon')
 
     return (
       ((loginFormOverlay && !loginFormOverlay.contains(clickTarget)) &&
         (loginButton && !loginButton.contains(clickTarget))) ||
       ((signupFormContainer && !signupFormContainer.contains(clickTarget)) &&
-        (signupButton && !signupButton.contains(clickTarget)))
+        (signupButton && !signupButton.contains(clickTarget))) || (profileIcon && !profileIcon.contains(clickTarget))
     )
   }
   const handleDocumentClick = (event) => {
     if (isClickOutsideElements(event)) {
-      dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
+      if (state.overlayActive) {
+        dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
+      } else if (state.profileIconMenu) {
+        dispatch({ type: 'TOGGLE_PROFILE_ICON_MENU', payload: false })
+      }
     }
   }
+  useEffect(() => {
+    document.addEventListener('click', handleDocumentClick)
+
+    return () => {
+      document.removeEventListener('click', handleDocumentClick)
+    }
+  }, [state])
 
   useEffect(() => {
     if (isSignedIn && userData) {
@@ -41,8 +54,6 @@ function Navigation () {
   }, [isSignedIn])
 
   useEffect(() => {
-    document.addEventListener('click', handleDocumentClick)
-
     const checkScreenWidth = () => {
       const isMobileMode = window.innerWidth <= 768
       dispatch({ type: 'MOBILE_MODE_UPDATE', payload: isMobileMode })
@@ -52,7 +63,6 @@ function Navigation () {
 
     return () => {
       window.removeEventListener('resize', checkScreenWidth)
-      document.removeEventListener('click', handleDocumentClick)
     }
   }, [])
 
@@ -74,6 +84,7 @@ function Navigation () {
   }
 
   const profile = () => {
+    dispatch({ type: 'TOGGLE_PROFILE_ICON_MENU', payload: false })
     navigate('/profile')
   }
 
@@ -142,11 +153,16 @@ function Navigation () {
     }
   }
 
-  const handleTestButtonFire = async () => {
+  // Transfer this into profile
+  /*   const handleTestButtonFire = async () => {
     await authorizedFetch('/api/user/uploadprofilepicture', { method: 'POST' }).then(res => res.json()).then(data => {
       console.log(data)
     })
-  }
+
+    <li className='TestBtn'>
+      <button aria-label="TestBtn" onClick={handleTestButtonFire}>Test</button>
+    </li>
+  } */
 
   return (
     <>
@@ -183,18 +199,15 @@ function Navigation () {
                           </li>
                           {isSignedIn && (
                           <ul>
-                          <li className="sites">
-                              <Link to="/sites" className={state.activeLink === '/sites' ? 'active' : ''} aria-label="sites-link">Sites</ Link>
-                          </li>
-                          <li className="history">
-                              <Link to="/history" className={state.activeLink === '/history' ? 'active' : ''} aria-label="history-link">History</ Link>
-                          </li>
-                          <li className="analytics">
-                              <Link to="/analytics" className={state.activeLink === '/analytics' ? 'active' : ''} aria-label="analytics-link">Analytics  </Link>
-                          </li>
-                          <li className='TestBtn'>
-                            <button aria-label="TestBtn" onClick={handleTestButtonFire}>Test</button>
-                          </li>
+                            <li className="sites">
+                                <Link to="/sites" className={state.activeLink === '/sites' ? 'active' : ''} aria-label="sites-link">Sites</ Link>
+                            </li>
+                            <li className="history">
+                                <Link to="/history" className={state.activeLink === '/history' ? 'active' : ''} aria-label="history-link">History</ Link>
+                            </li>
+                            <li className="analytics">
+                                <Link to="/analytics" className={state.activeLink === '/analytics' ? 'active' : ''} aria-label="analytics-link">Analytics  </Link>
+                            </li>
                           </ul>
                           )}
                       </ul>

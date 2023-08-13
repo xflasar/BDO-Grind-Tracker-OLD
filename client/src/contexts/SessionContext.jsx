@@ -31,7 +31,6 @@ const SessionProvider = ({ children }) => {
   }
 
   const signout = () => {
-    console.log('called signout')
     setSignedIn(false)
     setUserData(null)
     localStorage.clear()

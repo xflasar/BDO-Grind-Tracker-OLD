@@ -10,7 +10,6 @@ const Login = ({ onLoginSuccess }) => {
 
   const handleUsernameChange = (event) => {
     dispatch({ type: 'LOGIN_INPUT_UPDATE', payload: { name: event.target.name, value: event.target.value } })
-    console.log(state.username)
   }
 
   const handlePasswordChange = (event) => {
