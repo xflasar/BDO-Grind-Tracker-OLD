@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const cookieSession = require('cookie-session')
 const dbConfig = require('./config/db.config')
+const config = require('./config/auth.config')
 const db = require('mongoose')
 const https = require('https')
 const http = require('http')
@@ -24,7 +25,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieSession({
   name: 'session',
-  secret: 'COOKIE_SECRET',
+  secret: config.secret,
   httpOnly: true,
   secure: false,
   maxAge: 24 * 60 * 60 * 1000

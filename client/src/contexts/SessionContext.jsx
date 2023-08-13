@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
 import PropTypes from 'prop-types'
 import useLocalStorage from './useLocalStorage'
@@ -6,12 +6,28 @@ import useLocalStorage from './useLocalStorage'
 const SessionContext = createContext()
 
 const SessionProvider = ({ children }) => {
-  const [isSignedIn, setSignedIn] = useState(!!Cookies.get('token'))
+  const [isSignedIn, setSignedIn] = useState(false)
   const [userData, setUserData] = useLocalStorage('userdata')
 
-  const signin = (accessToken) => {
+  async function CheckAuth () {
+    const sessionAccess = await authorizedFetch('/api/auth/access')
+    return sessionAccess
+  }
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      CheckAuth().then((response) => {
+        if (response.status === 200) {
+          setSignedIn(true)
+        } else {
+          setSignedIn(false)
+        }
+      })
+    }
+  }, [])
+
+  const signin = () => {
     setSignedIn(true)
-    Cookies.set('token', accessToken)
   }
 
   const signout = () => {
@@ -19,7 +35,6 @@ const SessionProvider = ({ children }) => {
     setSignedIn(false)
     setUserData(null)
     localStorage.clear()
-    Cookies.remove('token')
     Cookies.remove('session')
     Cookies.remove('session.sig')
   }
