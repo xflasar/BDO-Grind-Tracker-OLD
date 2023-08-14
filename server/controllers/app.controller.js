@@ -1,5 +1,7 @@
 const SendEmail = require('../services/contactEmailsending.js')
 const { emailConfig } = require('../config/emailSending.config.js')
+const Session = require('../db/models/session.model.js')
+const Sites = require('../db/models/site.model.js')
 
 exports.ContactSend = async (req, res) => {
   const { name, email, message } = req.body
@@ -14,4 +16,53 @@ exports.ContactSend = async (req, res) => {
         message: err.message || 'Some error occurred while sending email'
       })
     })
+}
+
+exports.GetHompageGlobalData = async (req, res) => {
+  const GlobalDataObj = {
+    TotalTime: 0,
+    TotalEarnings: 0,
+    TotalSessions: 0,
+    TopSite: '',
+    TotalSessionsToday: 0
+  }
+
+  const sessionData = await Session.aggregate([
+    {
+      $group: {
+        _id: null,
+        TotalEarnings: { $sum: '$Earnings' },
+        TotalTime: { $sum: '$TimeSpent' },
+        TotalSessions: { $sum: 1 },
+        TotalSessionsToday: { $sum: { $cond: { if: { $eq: ['$TimeCreated', new Date()] }, then: 1, else: 0 } } }
+      }
+    }
+  ])
+  GlobalDataObj.TotalEarnings = sessionData[0].TotalEarnings
+  GlobalDataObj.TotalTime = sessionData[0].TotalTime
+  GlobalDataObj.TotalSessions = sessionData[0].TotalSessions
+  GlobalDataObj.TotalSessionsToday = sessionData[0].TotalSessionsToday
+
+  const siteData = await Sites.aggregate([
+    {
+      $addFields: {
+        calculatedValue: { $subtract: ['$TotalEarned', '$TotalExpenses'] }
+      }
+    },
+    {
+      $sort: { calculatedValue: -1 }
+    },
+    {
+      $limit: 1
+    },
+    {
+      $project: {
+        _id: 0,
+        SiteName: 1
+      }
+    }
+  ])
+  GlobalDataObj.TopSite = siteData[0].SiteName
+
+  res.status(200).send(GlobalDataObj)
 }

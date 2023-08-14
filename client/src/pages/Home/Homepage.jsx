@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react'
-import Box from '../../components/ui/pages/Homepage/HomepageBox'
+import React, { useEffect, useContext } from 'react'
+// import Box from '../../components/ui/pages/Homepage/HomepageBox'
 import '../../assets/pages/Homepage/Homepage.scss'
 import { SessionContext } from '../../contexts/SessionContext'
+import GuestHomepage from './GuestHomepage'
 
 function Homepage () {
-  const [data, setData] = useState(null)
+  // const [data, setData] = useState(null)
   const { isSignedIn, authorizedFetch } = useContext(SessionContext)
 
   async function handleFetchData () {
@@ -13,34 +14,38 @@ function Homepage () {
     return data
   }
   useEffect(() => {
-    const noDataContent = 'No data!'
-    const defaultData = {
+    // const noDataContent = 'No data!'
+    /* const defaultData = {
       Box1: { Content: noDataContent },
       Box2: { Content: noDataContent },
       Box3: { Content: noDataContent },
       Box4: { Content: noDataContent },
       Box5: { Content: noDataContent }
-    }
+    } */
 
     if (!isSignedIn) {
-      setData(defaultData)
+      // setData(defaultData)
       return
     }
 
     handleFetchData()
       .then((data) => {
         if (data.message === 'No token provided!' || data.length < 4) {
-          setData(defaultData)
-          return
+          // setData(defaultData)
+          // return
         }
-        setData(data)
+        // setData(data)
       })
       .catch(() => {
-        setData(defaultData)
+        // setData(defaultData)
       })
   }, [isSignedIn])
 
   return (
+    <GuestHomepage />
+  )
+}
+/*
     <div className="Homepage">
       <div className="box-container">
         {data && Object.values(data).map((item, index) => {
@@ -49,7 +54,5 @@ function Homepage () {
           )
         })}
       </div>
-    </div>
-  )
-}
+      </div> */
 export default Homepage
