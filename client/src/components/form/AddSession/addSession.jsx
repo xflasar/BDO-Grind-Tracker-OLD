@@ -12,7 +12,7 @@ const AddSession = ({ onAddSessionSuccess, authorizedFetch, onCloseClick }) => {
       TimeSpent: parseInt(state.TimeSpent),
       TotalEarned: parseInt(state.TotalEarned),
       AverageEarnings: parseInt(state.AverageEarnings),
-      TotalSpent: parseInt(state.TotalSpent),
+      TotalExpenses: parseInt(state.TotalSpent),
       AP: parseInt(state.AP),
       DP: parseInt(state.DP)
     }

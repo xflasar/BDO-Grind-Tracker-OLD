@@ -47,7 +47,7 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
     const TimeSpent = parseInt(state.timeSpent)
     const TotalEarned = parseInt(state.earnings)
     const AverageEarnings = parseInt(state.averageEarnings)
-    const TotalSpent = parseInt(state.expenses)
+    const TotalExpenses = parseInt(state.expenses)
     const Gear = {
       TotalAP: parseInt(state.gear.TotalAP),
       TotalDP: parseInt(state.gear.TotalDP)
@@ -60,7 +60,7 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
       TimeSpent,
       TotalEarned,
       AverageEarnings,
-      TotalSpent,
+      TotalExpenses,
       Gear
     }
     await handleEditSessionSubmit(newSession)

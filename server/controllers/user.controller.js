@@ -142,26 +142,26 @@ exports.AddSession = async (req, res) => {
         TimeSpent: parseInt(req.body.TimeSpent),
         TotalEarned: parseInt(req.body.TotalEarned),
         AverageEarnings: parseInt(req.body.AverageEarnings),
-        TotalSpent: parseInt(req.body.TotalSpent),
+        TotalExpenses: parseInt(req.body.TotalExpenses),
         AP: parseInt(req.body.AP),
         DP: parseInt(req.body.DP)
       }
 
       // Check of properties
-      if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings || !BodyObj.TotalSpent || !BodyObj.AP || !BodyObj.DP) {
+      if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings || !BodyObj.TotalExpenses || !BodyObj.AP || !BodyObj.DP) {
         return res.status(400).send({ message: 'Missing required properties in request body' })
       }
 
       // Site section
       if (!site) {
-        req.body.TotalTime = BodyObj.TotalSpent
-        req.body.TotalExpenses = BodyObj.TotalSpent
+        req.body.TotalTime = BodyObj.TotalExpenses
+        req.body.TotalExpenses = BodyObj.TotalExpenses
         site = await this.AddSite(req, res, true)
         user.Sites.push([site._id])
       } else {
         site.TotalTime = BodyObj.TimeSpent
         site.TotalEarned = BodyObj.TotalEarned
-        site.TotalExpenses = BodyObj.TotalSpent
+        site.TotalExpenses = BodyObj.TotalExpenses
         site.AverageEarnings = BodyObj.AverageEarnings
         site.save().catch((error) => res.status(500).send({ message: error }))
       }
@@ -172,7 +172,7 @@ exports.AddSession = async (req, res) => {
         TimeSpent: BodyObj.TimeSpent,
         Earnings: BodyObj.TotalEarned,
         AverageEarnings: BodyObj.AverageEarnings,
-        Expenses: BodyObj.TotalSpent,
+        Expenses: BodyObj.TotalExpenses,
         Gear: { TotalAP: BodyObj.AP, TotalDP: BodyObj.DP },
         TimeCreated: Date.now(),
         UserId: req.userId
@@ -212,7 +212,7 @@ exports.AddSite = async (req, res, mCall = false) => {
     SiteName: req.body.SiteName,
     TotalTime: req.body.TotalTime,
     TotalEarned: req.body.TotalEarned,
-    TotalExpenses: req.body.TotalSpent,
+    TotalExpenses: req.body.TotalExpenses,
     AverageEarnings: req.body.AverageEarnings,
     UserId: req.userId
   })
@@ -231,7 +231,7 @@ exports.ModifySession = async (req, res) => {
     TimeSpent: parseInt(req.body.TimeSpent),
     Earnings: parseInt(req.body.TotalEarned),
     AverageEarnings: parseInt(req.body.AverageEarnings),
-    Expenses: parseInt(req.body.TotalSpent),
+    Expenses: parseInt(req.body.TotalExpenses),
     Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
   }
 
@@ -308,7 +308,7 @@ exports.ModifyUserData = async (req, res) => {
   } else {
     updateObject.TotalTime = req.body.TotalTime
     updateObject.TotalEarnings = req.body.TotalEarned
-    updateObject.TotalExpenses = req.body.TotalSpent
+    updateObject.TotalExpenses = req.body.TotalExpenses
     updateObject.AverageEarnings = req.body.AverageEarnings
 
     await User.findByIdAndUpdate(
