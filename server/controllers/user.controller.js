@@ -380,37 +380,21 @@ exports.DeleteUserData = (req, res) => {
 exports.GetHomepageData = async (req, res) => {
   User.findById(req.userId).then(async (user) => {
     try {
-      const data = {
-        TotalTimeO: {
-
-          Title: 'Total Time',
-          Content: user.TotalTime
-        },
-        TotalEarningsO: {
-          Title: 'Total Earnings',
-          Content: user.TotalEarned
-        },
-        TotalExpensesO: {
-          Title: 'Total Expenses',
-          Content: user.TotalExpenses
-        },
-        AverageEarningsO: {
-          Title: 'Average Earnings',
-          Content: user.AverageEarnings
-        },
-        SiteO: {
-          Title: 'Top Site',
-          Content: ''
-        }
+      const HomepageDataObj = {
+        TotalTime: user.TotalTime,
+        TotalEarnings: user.TotalEarned,
+        TotalExpenses: user.TotalExpenses,
+        AverageEarnings: user.AverageEarnings,
+        TopSite: ''
       }
       await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
         if (!sites) {
-          data.SiteO.Content = 'No Site'
+          HomepageDataObj.TopSite = 'No Site'
         } else {
-          data.SiteO.Content = sites.SiteName
+          HomepageDataObj.TopSite = sites.SiteName
         }
       }).catch(err => { res.status(500).send({ message: err }) })
-      res.status(200).send(data)
+      res.status(200).send(HomepageDataObj)
     } catch (err) {
       console.log(err)
     }

@@ -34,7 +34,7 @@ module.exports = function (app) {
 
   // Data Get routes
   // Homepage data
-  app.get('/api/user/homepage', [verifyToken], controller.GetHomepageData)
+  app.get('/api/user/homepageuserdata', [verifyToken], controller.GetHomepageData)
 
   // Site data
   app.get('/api/user/sitedata', [verifyToken], controller.GetSiteData)

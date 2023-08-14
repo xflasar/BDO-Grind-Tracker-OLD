@@ -91,7 +91,7 @@ const GuestHomepage = () => {
   return (
     <div className="homepage">
       <section className="global-data">
-        <img src="/assets/homepageTop.jpg" alt="globalData" />
+        <img src="/assets/homepageTop.jpg" alt="globalDataBackground" />
         <h1>Welcome to the Grind Tracker</h1>
         <h2>Global Data</h2>
         <div className="data-values">

@@ -1,4 +1,5 @@
 import React, { useEffect, useContext, useReducer } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import Login from '../../form/Login/Login'
 import Signup from '../../form/Signup/Signup'
@@ -10,11 +11,17 @@ import { INITIAL_STATE, navbarReducer } from './navbarReducer'
 // - SCSS for Signup component for mobile device ( broken )
 // - Most likely I can make this more organized
 
+// This can be in different file
+const Portal = ({ el }) => {
+  const mount = document.getElementById('portal-root')
+
+  return createPortal(el, mount)
+}
+
 function Navigation () {
   const { isSignedIn, signout, authorizedFetch, userData } = useContext(SessionContext)
   const navigate = useNavigate()
   const [state, dispatch] = useReducer(navbarReducer, INITIAL_STATE)
-
   const isClickOutsideElements = (event) => {
     const clickTarget = event.target
     const loginFormOverlay = document.querySelector('.login-container-form')
@@ -34,6 +41,7 @@ function Navigation () {
     if (isClickOutsideElements(event)) {
       if (state.overlayActive) {
         dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
+        document.body.removeAttribute('style')
       } else if (state.profileIconMenu) {
         dispatch({ type: 'TOGGLE_PROFILE_ICON_MENU', payload: false })
       }
@@ -136,9 +144,11 @@ function Navigation () {
       dispatch({ type: 'SIGNUP_OVERLAY_SHOW' })
       setTimeout(() => {
         dispatch({ type: 'TOGGLE_OVERLAY', payload: true })
+        document.body.style.overflow = 'hidden'
       }, 0)
     } else {
       dispatch({ type: 'TOGGLE_OVERLAY', payload: false })
+      document.body.removeAttribute('style')
       setTimeout(() => {
         dispatch({ type: 'SIGNUP_OVERLAY_HIDE' })
       }, 300)
@@ -166,17 +176,15 @@ function Navigation () {
 
   return (
     <>
-        {state.showSignin && (
+        {state.showSignin && <Portal el={(
         <div className={`login-form-overlay ${state.overlayActive ? 'active' : ''}`}
       onTransitionEnd={handleTransitionEnd}>
              <Login onLoginSuccess={handleLoginSuccess} onClose={() => { dispatch({ type: 'SIGNIN_OVERLAY_HIDE', payload: false }) } }/>
         </div>
-        )}
-        {state.showSignup && (
-          <div className={`signup-form-overlay ${state.overlayActive ? 'active' : ''}`} onTransitionEnd={handleTransitionEnd}>
+        )}/>}
+        {state.showSignup && <Portal el={<div className={`signup-form-overlay ${state.overlayActive ? 'active' : ''}`} onTransitionEnd={handleTransitionEnd}>
             <Signup onSignupSuccess={handleSignupSuccess} onClose={() => { dispatch({ type: 'SIGNUP_OVERLAY_HIDE', payload: false }) } }/>
-          </div>
-        )}
+          </div>}/>}
     <div className="nav-container">
       <nav>
           {state.mobileMode && (
