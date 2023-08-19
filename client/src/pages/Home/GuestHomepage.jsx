@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import HomepageBox from '../../components/ui/pages/Homepage/HomepageBox'
 import '../../assets/pages/Homepage/GuestHomepage.scss'
+import NewsHistory from '../../components/ui/pages/Homepage/NewsHistory'
 
 // TODO:
 // - Add lazyLoading to images make the images size smaller
@@ -106,7 +107,7 @@ const GuestHomepage = () => {
         <h2>About the Website</h2>
         <p>The Black Desert Online Grinding Tracker enables users to preserve session specifics, including mob interactions, item acquisitions, and session-specific earnings. This utility enhances the ease of monitoring session-based earnings, coupled with accessible functionalities like interactive marketplace visuals. Furthermore, users can efficiently oversee their logged sessions, facilitating the option to modify or remove entries for an all-encompassing and dynamic gaming involvement.</p>
       </section>
-      <div className="carousel">
+      <section className="carousel">
         <button className="previous-button is-control" onClick={handlePrevClick}>
           Previous
         </button>
@@ -129,7 +130,10 @@ const GuestHomepage = () => {
         <button className="next-button is-control" onClick={handleNextClick}>
         Next
         </button>
-      </div>
+      </section>
+      <section className='news'>
+        <NewsHistory />
+      </section>
     </div>
   )
 }
