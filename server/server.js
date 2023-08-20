@@ -66,7 +66,6 @@ app.get('/api', (req, res) => {
   res.redirect('http://localhost:3000/')
   console.log('Server received API check request!')
 })
-
 // #endregion
 
 http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))

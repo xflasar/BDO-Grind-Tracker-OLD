@@ -2,6 +2,7 @@ const SendEmail = require('../services/contactEmailsending.js')
 const { emailConfig } = require('../config/emailSending.config.js')
 const Session = require('../db/models/session.model.js')
 const Sites = require('../db/models/site.model.js')
+const Scrapper = require('../services/BDO_news_scraper.js')
 
 exports.ContactSend = async (req, res) => {
   const { name, email, message } = req.body
@@ -65,4 +66,12 @@ exports.GetHompageGlobalData = async (req, res) => {
   GlobalDataObj.TopSite = siteData[0].SiteName
 
   res.status(200).send(GlobalDataObj)
+}
+
+exports.GetNews = async (req, res) => {
+  Scrapper.Scrapped().then((news) => {
+    if (!news) return res.status(404).send({ message: 'No news found' })
+
+    res.status(200).send(news)
+  })
 }

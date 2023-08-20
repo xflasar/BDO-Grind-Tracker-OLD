@@ -14,4 +14,5 @@ module.exports = function (app) {
 
   // Gets
   app.get('/api/globaldata', controller.GetHompageGlobalData)
+  app.get('/api/news', controller.GetNews)
 }
