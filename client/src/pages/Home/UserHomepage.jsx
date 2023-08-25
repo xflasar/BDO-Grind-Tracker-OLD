@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import HomepageBox from '../../components/ui/pages/Homepage/HomepageBox'
 import '../../assets/pages/Homepage/UserHomepage.scss'
 import NewsHistory from '../../components/ui/pages/Homepage/NewsHistory'
+import RecentActivity from '../../components/ui/pages/Homepage/RecentActivity'
 const UserHomepage = () => {
   const [userData, setUserData] = useState([])
 
@@ -36,13 +37,8 @@ const UserHomepage = () => {
           <div className="data-value val5"><HomepageBox data={{ Title: 'Total Expenses', Content: userData?.TotalExpenses }}/></div>
         </div>
       </section>
-      <section className='additional-content'>
-        <h2>Your Recent Activities</h2>
-        <ul>
-          <li>Completed 10 quests in Valencia region.</li>
-          <li>Collected rare items from fishing in Mediah.</li>
-          <li>Ranked #1 in Silver earnings for the week.</li>
-        </ul>
+      <section className='recent-activity'>
+        <RecentActivity />
       </section>
 
       <section className='news'>

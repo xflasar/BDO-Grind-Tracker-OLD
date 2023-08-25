@@ -133,6 +133,19 @@ exports.GetUserSettingsData = (req, res) => {
   }).catch((err) => res.status(500).send({ message: err }))
 }
 
+exports.GetRecentActivity = (req, res) => {
+  User.findById(req.userId, 'RecentActivity').populate('RecentActivity').then(async (user) => {
+    if (!user) {
+      return await res.status(500).send({ message: 'User not found!' })
+    }
+
+    const data = {
+      RecentActivity: user.RecentActivity
+    }
+    res.status(200).send(data)
+  }).catch((err) => res.status(500).send({ message: err }))
+}
+
 // Data Add
 exports.AddSession = async (req, res) => {
   await User.findById(req.userId).then(async (user) => {

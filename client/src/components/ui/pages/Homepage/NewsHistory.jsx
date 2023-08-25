@@ -10,7 +10,6 @@ const NewsHistory = () => {
       if (response.ok) {
         const data = await response.json()
         setNewsData(data)
-        console.log(data)
       } else {
         setNewsData([])
       }
