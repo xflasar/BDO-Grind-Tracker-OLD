@@ -66,7 +66,6 @@ const ProfileView = () => {
   }
 
   return (
-
     <div aria-label='profileView-container' className='profileView-container'>
         {user && (
       <form aria-label='profileView-container-form'>

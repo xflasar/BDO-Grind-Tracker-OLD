@@ -10,7 +10,6 @@ const RecentActivity = () => {
       const response = await authorizedFetch('/api/user/recentactivity')
       const data = await response.json()
       setActivityData(data.RecentActivity)
-      console.log(data.RecentActivity)
     } catch (err) {
       console.error('Failed to fetch activity data ' + err)
     }

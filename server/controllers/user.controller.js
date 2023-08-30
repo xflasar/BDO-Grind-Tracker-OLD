@@ -3,8 +3,9 @@ const User = require('../db/models/user.model.js')
 const Session = require('../db/models/session.model.js')
 const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
-const UserSettings = require('../db/models/settings.model.js')
+/* const UserSettings = require('../db/models/settings.model.js') */
 const FreeImage = require('../services/freeImage.js')
+const validator = require('../validators/user.validator.js')
 
 // Sets
 exports.SetUserProfileData = (req, res) => {
@@ -15,6 +16,11 @@ exports.SetUserProfileData = (req, res) => {
       profileData[key] = req.body[key]
     }
   }
+
+  profileData.RecentActivity.add({
+    activity: 'Profile  data updated!',
+    date: new Date()
+  })
 
   User.findByIdAndUpdate(req.userId,
     { $set: { ...profileData } },
@@ -30,6 +36,15 @@ exports.SetUserSecurityData = async (req, res) => {
     if (await bcrypt.compareSync(await req.body.userPassword, auth.password)) {
       auth.password = await bcrypt.hash(req.body.userNewPassword, 8)
       auth.save()
+      User.findById(req.userId).then((user) => {
+        if (!user) return
+
+        user.RecentActivity.push({
+          activity: 'Password changed!',
+          date: new Date()
+        })
+        user.save()
+      })
       return res.status(200).send({ message: 'Confirmed!' })
     } else {
       return res.status(401).send({ message: 'Wrong Password!' })
@@ -38,7 +53,7 @@ exports.SetUserSecurityData = async (req, res) => {
 }
 
 exports.SetUserSettingsData = async (req, res) => {
-  UserSettings.findOne({ userId: req.userId }).then((settings) => {
+  /* UserSettings.findOne({ userId: req.userId }).then((settings) => {
     let taxCalculated = 0
     if (req.body.valuePack && req.body.merchantRing) {
       taxCalculated = (-0.35 + 0.2275).toFixed(4)
@@ -80,9 +95,13 @@ exports.SetUserSettingsData = async (req, res) => {
         Tax: settings.tax
       }
 
-      settings.save().then(() => res.status(200).send(dataBack)).catch((err) => { return res.status(500).send({ message: 'Error updating usersettings! ' + err }) })
+      settings.save().then(() => {
+        res.status(200).send(dataBack)
+        User.findById(req.userId).then((user) => {
+
+      }).catch((err) => { return res.status(500).send({ message: 'Error updating usersettings! ' + err }) })
     }
-  }).catch((err) => { return res.status(500).send({ message: 'Error finding usersettings! ' + err }) })
+  }).catch((err) => { return res.status(500).send({ message: 'Error finding usersettings! ' + err }) }) */
 }
 
 exports.UploadProfilePicture = async (req, res) => {
@@ -148,7 +167,85 @@ exports.GetRecentActivity = (req, res) => {
 
 // Data Add
 exports.AddSession = async (req, res) => {
-  await User.findById(req.userId).then(async (user) => {
+  const validation = validator.AddSessionValidator(req.body)
+  if (!validation.result) {
+    return res.status(500).send(validation.errors)
+  }
+
+  try {
+    const user = await User.findById(req.userId)
+    if (!user) return res.status(500).send({ message: 'User not found!' })
+
+    let site = await Site.findOne({ SiteName: req.body.SiteName, UserId: req.userId })
+    // Pre-update for add Session feature
+    // if(!site) return res.status(500).send({ message: 'Site not found!' })
+
+    if (!site) {
+      req.body.TotalTime = req.body.TotalExpenses
+      site = await this.AddSite(req, res, true)
+      user.Sites.push([site._id])
+    } else {
+      site.TotalTime = req.body.TimeSpent
+      site.TotalEarned = req.body.TotalEarned
+      site.TotalExpenses = req.body.TotalExpenses
+      site.AverageEarnings = req.body.AverageEarnings
+      await site.save().catch((error) => res.status(500).send({ message: error }))
+    }
+
+    const sessionToAdd = new Session({
+      SiteId: site._id,
+      TimeSpent: req.body.TimeSpent,
+      Earnings: req.body.TotalEarned,
+      AverageEarnings: req.body.AverageEarnings,
+      Expenses: req.body.TotalExpenses,
+      Gear: { TotalAP: req.body.AP, TotalDP: req.body.DP },
+      TimeCreated: Date.now(),
+      UserId: req.userId
+    })
+
+    const savedSession = await sessionToAdd.save()
+    if (!savedSession) {
+      req.body.TotalTime *= -1
+      req.body.TotalEarned *= -1
+      req.body.TotalExpenses *= -1
+      req.body.AverageEarnings *= -1
+      this.ModifySite(req, res)
+      return res.status(500).send({ message: 'Session not saved!' })
+    }
+
+    user.Sessions.push(savedSession._id)
+    user.TotalEarned += savedSession.Earnings
+    user.TotalExpenses += savedSession.Expenses
+    user.TotalTime += savedSession.TimeSpent
+    user.AverageEarnings += savedSession.AverageEarnings
+    user.RecentActivity.push({ activity: 'Added new session.', date: new Date() })
+    await user.save().catch((error) => {
+      Session.findOneAndDelete(savedSession.id)
+      req.body.TotalTime *= -1
+      req.body.TotalEarned *= -1
+      req.body.TotalExpenses *= -1
+      req.body.AverageEarnings *= -1
+      this.ModifySite(req, res)
+      res.status(500).send({ message: error })
+      return res.status(500).send({ message: 'User not saved!' })
+    })
+
+    // Here should be the site update later
+    res.status(200).send({
+      _id: savedSession._id,
+      Date: `${savedSession.TimeCreated.getDate()}/${savedSession.TimeCreated.getMonth() + 1}/${savedSession.TimeCreated.getFullYear()}`,
+      SiteName: site.SiteName,
+      TimeSpent: savedSession.TimeSpent,
+      Earnings: savedSession.Earnings,
+      AverageEarnings: savedSession.AverageEarnings,
+      Expenses: savedSession.Expenses,
+      Gear: { TotalAP: savedSession.Gear.TotalAP, TotalDP: savedSession.Gear.TotalDP }
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ message: error })
+  }
+  /* await User.findById(req.userId).then(async (user) => {
     await Site.findOne({ SiteName: req.body.SiteName }, { UserId: req.userId }).then(async site => {
       // This is temporary maybe
       const BodyObj = {
@@ -217,10 +314,10 @@ exports.AddSession = async (req, res) => {
         res.status(500).send({ message: err })
       })
     }).catch(err => { res.status(500).send({ message: err }) })
-  }).catch(err => { res.status(500).send({ message: err }) })
+  }).catch(err => { res.status(500).send({ message: err }) }) */
 }
 
-exports.AddSite = async (req, res, mCall = false) => {
+exports.AddSite = async (req, res, newSite = false) => {
   const site = new Site({
     SiteName: req.body.SiteName,
     TotalTime: req.body.TotalTime,
@@ -231,7 +328,7 @@ exports.AddSite = async (req, res, mCall = false) => {
   })
 
   await site.save().catch(err => { res.status(500).send({ message: err }) })
-  if (!mCall) {
+  if (!newSite) {
     res.status(200).send({ message: 'Site added!' })
   } else {
     return site
@@ -239,40 +336,45 @@ exports.AddSite = async (req, res, mCall = false) => {
 }
 // Data Modify
 exports.ModifySession = async (req, res) => {
-  const BodyObj = {
-    SessionId: req.body._id,
-    TimeSpent: parseInt(req.body.TimeSpent),
-    Earnings: parseInt(req.body.TotalEarned),
-    AverageEarnings: parseInt(req.body.AverageEarnings),
-    Expenses: parseInt(req.body.TotalExpenses),
-    Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
-  }
+  try {
+    const sessionToUpdate = await Session.findById(req.body.SessionId)
 
-  // Find All the keys in the body object that are in the session schema
-  const updateObject = {}
-  for (const key in BodyObj) {
-    if (Object.prototype.hasOwnProperty.call(BodyObj, key)) {
-      updateObject[key] = BodyObj[key]
+    if (!sessionToUpdate) {
+      return res.status(404).send({ message: 'Session not found!' })
     }
-  }
 
-  // Update the session then update Site and UserData
-  await Session.findByIdAndUpdate(
-    req.body.SessionId,
-    { $set: { ...updateObject } },
-    { new: true }
-  ).then(async (session) => {
-    req.body.SiteId = session.SiteId
-    req.body.TotalTime = session.TimeSpent
-    req.body.TotalEarned = session.Earnings
-    req.body.TotalExpenses = session.Expenses
-    req.body.AverageEarnings = session.AverageEarnings
+    const udateSessionData = {
+      TimeSpent: parseInt(req.body.TimeSpent),
+      Earnings: parseInt(req.body.TotalEarned),
+      AverageEarnings: parseInt(req.body.AverageEarnings),
+      Expenses: parseInt(req.body.TotalExpenses),
+      Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
+    }
+
+    const updatedSession = await Session.findByIdAndUpdate(
+      req.body.SessionId,
+      { $set: { ...udateSessionData } },
+      { new: true }
+    )
+
+    req.body.SiteId = updatedSession.SiteId
+    req.body.TotalTime = updatedSession.TimeSpent
+    req.body.TotalEarned = updatedSession.Earnings
+    req.body.TotalExpenses = updatedSession.Expenses
+    req.body.AverageEarnings = updatedSession.AverageEarnings
+
     req.body.ModifySite = true
     await this.ModifySite(req, res)
+
     req.body.ModifyUser = true
     await this.ModifyUserData(req, res)
-    this.GetSessionsData(req, res)
-  }).catch(err => { res.status(500).send({ message: err }) })
+
+    // This can be yet changed with the updateSessionData
+    res.status(200).send({ _id: updatedSession._id, Date: updatedSession.Date, TimeSpent: updatedSession.TimeSpent, Earnings: updatedSession.Earnings, Expenses: updatedSession.Expenses, Gear: updatedSession.Gear })
+  } catch (err) {
+    console.error('Error updating session:', err)
+    res.status(500).send({ message: 'An error occured while updating the session.', err })
+  }
 }
 
 exports.ModifySite = async (req, res) => {
@@ -335,38 +437,45 @@ exports.ModifyUserData = async (req, res) => {
 
 // Data Delete
 exports.DeleteSession = async (req, res) => {
-  await Session.findById(req.body.SessionId).then(async (session) => {
-    if (session) {
-      await User.findById(session.UserId).then(async (user) => {
-        if (user) {
-          user.Sessions = user.Sessions.filter(sessionId => sessionId.toString() !== session._id.toString())
-          user.TotalTime -= session.TimeSpent
-          user.TotalEarned -= session.Earnings
-          user.TotalExpenses -= session.Expenses
-          user.AverageEarnings -= session.AverageEarnings
+  try {
+    const session = await Session.findById(req.body.SessionId)
 
-          await user.save()
-        }
-      })
-      await Site.findById(session.SiteId).then(async (site) => {
-        if (site) {
-          site.TotalTime -= session.TimeSpent
-          site.TotalEarned -= session.Earnings
-          site.TotalExpenses -= session.Expenses
-          site.AverageEarnings -= session.AverageEarnings
-
-          await site.save()
-        }
-      })
-
-      Session.findByIdAndDelete(req.body.SessionId).then(() => {
-        res.status(200).send({ message: 'Session deleted!' })
-      }).catch(err => { res.status(500).send({ message: err }) })
-    } else {
-      console.log('User Controller: \n' + req.body)
-      console.log('User Controller: Failed to delete session!')
+    if (!session) {
+      console.log('User Controller: Failed to find session to delete!')
+      return res.status(500).send({ message: 'Session not found!' })
     }
-  }).catch(err => { res.status(500).send({ message: err }) })
+
+    const user = await User.findById(session.UserId)
+    const site = await Site.findById(session.SiteId)
+
+    if (user) {
+      user.Sessions = user.Sessions.filter(sessionId => sessionId.toString() !== session._id.toString())
+      user.TotalTime -= session.TimeSpent
+      user.TotalEarned -= session.Earnings
+      user.TotalExpenses -= session.Expenses
+      user.AverageEarnings -= session.AverageEarnings
+
+      await user.save()
+    }
+
+    if (site) {
+      site.TotalTime -= session.TimeSpent
+      site.TotalEarned -= session.Earnings
+      site.TotalExpenses -= session.Expenses
+      site.AverageEarnings -= session.AverageEarnings
+
+      await site.save()
+    }
+
+    await Session.findByIdAndDelete(req.body.SessionId)
+
+    res.status(200).send({ message: 'Session deleted!' })
+    user.RecentActivity.push({ activity: 'Deleted an session', date: new Date() })
+    user.save()
+  } catch (err) {
+    console.log('User Controller:', err)
+    res.status(500).send({ message: 'An error occured while deleting the session!' })
+  }
 }
 
 // This is a dangerous function, it will delete all user data, including sessions and sites and authentication data | This function will be called when the user deletes his account
