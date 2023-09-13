@@ -13,11 +13,11 @@ export const profileSettingsReducer = (state, action) => {
       return {
         ...state,
         userSettings: action.payload,
-        regionServer: action.payload.RegionServer,
-        valuePack: action.payload.ValuePack,
-        merchantRing: action.payload.MerchantRing,
-        familyFame: action.payload.FamilyFame,
-        tax: action.payload.Tax
+        regionServer: action.payload.region,
+        valuePack: action.payload.valuePack,
+        merchantRing: action.payload.merchantRing,
+        familyFame: action.payload.familyFame,
+        tax: action.payload.tax
       }
     case 'PROFILE_SETTINGS_INPUT_CHANGE':
       return {

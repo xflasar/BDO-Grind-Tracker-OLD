@@ -6,7 +6,8 @@ const Auth = require('../db/models/auth.model.js')
 /* const UserSettings = require('../db/models/settings.model.js') */
 const FreeImage = require('../services/freeImage.js')
 const validator = require('../validators/user.validator.js')
-
+const UserControllerHelper = require('../helpers/user_controller.helper.js')
+const UserSettings = require('../db/models/settings.model.js')
 // Sets
 exports.SetUserProfileData = (req, res) => {
   const profileData = {}
@@ -32,137 +33,172 @@ exports.SetUserProfileData = (req, res) => {
 }
 
 exports.SetUserSecurityData = async (req, res) => {
-  await Auth.findOne({ UserId: req.userId }).then(async (auth) => {
-    if (await bcrypt.compareSync(await req.body.userPassword, auth.password)) {
-      auth.password = await bcrypt.hash(req.body.userNewPassword, 8)
-      auth.save()
-      User.findById(req.userId).then((user) => {
-        if (!user) return
+  try {
+    const auth = await Auth.findOne({ UserId: req.userId })
+    if (!auth) return res.status(500).send({ message: 'Auth not found!' })
 
-        user.RecentActivity.push({
-          activity: 'Password changed!',
-          date: new Date()
-        })
-        user.save()
-      })
-      return res.status(200).send({ message: 'Confirmed!' })
-    } else {
-      return res.status(401).send({ message: 'Wrong Password!' })
-    }
-  }).catch((err) => { res.status(500).send({ message: 'Errored: ' + err }) })
+    if (await !bcrypt.compareSync(await req.body.userPassword, auth.password)) return res.status(401).send({ message: 'Wrong Password!' })
+
+    auth.password = await bcrypt.hash(req.body.userNewPassword, 8)
+    auth.save()
+
+    // We can probably do this in an user_controller.helper.js
+    const user = await User.findById(req.userId)
+    if (!user) return
+
+    user.RecentActivity.push({
+      activity: 'Password changed!',
+      date: new Date()
+    })
+
+    user.save()
+
+    res.status(200).send({ message: 'Confirmed!' })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
 exports.SetUserSettingsData = async (req, res) => {
-  /* UserSettings.findOne({ userId: req.userId }).then((settings) => {
-    let taxCalculated = 0
-    if (req.body.valuePack && req.body.merchantRing) {
-      taxCalculated = (-0.35 + 0.2275).toFixed(4)
-    } else if (req.body.valuePack) {
-      taxCalculated = (-0.35 + 0.195).toFixed(4)
-    } else if (req.body.merchantRing) {
-      taxCalculated = (-0.35 + 0.0325).toFixed(4)
-    }
+  try {
+    const userSettings = await UserSettings.findOne({ userId: req.userId })
 
-    if (!settings) {
-      const userSettings = new UserSettings({
+    if (!userSettings) {
+      const userSettingsNew = new UserSettings({
         userId: req.userId,
         region: req.body.regionServer,
         valuePack: req.body.valuePack,
         merchantRing: req.body.merchantRing,
         familyFame: req.body.familyFame,
-        tax: taxCalculated
+        tax: UserControllerHelper.TaxCalculation({ valuePack: req.body.valuePack, merchantRing: req.body.merchantRing, familyFame: req.body.familyFame })
       })
-      userSettings.save().then((userSettingsSaved) => {
-        User.findById(req.userId).then((user) => {
-          user.Settings = userSettingsSaved._id
-          user.save().catch((err) => { return res.status(500).send({ message: 'Failed to save User with newly updated UserSettings!' + err }) })
-        }).catch((err) => { return res.status(500).send({ message: 'Failed to update User with newly created UserSettings!' + err }) })
-        return res.status(200).send({ message: 'UserSettings created successfully!' })
-      }).catch((err) => { return res.status(500).send({ message: 'Error creating usersettings ' + err }) })
-    } else {
-      settings.region = req.body.regionServer
-      settings.valuePack = req.body.valuePack
-      settings.merchantRing = req.body.merchantRing
-      settings.familyFame = req.body.familyFame
-      settings.tax = taxCalculated
 
-      // Temporary object
-      const dataBack = {
-        RegionServer: settings.region,
-        ValuePack: settings.valuePack,
-        MerchantRing: settings.merchantRing,
-        FamilyFame: settings.familyFame,
-        Tax: settings.tax
-      }
+      userSettingsNew.save().then((userSettingsSaved) => User.findById(req.userId).then((user) => {
+        user.Settings = userSettingsSaved._id
+        user.RecentActivity.push({
+          activity: 'Settings changed!',
+          date: new Date()
+        })
+        user.save().catch((err) => { throw err })
+      }))
 
-      settings.save().then(() => {
-        res.status(200).send(dataBack)
-        User.findById(req.userId).then((user) => {
-
-      }).catch((err) => { return res.status(500).send({ message: 'Error updating usersettings! ' + err }) })
+      res.status(500).send({ message: 'UserSettings not found! Creating new one!' })
     }
-  }).catch((err) => { return res.status(500).send({ message: 'Error finding usersettings! ' + err }) }) */
+
+    const updateData = {
+      region: req.body.regionServer,
+      valuePack: req.body.valuePack,
+      merchantRing: req.body.merchantRing,
+      familyFame: req.body.familyFame,
+      tax: UserControllerHelper.TaxCalculation({ valuePack: req.body.valuePack, merchantRing: req.body.merchantRing, familyFame: req.body.familyFame })
+    }
+
+    UserControllerHelper.UserSettingsModify(updateData, userSettings)
+
+    const user = User.findById(req.userId)
+    if (!user) return
+
+    user.RecentActivity.push({
+      activity: 'Settings changed!',
+      date: new Date()
+    })
+    user.save()
+
+    res.status(200).send(updateData)
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
 exports.UploadProfilePicture = async (req, res) => {
   if (!req.body.image64base) return
   const imgUploadResponse = await FreeImage.UploadImage(req.body.image64base)
   if (imgUploadResponse.success) {
-    User.findById(req.userId).then(user => {
-      if (!user) {
-        return res.status(500).send({ message: 'User not found' })
-      }
+    try {
+      const user = await User.findById(req.userId)
+
+      if (!user) return res.status(500).send({ message: 'User not found!' })
+
       user.ImageUrl = imgUploadResponse.image.url
+
+      user.RecentActivity.push({
+        activity: 'Uploaded profile picture!',
+        date: new Date()
+      })
+
       user.save().catch((err) => { throw err })
-    }).catch((err) => { res.status(500).send({ message: err.message }) })
+    } catch (error) {
+      console.error(error.message)
+      res.status(500).send({ message: error.message })
+    }
+
     res.sendStatus(200)
   }
 }
 
 // Gets
-exports.GetUserProfileData = (req, res) => {
-  User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username').then(async (user) => {
-    if (!user) {
-      return await res.status(500).send({ message: 'User not found!' })
-    }
+exports.GetUserProfileData = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username')
+
+    if (!user) return res.status(500).send({ message: 'User not found!' })
 
     const data = {
       DisplayName: user.DisplayName,
       Username: user.authenticationId.username,
       FamilyName: user.FamilyName
     }
+
     res.status(200).send(data)
-  })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
-exports.GetUserSettingsData = (req, res) => {
-  User.findById(req.userId, 'Settings').populate('Settings').then(async (user) => {
-    if (!user) {
-      return await res.status(500).send({ message: 'User not found!' })
-    }
+exports.GetUserSettingsData = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'Settings').populate('Settings')
+
+    if (!user) return res.status(500).send({ message: 'User not found!' })
 
     const data = {
-      RegionServer: user.Settings.region,
-      ValuePack: user.Settings.valuePack,
-      MerchantRing: user.Settings.merchantRing,
-      FamilyFame: user.Settings.familyFame,
-      Tax: user.Settings.tax
+      region: user.Settings.region,
+      valuePack: user.Settings.valuePack,
+      merchantRing: user.Settings.merchantRing,
+      familyFame: user.Settings.familyFame,
+      tax: user.Settings.tax
     }
+
     res.status(200).send(data)
-  }).catch((err) => res.status(500).send({ message: err }))
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
-exports.GetRecentActivity = (req, res) => {
-  User.findById(req.userId, 'RecentActivity').populate('RecentActivity').then(async (user) => {
-    if (!user) {
-      return await res.status(500).send({ message: 'User not found!' })
-    }
+exports.GetRecentActivity = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'RecentActivity').populate('RecentActivity')
+
+    if (!user) return res.status(500).send({ message: 'User not found!' })
+    const userRecentActivity = user.RecentActivity.sort((a, b) => (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0)).map((activity) => {
+      return {
+        date: `${activity.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ${activity.date.toLocaleDateString('en-US')}`,
+        activity: activity.activity
+      }
+    })
 
     const data = {
-      RecentActivity: user.RecentActivity
+      RecentActivity: userRecentActivity
     }
     res.status(200).send(data)
-  }).catch((err) => res.status(500).send({ message: err }))
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
 // Data Add
@@ -245,76 +281,6 @@ exports.AddSession = async (req, res) => {
     console.error(error)
     res.status(500).send({ message: error })
   }
-  /* await User.findById(req.userId).then(async (user) => {
-    await Site.findOne({ SiteName: req.body.SiteName }, { UserId: req.userId }).then(async site => {
-      // This is temporary maybe
-      const BodyObj = {
-        TimeSpent: parseInt(req.body.TimeSpent),
-        TotalEarned: parseInt(req.body.TotalEarned),
-        AverageEarnings: parseInt(req.body.AverageEarnings),
-        TotalExpenses: parseInt(req.body.TotalExpenses),
-        AP: parseInt(req.body.AP),
-        DP: parseInt(req.body.DP)
-      }
-
-      // Check of properties
-      if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings || !BodyObj.TotalExpenses || !BodyObj.AP || !BodyObj.DP) {
-        return res.status(400).send({ message: 'Missing required properties in request body' })
-      }
-
-      // Site section
-      if (!site) {
-        req.body.TotalTime = BodyObj.TotalExpenses
-        req.body.TotalExpenses = BodyObj.TotalExpenses
-        site = await this.AddSite(req, res, true)
-        user.Sites.push([site._id])
-      } else {
-        site.TotalTime = BodyObj.TimeSpent
-        site.TotalEarned = BodyObj.TotalEarned
-        site.TotalExpenses = BodyObj.TotalExpenses
-        site.AverageEarnings = BodyObj.AverageEarnings
-        site.save().catch((error) => res.status(500).send({ message: error }))
-      }
-
-      // Session section
-      const session = new Session({
-        SiteId: site._id,
-        TimeSpent: BodyObj.TimeSpent,
-        Earnings: BodyObj.TotalEarned,
-        AverageEarnings: BodyObj.AverageEarnings,
-        Expenses: BodyObj.TotalExpenses,
-        Gear: { TotalAP: BodyObj.AP, TotalDP: BodyObj.DP },
-        TimeCreated: Date.now(),
-        UserId: req.userId
-      })
-
-      await session.save().then(async (savedSession) => {
-        user.Sessions.push([savedSession._id])
-        user.TotalEarned += savedSession.Earnings
-        user.TotalExpenses += savedSession.Expenses
-        user.TotalTime += savedSession.TimeSpent
-        user.AverageEarnings += savedSession.AverageEarnings
-        await user.save().then(async () => {
-          await this.GetSessionsData(req, res)
-        }).catch(err => {
-          Session.deleteOne({ _id: savedSession._id })
-          req.body.TotalTime *= -1
-          req.body.TotalEarned *= -1
-          req.body.TotalExpenses *= -1
-          req.body.AverageEarnings *= -1
-          this.ModifySite(req, res)
-          res.status(500).send({ message: err })
-        })
-      }).catch(err => {
-        req.body.TotalTime *= -1
-        req.body.TotalEarned *= -1
-        req.body.TotalExpenses *= -1
-        req.body.AverageEarnings *= -1
-        this.ModifySite(req, res)
-        res.status(500).send({ message: err })
-      })
-    }).catch(err => { res.status(500).send({ message: err }) })
-  }).catch(err => { res.status(500).send({ message: err }) }) */
 }
 
 exports.AddSite = async (req, res, newSite = false) => {
@@ -368,6 +334,15 @@ exports.ModifySession = async (req, res) => {
 
     req.body.ModifyUser = true
     await this.ModifyUserData(req, res)
+
+    const user = User.findById(req.userId)
+    if (!user) return
+
+    user.RecentActivity.push({
+      activity: 'Session edited!',
+      date: new Date()
+    })
+    user.save()
 
     // This can be yet changed with the updateSessionData
     res.status(200).send({ _id: updatedSession._id, Date: updatedSession.Date, TimeSpent: updatedSession.TimeSpent, Earnings: updatedSession.Earnings, Expenses: updatedSession.Expenses, Gear: updatedSession.Gear })
@@ -425,6 +400,10 @@ exports.ModifyUserData = async (req, res) => {
     updateObject.TotalEarnings = req.body.TotalEarned
     updateObject.TotalExpenses = req.body.TotalExpenses
     updateObject.AverageEarnings = req.body.AverageEarnings
+    updateObject.RecentActivity.push({
+      activity: 'User data edited!',
+      date: new Date()
+    })
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -479,75 +458,86 @@ exports.DeleteSession = async (req, res) => {
 }
 
 // This is a dangerous function, it will delete all user data, including sessions and sites and authentication data | This function will be called when the user deletes his account
-exports.DeleteUserData = (req, res) => {
-  Site.deleteMany({ UserId: req.userId }).then(() => {
-    Session.deleteMany({ UserId: req.userId }).then(() => {
-      User.findByIdAndDelete(req.userId).then(() => {
-        Auth.findOneAndDelete({ UserId: req.userId }).then(() => {
-          try {
-            req.session = null
-            res.session.destroy()
-            res.status(200).send({ message: 'User data deleted!' })
-          } catch (err) {
-            res.status(500).send({ message: err })
-          }
-        }).catch(err => { res.status(500).send({ message: err }) })
-      }).catch(err => { res.status(500).send({ message: err }) })
-    }).catch(err => { res.status(500).send({ message: err }) })
-  }).catch(err => { res.status(500).send({ message: err }) })
+exports.DeleteUserData = async (req, res) => {
+  try {
+    await Site.deleteMany({ UserId: req.userId })
+    await Session.deleteMany({ UserId: req.userId })
+    await User.findByIdAndDelete(req.userId)
+    await Auth.findOneAndDelete({ UserId: req.userId })
+
+    req.session = null
+    res.session.destroy()
+
+    res.status(200).send({ message: 'User data deleted!' })
+  } catch (err) {
+    res.status(500).send({ message: err.message })
+  }
 }
 
 // Data Get routes
 // Homepage data
 exports.GetHomepageData = async (req, res) => {
-  User.findById(req.userId).then(async (user) => {
-    try {
-      const HomepageDataObj = {
-        TotalTime: user.TotalTime,
-        TotalEarnings: user.TotalEarned,
-        TotalExpenses: user.TotalExpenses,
-        AverageEarnings: user.AverageEarnings,
-        TopSite: ''
-      }
-      await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
-        if (!sites) {
-          HomepageDataObj.TopSite = 'No Site'
-        } else {
-          HomepageDataObj.TopSite = sites.SiteName
-        }
-      }).catch(err => { res.status(500).send({ message: err }) })
-      res.status(200).send(HomepageDataObj)
-    } catch (err) {
-      console.log(err)
+  try {
+    const user = await User.findById(req.userId)
+    if (!user) return res.status(404).send({ message: 'User not found!' })
+
+    const HomepageDataObj = {
+      TotalTime: user.TotalTime,
+      TotalEarnings: user.TotalEarned,
+      TotalExpenses: user.TotalExpenses,
+      AverageEarnings: user.AverageEarnings,
+      TopSite: ''
     }
-  }).catch(err => { console.log(err); res.status(500).send({ message: err }) })
+
+    const sites = await Site.findOne({ UserId: req.userId }).sort('-TotalTime')
+
+    if (!sites) {
+      HomepageDataObj.TopSite = 'No Site'
+    } else {
+      HomepageDataObj.TopSite = sites.SiteName
+    }
+
+    res.status(200).send(HomepageDataObj)
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
 }
 
 // Site data
 exports.GetSiteData = async (req, res) => {
-  Site.find({ UserId: req.userId }).then(async (sites) => {
-    const data = []
-    for (let i = 0; i < sites.length; i++) {
-      data.push({
-        SiteName: sites[i].SiteName,
-        TotalTime: sites[i].TotalTime,
-        TotalEarned: sites[i].TotalEarned,
-        TotalExpenses: sites[i].TotalExpenses,
-        AverageEarnings: sites[i].AverageEarnings
-      })
-    }
+  try {
+    const sites = await Site.find({ UserId: req.userId })
+
+    if (!sites) return res.status(404).send({ message: 'Sites not found!' })
+
+    const data = sites.map((site) => ({
+      SiteName: site.SiteName,
+      TotalTime: site.TotalTime,
+      TotalEarned: site.TotalEarned,
+      TotalExpenses: site.TotalExpenses,
+      AverageEarnings: site.AverageEarnings
+    }))
+
     res.status(200).send(data)
-  }).catch(err => { res.status(500).send({ message: err }) })
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
 }
 
 // History data
 exports.GetSessionsData = async (req, res) => {
-  Session.find({ UserId: req.userId }).populate('SiteId', 'SiteName').then(async (sessions) => {
-    const data = sessions.map(session => {
+  try {
+    const sessions = await Session.find({ UserId: req.userId }).populate('SiteId', 'SiteName')
+
+    if (!sessions) return res.status(404).send({ message: 'Sessions not found!' })
+
+    const data = sessions.map((session) => {
       const date = new Date(session.TimeCreated)
       return {
         _id: session._id,
-        Date: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+        Date: `${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ${date.toLocaleDateString('en-US')}`,
         SiteName: session.SiteId.SiteName,
         TimeSpent: session.TimeSpent,
         Earnings: session.Earnings,
@@ -556,6 +546,10 @@ exports.GetSessionsData = async (req, res) => {
         Gear: session.Gear
       }
     })
+
     res.status(200).send(data)
-  }).catch(err => { res.status(500).send({ message: err }) })
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
 }
