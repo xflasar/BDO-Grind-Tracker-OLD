@@ -5,7 +5,7 @@ import { SessionContext } from '../../../contexts/SessionContext'
 import { INITIAL_STATE, loginReducer } from './loginReducer'
 
 const Login = ({ onLoginSuccess }) => {
-  const { signin, authorizedFetch, setSessionUserData } = useContext(SessionContext)
+  const { signin, authorizedFetch, setUserData } = useContext(SessionContext)
   const [state, dispatch] = useReducer(loginReducer, INITIAL_STATE)
 
   const handleUsernameChange = (event) => {
@@ -57,7 +57,7 @@ const Login = ({ onLoginSuccess }) => {
       if (response.ok) {
         const res = await response.json()
         if (res.userData) {
-          setSessionUserData(res.userData)
+          setUserData(res.userData)
         }
         signin()
         dispatch('LOGIN_SUCCESS')

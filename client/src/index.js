@@ -18,10 +18,12 @@ import { SessionContext, SessionProvider } from './contexts/SessionContext'
 import PropTypes from 'prop-types'
 
 const App = () => {
-  const { isSignedIn } = useContext(SessionContext)
+  const { isSignedIn, isLoading } = useContext(SessionContext)
 
   const ProtectedRoute = ({ element }) => {
-    if (isSignedIn) {
+    if (isLoading) {
+      return <div>Loading...</div> // Make a loading indicator overlay
+    } else if (isSignedIn) {
       return element
     } else {
       return <Navigate to="/access-denied" />

@@ -5,7 +5,7 @@ const Auth = require('./SessionContext.helper')
 const SessionContext = createContext()
 
 const SessionProvider = ({ children }) => {
-  const { isSignedIn, signin, signout, userData, setUserData } = Auth.useAuthentication()
+  const { isSignedIn, isLoading, signin, signout, userData, setUserData } = Auth.useAuthentication()
 
   const unauthorizedInterceptor = (response) => {
     if (response.status === 401) {
@@ -25,11 +25,12 @@ const SessionProvider = ({ children }) => {
 
   const sessionContextValue = {
     isSignedIn,
+    isLoading,
     userData,
     signin,
     signout,
     authorizedFetch,
-    setSessionUserData: setUserData
+    setUserData
   }
 
   return (
