@@ -4,7 +4,7 @@ import '../../assets/pages/Homepage/GuestHomepage.scss'
 import NewsHistory from '../../components/ui/pages/Homepage/NewsHistory'
 
 // TODO:
-// - Add lazyLoading to images make the images size smaller
+// - Add lazyLoading to images (done) make the images size smaller
 // - Make a new homepageTop image
 const GuestHomepage = () => {
   const images = [
@@ -113,12 +113,14 @@ const GuestHomepage = () => {
         </button>
         <div className="image-container">
           <img
+          loading='lazy'
           src={images[currentIndex]}
           className='carousel-image-background'
           alt='bckImage'
           />
           {images.map((image, index) => (
             <img
+              loading='lazy'
               style={{ '--currentIndex': index }}
               key={index}
               className={`carousel-image ${index === currentIndex ? 'active' : ''}`}

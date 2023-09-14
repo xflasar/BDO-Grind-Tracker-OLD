@@ -27,7 +27,7 @@ const UserHomepage = () => {
   return (
     <div className='Homepage'>
       <section className='user-data'>
-        <img src="/assets/homepageTop.jpg" alt="globalData" />
+        <img loading='lazy' src="/assets/homepageTop.jpg" alt="globalData" />
         <h1>User Data</h1>
         <div className="data-values">
           <div className="data-value val1"><HomepageBox data={{ Title: 'Total Time', Content: userData?.TotalTime }}/></div>

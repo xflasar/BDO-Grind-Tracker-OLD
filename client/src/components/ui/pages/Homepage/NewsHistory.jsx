@@ -29,7 +29,7 @@ const NewsHistory = () => {
       {newsData.map((news, index) => (
         <div className='news-history-item' key={index}>
           <a href={news.newsUrl} target='_blank' rel='noreferrer'>
-          <img src={news.newsIcon} alt='news' />
+          <img loading='lazy' src={news.newsIcon} alt='news' />
           <div className='news-history-item-content'>
               <div className='news-history-item-content-title'>
                 <p>{news.title}</p>
