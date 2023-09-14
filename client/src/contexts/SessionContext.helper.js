@@ -1,21 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Cookies from 'js-cookie'
 import useLocalStorage from './useLocalStorage'
 
 const CheckAuth = async () => {
   const sessionAccess = await fetch('/api/auth/access')
-  return sessionAccess.message === 'Authorized!'
+  const sessionAccessData = await sessionAccess.json()
+  return sessionAccessData.message === 'Authorized!'
 }
 
 export const useAuthentication = () => {
   const [isSignedIn, setSignedIn] = useState(CheckAuth())
   const [userData, setUserData] = useLocalStorage('userdata')
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      setSignedIn(CheckAuth())
-    }
-  }, [isSignedIn])
 
   const signin = () => setSignedIn(true)
   const signout = () => {

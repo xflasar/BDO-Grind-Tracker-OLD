@@ -21,7 +21,7 @@ const SessionProvider = ({ children }) => {
     return unauthorizedInterceptor(response)
   }
 
-  const handleUnauthorized = () => Auth.signout()
+  const handleUnauthorized = () => signout()
 
   const sessionContextValue = {
     isSignedIn,
