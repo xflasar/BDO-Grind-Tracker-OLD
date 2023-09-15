@@ -30,7 +30,6 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger }) => (
         <th>Site Name</th>
         <th>Time Spent</th>
         <th>Earnings</th>
-        <th>Average Earnings</th>
         <th>Expenses</th>
         <th>Gear</th>
         <th />

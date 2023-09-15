@@ -18,10 +18,6 @@ exports.AddSessionValidator = (dataToValidate) => {
       type: 'number',
       required: true
     },
-    AverageEarnings: {
-      type: 'number',
-      required: true
-    },
     AP: {
       type: 'number',
       required: true

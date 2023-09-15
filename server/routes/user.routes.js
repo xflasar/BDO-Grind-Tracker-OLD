@@ -42,4 +42,7 @@ module.exports = function (app) {
 
   // Sessions/history data
   app.get('/api/user/historydata', [verifyToken], controller.GetSessionsData)
+
+  // Debug
+  app.get('/api/user/debug', [verifyToken], controller.GetAggregSessions)
 }

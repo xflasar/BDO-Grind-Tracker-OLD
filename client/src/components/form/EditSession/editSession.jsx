@@ -46,7 +46,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
     const SiteName = state.siteName
     const TimeSpent = parseInt(state.timeSpent)
     const TotalEarned = parseInt(state.earnings)
-    const AverageEarnings = parseInt(state.averageEarnings)
     const TotalExpenses = parseInt(state.expenses)
     const Gear = {
       TotalAP: parseInt(state.gear.TotalAP),
@@ -59,7 +58,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
       SiteName,
       TimeSpent,
       TotalEarned,
-      AverageEarnings,
       TotalExpenses,
       Gear
     }
@@ -81,12 +79,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
   }
 
   const handleEarningsChange = (e) => {
-    const pattern = new RegExp(e.target.pattern)
-    const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
-    if (validity) dispatch({ type: 'EDIT_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
-  }
-
-  const handleAverageEarningsChange = (e) => {
     const pattern = new RegExp(e.target.pattern)
     const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
     if (validity) dispatch({ type: 'EDIT_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
@@ -129,8 +121,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
         <input type='text' aria-label='TimeSpentInput' name='timeSpent' id='timeSpent' pattern='^\d*$' onChange={handleTimeSpentChange} value={state.timeSpent} />
         <label htmlFor='earnings'>Earnings</label>
         <input type='text' aria-label='EarningsInput' name='earnings' id='earnings' pattern='^\d*$' onChange={handleEarningsChange} value={state.earnings} />
-        <label htmlFor='averageEarnings'>Average Earnings</label>
-        <input type='text' aria-label='AverageEarningsInput' name='averageEarnings' id='averageEarnings' pattern='^\d*$' onChange={handleAverageEarningsChange} value={state.averageEarnings} />
         <label htmlFor='expenses'>Expenses</label>
         <input type='text' aria-label='ExpensesInput' name='expenses' id='expenses' pattern='^\d*$' onChange={handleExpensesChange} value={state.expenses} />
         <label htmlFor='AP'>Total AP</label>

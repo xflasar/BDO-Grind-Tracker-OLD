@@ -24,7 +24,7 @@ exports.GetHompageGlobalData = async (req, res) => {
     TotalTime: 0,
     TotalEarnings: 0,
     TotalSessions: 0,
-    TopSite: '',
+    TopSite: 'None',
     TotalSessionsToday: 0
   }
 
@@ -39,6 +39,9 @@ exports.GetHompageGlobalData = async (req, res) => {
       }
     }
   ])
+
+  if (!sessionData || sessionData.length === 0) return res.status(200).send(GlobalDataObj)
+
   GlobalDataObj.TotalEarnings = sessionData[0].TotalEarnings
   GlobalDataObj.TotalTime = sessionData[0].TotalTime
   GlobalDataObj.TotalSessions = sessionData[0].TotalSessions
@@ -63,6 +66,9 @@ exports.GetHompageGlobalData = async (req, res) => {
       }
     }
   ])
+
+  if (!siteData || siteData.length === 0) return res.status(200).send(GlobalDataObj)
+
   GlobalDataObj.TopSite = siteData[0].SiteName
 
   res.status(200).send(GlobalDataObj)

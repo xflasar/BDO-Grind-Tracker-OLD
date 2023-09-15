@@ -211,28 +211,24 @@ exports.AddSession = async (req, res) => {
   try {
     const user = await User.findById(req.userId)
     if (!user) return res.status(500).send({ message: 'User not found!' })
-
     let site = await Site.findOne({ SiteName: req.body.SiteName, UserId: req.userId })
     // Pre-update for add Session feature
     // if(!site) return res.status(500).send({ message: 'Site not found!' })
 
     if (!site) {
-      req.body.TotalTime = req.body.TotalExpenses
       site = await this.AddSite(req, res, true)
       user.Sites.push([site._id])
     } else {
-      site.TotalTime = req.body.TimeSpent
-      site.TotalEarned = req.body.TotalEarned
-      site.TotalExpenses = req.body.TotalExpenses
-      site.AverageEarnings = req.body.AverageEarnings
-      await site.save().catch((error) => res.status(500).send({ message: error }))
+      console.log('updating')
+      req.body.ModifySite = true
+      req.body.SiteId = site._id
+      await this.ModifySite(req, res)
     }
 
     const sessionToAdd = new Session({
       SiteId: site._id,
       TimeSpent: req.body.TimeSpent,
       Earnings: req.body.TotalEarned,
-      AverageEarnings: req.body.AverageEarnings,
       Expenses: req.body.TotalExpenses,
       Gear: { TotalAP: req.body.AP, TotalDP: req.body.DP },
       TimeCreated: Date.now(),
@@ -241,10 +237,10 @@ exports.AddSession = async (req, res) => {
 
     const savedSession = await sessionToAdd.save()
     if (!savedSession) {
+      req.body.ModifySite = true
       req.body.TotalTime *= -1
       req.body.TotalEarned *= -1
       req.body.TotalExpenses *= -1
-      req.body.AverageEarnings *= -1
       this.ModifySite(req, res)
       return res.status(500).send({ message: 'Session not saved!' })
     }
@@ -253,14 +249,14 @@ exports.AddSession = async (req, res) => {
     user.TotalEarned += savedSession.Earnings
     user.TotalExpenses += savedSession.Expenses
     user.TotalTime += savedSession.TimeSpent
-    user.AverageEarnings += savedSession.AverageEarnings
+    // user.AverageEarnings += savedSession.AverageEarnings Needs to be updated
     user.RecentActivity.push({ activity: 'Added new session.', date: new Date() })
     await user.save().catch((error) => {
       Session.findOneAndDelete(savedSession.id)
+      req.body.ModifySite = true
       req.body.TotalTime *= -1
       req.body.TotalEarned *= -1
       req.body.TotalExpenses *= -1
-      req.body.AverageEarnings *= -1
       this.ModifySite(req, res)
       res.status(500).send({ message: error })
       return res.status(500).send({ message: 'User not saved!' })
@@ -273,7 +269,6 @@ exports.AddSession = async (req, res) => {
       SiteName: site.SiteName,
       TimeSpent: savedSession.TimeSpent,
       Earnings: savedSession.Earnings,
-      AverageEarnings: savedSession.AverageEarnings,
       Expenses: savedSession.Expenses,
       Gear: { TotalAP: savedSession.Gear.TotalAP, TotalDP: savedSession.Gear.TotalDP }
     })
@@ -286,10 +281,10 @@ exports.AddSession = async (req, res) => {
 exports.AddSite = async (req, res, newSite = false) => {
   const site = new Site({
     SiteName: req.body.SiteName,
-    TotalTime: req.body.TotalTime,
+    TotalTime: req.body.TimeSpent,
     TotalEarned: req.body.TotalEarned,
     TotalExpenses: req.body.TotalExpenses,
-    AverageEarnings: req.body.AverageEarnings,
+    // AverageEarnings: req.body.AverageEarnings,
     UserId: req.userId
   })
 
@@ -312,7 +307,6 @@ exports.ModifySession = async (req, res) => {
     const udateSessionData = {
       TimeSpent: parseInt(req.body.TimeSpent),
       Earnings: parseInt(req.body.TotalEarned),
-      AverageEarnings: parseInt(req.body.AverageEarnings),
       Expenses: parseInt(req.body.TotalExpenses),
       Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
     }
@@ -327,7 +321,6 @@ exports.ModifySession = async (req, res) => {
     req.body.TotalTime = updatedSession.TimeSpent
     req.body.TotalEarned = updatedSession.Earnings
     req.body.TotalExpenses = updatedSession.Expenses
-    req.body.AverageEarnings = updatedSession.AverageEarnings
 
     req.body.ModifySite = true
     await this.ModifySite(req, res)
@@ -354,31 +347,35 @@ exports.ModifySession = async (req, res) => {
 
 exports.ModifySite = async (req, res) => {
   const updateObject = {}
-  if (req.body.ModifySite) {
-    const objectToBeUpdated = await Site.findById(req.body.SiteId)
+  console.log(req.body.SiteId)
+  const sumSiteDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.body.SiteId, 'Site')
 
-    objectToBeUpdated.TotalTime += req.body.TotalTime
-    objectToBeUpdated.TotalEarned += req.body.TotalEarned
-    objectToBeUpdated.TotalExpenses += req.body.TotalExpenses
-    objectToBeUpdated.AverageEarnings += req.body.AverageEarnings
+  if (sumSiteDataDoc.length === 0) req.body.ModifySite = false
+
+  if (req.body.ModifySite) {
+    const objectToBeUpdated = {}
+
+    objectToBeUpdated.TotalTime = sumSiteDataDoc[0].TotalTime + req.body.TimeSpent
+    objectToBeUpdated.TotalEarned = sumSiteDataDoc[0].TotalEarned + req.body.TotalEarned
+    objectToBeUpdated.TotalExpenses = sumSiteDataDoc[0].TotalExpenses + req.body.TotalExpenses
+    objectToBeUpdated.AverageEarnings = sumSiteDataDoc[0].weightedAverage // FIXME: [BDOGT-55] AverageEarnings is not being updated at same time
 
     await Site.findByIdAndUpdate(
       req.body.SiteId,
-      { $set: { ...updateObject } },
+      { $set: { ...objectToBeUpdated } },
       { new: true }
     )
   } else {
     updateObject.TotalTime = req.body.TimeSpent
     updateObject.TotalEarned = req.body.TotalEarned
     updateObject.TotalExpenses = req.body.TotalExpenses
-    updateObject.AverageEarnings = req.body.AverageEarnings
+    updateObject.AverageEarnings = req.body.TotalEarned
 
     await Site.findByIdAndUpdate(
       req.body.SiteId,
       { $set: { ...updateObject } },
       { new: true }
     )
-    res.status(200).send({ message: 'Site modified!' })
   }
 }
 
@@ -388,7 +385,7 @@ exports.ModifyUserData = async (req, res) => {
     updateObject.TotalTime = req.body.TimeSpent
     updateObject.TotalEarnings = req.body.Earnings
     updateObject.TotalExpenses = req.body.Expenses
-    updateObject.AverageEarnings = req.body.AverageEarnings
+    updateObject.AverageEarnings = req.body.weightedAverage
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -399,7 +396,7 @@ exports.ModifyUserData = async (req, res) => {
     updateObject.TotalTime = req.body.TotalTime
     updateObject.TotalEarnings = req.body.TotalEarned
     updateObject.TotalExpenses = req.body.TotalExpenses
-    updateObject.AverageEarnings = req.body.AverageEarnings
+    updateObject.AverageEarnings = req.body.weightedAverage
     updateObject.RecentActivity.push({
       activity: 'User data edited!',
       date: new Date()
@@ -426,22 +423,44 @@ exports.DeleteSession = async (req, res) => {
 
     const user = await User.findById(session.UserId)
     const site = await Site.findById(session.SiteId)
+    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, 'Site', session._id)
+    const userUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.UserId, 'User', session._id)
+
+    if (userUpdate.length === 0 || userUpdate[0].TotalEntries === 0) {
+      userUpdate.push({
+        TotalTime: 0,
+        TotalEarned: 0,
+        TotalExpenses: 0,
+        AverageEarnings: 0,
+        weightedAverage: 0
+      })
+    }
+
+    if (siteUpdate.length === 0 || siteUpdate[0].TotalEntries === 0) {
+      siteUpdate.push({
+        TotalTime: 0,
+        TotalEarned: 0,
+        TotalExpenses: 0,
+        AverageEarnings: 0,
+        weightedAverage: 0
+      })
+    }
 
     if (user) {
       user.Sessions = user.Sessions.filter(sessionId => sessionId.toString() !== session._id.toString())
-      user.TotalTime -= session.TimeSpent
-      user.TotalEarned -= session.Earnings
-      user.TotalExpenses -= session.Expenses
-      user.AverageEarnings -= session.AverageEarnings
+      user.TotalTime = userUpdate[0].TotalTime
+      user.TotalEarned = userUpdate[0].TotalEarned
+      user.TotalExpenses = userUpdate[0].TotalExpenses
+      user.AverageEarnings = userUpdate[0].weightedAverage
 
       await user.save()
     }
 
     if (site) {
-      site.TotalTime -= session.TimeSpent
-      site.TotalEarned -= session.Earnings
-      site.TotalExpenses -= session.Expenses
-      site.AverageEarnings -= session.AverageEarnings
+      site.TotalTime = siteUpdate[0].TotalTime
+      site.TotalEarned = siteUpdate[0].TotalEarned
+      site.TotalExpenses = siteUpdate[0].TotalExpenses
+      site.AverageEarnings = siteUpdate[0].weightedAverage
 
       await site.save()
     }
@@ -552,4 +571,42 @@ exports.GetSessionsData = async (req, res) => {
     console.log(err)
     res.status(500).send({ message: err.message })
   }
+}
+
+// Debug
+exports.GetAggregSessions = async (req, res) => {
+  const sumSiteDataDoc = await Session.aggregate([
+    {
+      $group: {
+        _id: null,
+        TotalEarned: { $sum: '$Earnings' },
+        TotalExpenses: { $sum: '$Expenses' },
+        TotalTime: { $sum: '$TimeSpent' },
+        sessions: { $push: '$$ROOT' }
+      }
+    },
+    {
+      $unwind: '$sessions'
+    },
+    {
+      $project: {
+        _id: '$sessions._id',
+        sessionEarnings: '$sessions.Earnings',
+        totalEarnings: '$TotalEarned'
+      }
+    },
+    {
+      $addFields: {
+        contribution: { $divide: ['$sessionEarnings', '$totalEarnings'] }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        weightedAverage: { $sum: { $multiply: ['$sessionEarnings', '$contribution'] } }
+      }
+    }
+  ])
+
+  res.status(200).send(sumSiteDataDoc)
 }

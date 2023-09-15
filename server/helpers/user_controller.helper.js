@@ -25,3 +25,68 @@ exports.UserSettingsModify = async (data, initialData) => {
   await initialData.save({ new: true })
   return initialData
 }
+
+exports.GetWeightedAverage = async (dbSchema, id, type, excludeMatch = false) => {
+  let match = {}
+  if (type === 'User') {
+    match = { UserId: id }
+  } else if (type === 'Site') {
+    match = { SiteId: id }
+  }
+
+  if (excludeMatch) match = { ...match, _id: { $ne: excludeMatch } }
+
+  return await dbSchema.aggregate([
+    {
+      $match: match
+    },
+    {
+      $group: {
+        _id: null,
+        TotalEarned: { $sum: '$Earnings' },
+        TotalExpenses: { $sum: '$Expenses' },
+        TotalTime: { $sum: '$TimeSpent' },
+        TotalEntries: { $sum: 1 },
+        sessions: { $push: '$$ROOT' }
+      }
+    },
+    {
+      $unwind: '$sessions'
+    },
+    {
+      $project: {
+        _id: '$sessions._id',
+        sessionEarnings: '$sessions.Earnings',
+        TotalEarned: '$TotalEarned',
+        TotalExpenses: '$TotalExpenses',
+        TotalTime: '$TotalTime',
+        TotalEntries: '$TotalEntries'
+      }
+    },
+    {
+      $addFields: {
+        contribution: { $divide: ['$sessionEarnings', '$TotalEarned'] }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        weightedAverage: { $sum: { $multiply: ['$sessionEarnings', '$contribution'] } },
+        TotalEarned: { $first: '$TotalEarned' },
+        TotalExpenses: { $first: '$TotalExpenses' },
+        TotalTime: { $first: '$TotalTime' },
+        TotalEntries: { $first: '$TotalEntries' }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        TotalEarned: 1,
+        TotalExpenses: 1,
+        TotalTime: 1,
+        TotalEntries: 1,
+        weightedAverage: 1
+      }
+    }
+  ])
+}
