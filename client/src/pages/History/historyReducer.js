@@ -37,7 +37,7 @@ export const historyReducer = (state, action) => {
       return {
         ...state,
         data: state.data.map((session) => {
-          if (session.SessionId === action.payload.SessionId) {
+          if (session._id === action.payload._id) {
             return Object.assign({}, session, action.payload)
           }
           return session

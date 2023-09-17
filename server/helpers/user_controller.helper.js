@@ -1,3 +1,5 @@
+const { default: mongoose } = require("mongoose")
+
 exports.TaxCalculation = (data) => {
   let taxCalculated = -0.35
 
@@ -27,11 +29,15 @@ exports.UserSettingsModify = async (data, initialData) => {
 }
 
 exports.GetWeightedAverage = async (dbSchema, id, type, excludeMatch = false) => {
+  if (mongoose.Types.ObjectId.isValid(id)) id = new mongoose.Types.ObjectId(id)
+
   let match = {}
   if (type === 'User') {
     match = { UserId: id }
   } else if (type === 'Site') {
     match = { SiteId: id }
+  } else {
+    match = { _id: { $exists: true } }
   }
 
   if (excludeMatch) match = { ...match, _id: { $ne: excludeMatch } }

@@ -35,14 +35,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
 
   const handleAddSessionSubmit = async (e) => {
     e.preventDefault()
-    const Date = (() => {
-      const dateParts = state.date.split('-')
-      const day = dateParts[2]
-      const month = dateParts[1]
-      const year = dateParts[0]
-      const formattedDate = `${day}/${month}/${year}`
-      return formattedDate
-    })()
     const SiteName = state.siteName
     const TimeSpent = parseInt(state.timeSpent)
     const TotalEarned = parseInt(state.earnings)
@@ -54,7 +46,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
 
     const newSession = {
       SessionId: state.sessionId,
-      Date,
       SiteName,
       TimeSpent,
       TotalEarned,
@@ -62,10 +53,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
       Gear
     }
     await handleEditSessionSubmit(newSession)
-  }
-
-  const handleDateChange = (e) => {
-    dispatch({ type: 'EDIT_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
   }
 
   const handleSiteNameChange = (e) => {
@@ -113,8 +100,7 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
         <button type='button' aria-label='sessionEditExitButton' className='close' onClick={handleClose}>
           X
         </button>
-        <label htmlFor='date'>Date</label>
-        <input aria-label='dateInput' type='Date' name='date' id='date' onChange={handleDateChange} value={state.date} />
+        <label htmlFor='date'>Date: {state.date}</label>
         <label htmlFor='siteName'>Site Name</label>
         <input type='text' aria-label='SiteNameInput' name='siteName' id='siteName' onChange={handleSiteNameChange} value={state.siteName} />
         <label htmlFor='timeSpent'>Time Spent</label>

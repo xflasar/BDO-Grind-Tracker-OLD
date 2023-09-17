@@ -7,16 +7,6 @@ import UserHomepage from './UserHomepage'
 function Homepage () {
   const { isSignedIn } = useContext(SessionContext)
 
-  async function fetchDataDebug () {
-    const c = await fetch('/api/user/debug')
-    const d = await c.json()
-    console.log(d)
-  }
-
-  React.useEffect(() => {
-    fetchDataDebug()
-  }, [])
-
   return (
     <>
     {isSignedIn ? <UserHomepage/> : <GuestHomepage />}

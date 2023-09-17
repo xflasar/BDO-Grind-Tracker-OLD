@@ -219,7 +219,6 @@ exports.AddSession = async (req, res) => {
       site = await this.AddSite(req, res, true)
       user.Sites.push([site._id])
     } else {
-      console.log('updating')
       req.body.ModifySite = true
       req.body.SiteId = site._id
       await this.ModifySite(req, res)
@@ -328,7 +327,7 @@ exports.ModifySession = async (req, res) => {
     req.body.ModifyUser = true
     await this.ModifyUserData(req, res)
 
-    const user = User.findById(req.userId)
+    const user = await User.findById(req.userId)
     if (!user) return
 
     user.RecentActivity.push({
@@ -347,22 +346,19 @@ exports.ModifySession = async (req, res) => {
 
 exports.ModifySite = async (req, res) => {
   const updateObject = {}
-  console.log(req.body.SiteId)
   const sumSiteDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.body.SiteId, 'Site')
 
   if (sumSiteDataDoc.length === 0) req.body.ModifySite = false
 
   if (req.body.ModifySite) {
-    const objectToBeUpdated = {}
-
-    objectToBeUpdated.TotalTime = sumSiteDataDoc[0].TotalTime + req.body.TimeSpent
-    objectToBeUpdated.TotalEarned = sumSiteDataDoc[0].TotalEarned + req.body.TotalEarned
-    objectToBeUpdated.TotalExpenses = sumSiteDataDoc[0].TotalExpenses + req.body.TotalExpenses
-    objectToBeUpdated.AverageEarnings = sumSiteDataDoc[0].weightedAverage // FIXME: [BDOGT-55] AverageEarnings is not being updated at same time
+    updateObject.TotalTime = sumSiteDataDoc[0].TotalTime
+    updateObject.TotalEarned = sumSiteDataDoc[0].TotalEarned
+    updateObject.TotalExpenses = sumSiteDataDoc[0].TotalExpenses
+    updateObject.AverageEarnings = sumSiteDataDoc[0].weightedAverage // FIXME: [BDOGT-55] AverageEarnings is not being updated at same time
 
     await Site.findByIdAndUpdate(
       req.body.SiteId,
-      { $set: { ...objectToBeUpdated } },
+      { $set: { ...updateObject } },
       { new: true }
     )
   } else {
@@ -381,11 +377,15 @@ exports.ModifySite = async (req, res) => {
 
 exports.ModifyUserData = async (req, res) => {
   const updateObject = {}
+  const sumUserDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.userId, 'User')
+
+  if (sumUserDataDoc.length === 0) req.body.ModifyUser = false
+
   if (req.body.ModifyUser) {
-    updateObject.TotalTime = req.body.TimeSpent
-    updateObject.TotalEarnings = req.body.Earnings
-    updateObject.TotalExpenses = req.body.Expenses
-    updateObject.AverageEarnings = req.body.weightedAverage
+    updateObject.TotalTime = sumUserDataDoc[0].TotalTime
+    updateObject.TotalEarned = sumUserDataDoc[0].TotalEarned
+    updateObject.TotalExpenses = sumUserDataDoc[0].TotalExpenses
+    updateObject.AverageEarnings = sumUserDataDoc[0].weightedAverage // FIXME: [BDOGT-55] AverageEarnings is not being updated at same time
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -396,11 +396,7 @@ exports.ModifyUserData = async (req, res) => {
     updateObject.TotalTime = req.body.TotalTime
     updateObject.TotalEarnings = req.body.TotalEarned
     updateObject.TotalExpenses = req.body.TotalExpenses
-    updateObject.AverageEarnings = req.body.weightedAverage
-    updateObject.RecentActivity.push({
-      activity: 'User data edited!',
-      date: new Date()
-    })
+    updateObject.AverageEarnings = req.body.TotalEarned
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -571,42 +567,4 @@ exports.GetSessionsData = async (req, res) => {
     console.log(err)
     res.status(500).send({ message: err.message })
   }
-}
-
-// Debug
-exports.GetAggregSessions = async (req, res) => {
-  const sumSiteDataDoc = await Session.aggregate([
-    {
-      $group: {
-        _id: null,
-        TotalEarned: { $sum: '$Earnings' },
-        TotalExpenses: { $sum: '$Expenses' },
-        TotalTime: { $sum: '$TimeSpent' },
-        sessions: { $push: '$$ROOT' }
-      }
-    },
-    {
-      $unwind: '$sessions'
-    },
-    {
-      $project: {
-        _id: '$sessions._id',
-        sessionEarnings: '$sessions.Earnings',
-        totalEarnings: '$TotalEarned'
-      }
-    },
-    {
-      $addFields: {
-        contribution: { $divide: ['$sessionEarnings', '$totalEarnings'] }
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        weightedAverage: { $sum: { $multiply: ['$sessionEarnings', '$contribution'] } }
-      }
-    }
-  ])
-
-  res.status(200).send(sumSiteDataDoc)
 }
