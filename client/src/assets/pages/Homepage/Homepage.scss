@@ -7,6 +7,10 @@
   font-family: sans-serif;
 }
 
+.Homepage {
+  min-height: calc(100vh - 70px - 44px); // fixme: problematic
+}
+
 .box-container {
   display: grid;
   margin: 1% 5% 0 5%;
