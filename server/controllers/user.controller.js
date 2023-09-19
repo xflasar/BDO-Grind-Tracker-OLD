@@ -53,35 +53,40 @@ exports.SetUserSecurityData = async (req, res) => {
 
 exports.SetUserSettingsData = async (req, res) => {
   try {
-    const userSettings = await UserSettings.findOne({ userId: req.userId })
-
-    if (!userSettings) {
-      const userSettingsNew = new UserSettings({
-        userId: req.userId,
-        region: req.body.regionServer,
-        valuePack: req.body.valuePack,
-        merchantRing: req.body.merchantRing,
-        familyFame: req.body.familyFame,
-        tax: UserControllerHelper.TaxCalculation({ valuePack: req.body.valuePack, merchantRing: req.body.merchantRing, familyFame: req.body.familyFame })
-      })
-
-      userSettingsNew.save().then((userSettingsSaved) => UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Settings created!', date: new Date() })
-      )
-
-      res.status(500).send({ message: 'UserSettings not found! Creating new one!' })
-    }
+    let userSettings = await UserSettings.findOne({ userId: req.userId })
 
     const updateData = {
       region: req.body.regionServer,
       valuePack: req.body.valuePack,
       merchantRing: req.body.merchantRing,
       familyFame: req.body.familyFame,
-      tax: UserControllerHelper.TaxCalculation({ valuePack: req.body.valuePack, merchantRing: req.body.merchantRing, familyFame: req.body.familyFame })
+      tax: UserControllerHelper.TaxCalculation({
+        valuePack: req.body.valuePack,
+        merchantRing: req.body.merchantRing,
+        familyFame: req.body.familyFame
+      })
+    }
+
+    if (!userSettings) {
+      userSettings = new UserSettings({
+        userId: req.userId,
+        ...updateData
+      })
+
+      await userSettings.save()
+
+      UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+        activity: 'Settings created!',
+        date: new Date()
+      })
     }
 
     UserControllerHelper.UserSettingsModify(updateData, userSettings)
 
-    UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Settings changed!', date: new Date() })
+    UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+      activity: 'Settings changed!',
+      date: new Date()
+    })
 
     res.status(200).send(updateData)
   } catch (error) {
