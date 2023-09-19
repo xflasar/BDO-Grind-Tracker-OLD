@@ -7,7 +7,6 @@ const sessionSchema = new mongoose.Schema({
   },
   TimeSpent: Number,
   Earnings: Number,
-  AverageEarnings: Number,
   Expenses: Number,
   Gear: {
     TotalAP: Number,

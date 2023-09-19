@@ -19,6 +19,7 @@ module.exports = function (app) {
   // Gets
   app.get('/api/user/userprofiledata', [verifyToken], controller.GetUserProfileData)
   app.get('/api/user/usersettingsdata', [verifyToken], controller.GetUserSettingsData)
+  app.get('/api/user/recentactivity', [verifyToken], controller.GetRecentActivity)
 
   // Data Add
   app.post('/api/user/addsession', [verifyToken], controller.AddSession)
@@ -34,7 +35,7 @@ module.exports = function (app) {
 
   // Data Get routes
   // Homepage data
-  app.get('/api/user/homepage', [verifyToken], controller.GetHomepageData)
+  app.get('/api/user/homepageuserdata', [verifyToken], controller.GetHomepageData)
 
   // Site data
   app.get('/api/user/sitedata', [verifyToken], controller.GetSiteData)

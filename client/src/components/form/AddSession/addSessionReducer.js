@@ -2,7 +2,6 @@ export const INITIAL_STATE = {
   SiteName: '',
   TimeSpent: '',
   TotalEarned: '',
-  AverageEarnings: '',
   TotalSpent: '',
   AP: '',
   DP: ''

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import './assets/pages/index.scss'
 import Homepage from './pages/Home/Homepage'
 import Sites from './pages/Sites/Sites'
-import Analytics from './pages/Analytics/Analytics'
 import History from './pages/History/History'
 import Navigation from './components/ui/navbar/navbar'
 import Profile from './pages/UserControlPanel/Profile'
@@ -19,10 +18,12 @@ import { SessionContext, SessionProvider } from './contexts/SessionContext'
 import PropTypes from 'prop-types'
 
 const App = () => {
-  const { isSignedIn } = useContext(SessionContext)
+  const { isSignedIn, isLoading } = useContext(SessionContext)
 
   const ProtectedRoute = ({ element }) => {
-    if (isSignedIn) {
+    if (isLoading) {
+      return <div>Loading...</div> // Make a loading indicator overlay
+    } else if (isSignedIn) {
       return element
     } else {
       return <Navigate to="/access-denied" />
@@ -38,7 +39,6 @@ const App = () => {
         <Routes>
           <Route exact path="/" element={<Homepage />} />
           <Route exact path='/sites' element={<ProtectedRoute element={<Sites />} />} />
-          <Route exact path='/analytics' element={<ProtectedRoute element={<Analytics />} />} />
           <Route exact path='/history' element={<ProtectedRoute element={<History />} />} />
           <Route exact path='/profile' element={<ProtectedRoute element={<Profile />} />} />
           <Route exact path='/marketplace' element={<ProtectedRoute element={<Marketplace />} />} />
@@ -48,8 +48,8 @@ const App = () => {
           <Route exact path='/access-denied' element={<AccessDenied/>} />
           <Route path='*' element={<NotFound/>} />
         </Routes>
+        <Footer/>
       </main>
-      <Footer/>
     </BrowserRouter>
   )
 }

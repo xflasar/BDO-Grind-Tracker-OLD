@@ -11,8 +11,7 @@ const AddSession = ({ onAddSessionSuccess, authorizedFetch, onCloseClick }) => {
       SiteName: state.SiteName,
       TimeSpent: parseInt(state.TimeSpent),
       TotalEarned: parseInt(state.TotalEarned),
-      AverageEarnings: parseInt(state.AverageEarnings),
-      TotalSpent: parseInt(state.TotalSpent),
+      TotalExpenses: parseInt(state.TotalSpent),
       AP: parseInt(state.AP),
       DP: parseInt(state.DP)
     }
@@ -43,12 +42,6 @@ const AddSession = ({ onAddSessionSuccess, authorizedFetch, onCloseClick }) => {
   }
 
   const handleTotalEarnedChange = (e) => {
-    const pattern = new RegExp(e.target.pattern)
-    const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
-    if (validity) dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
-  }
-
-  const handleAverageEarningsChange = (e) => {
     const pattern = new RegExp(e.target.pattern)
     const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
     if (validity) dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
@@ -88,8 +81,6 @@ const AddSession = ({ onAddSessionSuccess, authorizedFetch, onCloseClick }) => {
                 <input type='text' aria-label='Time Spent' name='TimeSpent' id='TimeSpent' pattern='^\d*$' value={state.TimeSpent} onChange={handleTimeSpentChange}/>
                 <label htmlFor='TotalEarned'>Earnings</label>
                 <input type='text' aria-label='Earnings' name='TotalEarned' id='TotalEarned' pattern='^\d*$' value={state.TotalEarned} onChange={handleTotalEarnedChange}/>
-                <label htmlFor='AverageEarnings'>Average Earnings</label>
-                <input type='text' aria-label='Average Earnings' name='AverageEarnings' id='AverageEarnings' pattern='^\d*$' value={state.AverageEarnings} onChange={handleAverageEarningsChange}/>
                 <label htmlFor='TotalSpent'>Expenses</label>
                 <input type='text' aria-label='Expenses' name='TotalSpent' id='TotalSpent' pattern='^\d*$' value={state.TotalSpent} onChange={handleTotalSpentChange}/>
                 <label htmlFor='gear'>Gear</label>

@@ -9,5 +9,10 @@ module.exports = function (app) {
     next()
   })
 
+  // Sets
   app.post('/api/contactsend', controller.ContactSend)
+
+  // Gets
+  app.get('/api/globaldata', controller.GetHompageGlobalData)
+  app.get('/api/news', controller.GetNews)
 }

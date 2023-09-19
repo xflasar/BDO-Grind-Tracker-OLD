@@ -1,47 +1,11 @@
-import React, { createContext, useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
+import React, { createContext } from 'react'
 import PropTypes from 'prop-types'
-import useLocalStorage from './useLocalStorage'
+const Auth = require('./SessionContext.helper')
 
 const SessionContext = createContext()
 
 const SessionProvider = ({ children }) => {
-  const [isSignedIn, setSignedIn] = useState(false)
-  const [userData, setUserData] = useLocalStorage('userdata')
-
-  async function CheckAuth () {
-    const sessionAccess = await authorizedFetch('/api/auth/access')
-    return sessionAccess
-  }
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      CheckAuth().then((response) => {
-        if (response.status === 200) {
-          setSignedIn(true)
-        } else {
-          setSignedIn(false)
-        }
-      })
-    }
-  }, [])
-
-  const signin = () => {
-    setSignedIn(true)
-  }
-
-  const signout = () => {
-    console.log('called signout')
-    setSignedIn(false)
-    setUserData(null)
-    localStorage.clear()
-    Cookies.remove('session')
-    Cookies.remove('session.sig')
-  }
-
-  const handleUnauthorized = () => {
-    signout()
-  }
+  const { isSignedIn, isLoading, signin, signout, userData, setUserData } = Auth.useAuthentication()
 
   const unauthorizedInterceptor = (response) => {
     console.log('unauthorizedInterceptor', response)
@@ -58,17 +22,16 @@ const SessionProvider = ({ children }) => {
     return unauthorizedInterceptor(response)
   }
 
-  const setSessionUserData = (userdata) => {
-    setUserData(userdata)
-  }
+  const handleUnauthorized = () => signout()
 
   const sessionContextValue = {
     isSignedIn,
+    isLoading,
     userData,
     signin,
     signout,
     authorizedFetch,
-    setSessionUserData
+    setUserData
   }
 
   return (

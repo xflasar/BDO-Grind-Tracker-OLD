@@ -87,6 +87,7 @@ exports.SignOut = (req, res) => {
 }
 
 exports.CheckAuth = (req, res) => {
+  if (req.session.token == null) return res.status(200).send({ message: 'Not logged in!' })
   jwt.verify(req.session.token, config.secret, (err, decoded) => {
     if (err) {
       return res.status(401).send({ message: 'Unauthorized!' + err })

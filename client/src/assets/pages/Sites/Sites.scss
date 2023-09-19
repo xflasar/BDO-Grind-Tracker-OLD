@@ -3,6 +3,7 @@
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     grid-template-rows: auto;
     width: 80%;
+    min-height: calc(100vh - 70px - 92px); // fixme: problematic
     margin: 0 auto;
     flex-wrap: wrap;
     justify-content: space-between;

@@ -1,0 +1,82 @@
+.recent-activity-container {
+  width: 100%;
+  height: 100%;
+  
+
+  h1 {
+    text-align: center;
+    color: white;
+  }
+
+  &-holder {
+    position: relative;
+    width: 80%;
+    height: calc(100% - 4rem);
+    left: 10%;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(100, 100, 100);
+    border-radius: 0.5rem;
+    overflow:hidden;
+    overflow-y: auto;
+
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: black;
+      border-radius: 5px;
+    }
+
+    &-item {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 50px;
+      background-color: #333;
+      border: 1px solid rgb(25,25,25);
+    
+      color: white;
+
+      &:hover {
+        background-color: #555;
+        transition: background-color 0.3s ease-in-out;
+      }
+      
+      &:first-child {
+        border-radius: 0.5rem 0.5rem 0 0;
+      }
+
+      &:last-child {
+        border-radius: 0 0 0.5rem 0.5rem;
+      }
+
+      &:only-child {
+        border-radius: 0.5rem;
+      }
+      &-content {
+        display: flex;
+        flex-direction: row;
+        border-radius: 0.5rem;
+        width: 100%;
+        
+        &-title {
+          position: relative;
+          left: 0;
+          width: 50%;
+          text-align: center;
+        }
+
+        &-date {
+          position: relative;
+          right: 5px;
+          width: 50%;
+          text-align: right;
+        }
+      }
+    }
+  }
+}

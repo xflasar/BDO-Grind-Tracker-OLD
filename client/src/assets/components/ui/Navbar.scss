@@ -8,6 +8,7 @@
             justify-content: space-between;
             width: 100%;
             min-height: 60px;
+            z-index: 100;
 
             nav {
                 position: relative;
@@ -18,7 +19,7 @@
                 width: 100%;
                 background: radial-gradient(ellipse at center bottom, rgb(0, 0, 0) 0%, rgb(0, 0, 0) 100%);
                 top: 0;
-                z-index: 1;
+                z-index: 100;
                 
                 a {
                     color: #FFF;
@@ -147,7 +148,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        z-index: 1;
+        z-index: 102;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0);
@@ -166,11 +167,11 @@
     }
     
     .login-form-overlay {
-        position: absolute;
+        position: fixed;
         top: 60px;
         width: 16.5vh;
         right: 0;
-        z-index: 1;
+        z-index: 102;
         opacity: 0;
         transform-origin: top right;
         transform: scale(0);

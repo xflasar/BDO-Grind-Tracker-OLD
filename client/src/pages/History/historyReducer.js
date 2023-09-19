@@ -36,13 +36,18 @@ export const historyReducer = (state, action) => {
     case 'HANDLE_EDIT_SESSION_SUCCESS':
       return {
         ...state,
-        data: action.payload,
+        data: state.data.map((session) => {
+          if (session._id === action.payload._id) {
+            return Object.assign({}, session, action.payload)
+          }
+          return session
+        }),
         showEditSession: false
       }
     case 'HANDLE_ADD_SESSION_SUCCESS':
       return {
         ...state,
-        data: action.payload,
+        data: [...state.data, action.payload],
         showAddSession: false
       }
     default:

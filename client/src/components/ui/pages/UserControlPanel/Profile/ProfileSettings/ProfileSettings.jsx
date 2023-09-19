@@ -99,7 +99,7 @@ const ProfileSettings = () => {
                   </div>
                   <label htmlFor='tax'>Tax</label>
                 <div className='profileSettings-container-form-inputlabel-tax'>
-                        <input type='text' className='profileSettings-container-form-inputlabel-tax-total' disabled value={(1 + state.tax) * 100 + '%'} />
+                        <input type='text' className='profileSettings-container-form-inputlabel-tax-total' disabled value={((1 + state.tax) * 100).toFixed(2) + '%'} />
                         <div className='profileSettings-container-form-inputlabel-tax-deliminator'>|</div>
                         <input type='text' className='profileSettings-container-form-inputlabel-tax-taxed' disabled value={state.tax * 100 + '%'} />
                 </div>

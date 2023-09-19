@@ -69,7 +69,6 @@ app.get('/api', (req, res) => {
   res.redirect('http://localhost:3000/')
   console.log('Server received API check request!')
 })
-
 // #endregion
 
 // cron setup

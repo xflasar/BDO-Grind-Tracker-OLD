@@ -7,9 +7,10 @@ const renderTableCell = (item, itemI, itemIindex) => {
     return (
       <td key={`${item._id}_${itemIindex}`} className="history-table-item" role="historyTableItem">
         <div className="history-table-item-gear-container">
-          {Object.values(itemI).map((itemII, itemIIindex) => (
-            <p key={`${item._id}_${itemIindex}_${itemIIindex}`}>{itemII}</p>
-          ))}
+          <span key={`${item._id}_${itemIindex}`}>
+            <p>AP: {itemI.TotalAP}</p>
+            <p>AD: {itemI.TotalDP}</p>
+          </span>
         </div>
       </td>
     )
@@ -29,7 +30,6 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger }) => (
         <th>Site Name</th>
         <th>Time Spent</th>
         <th>Earnings</th>
-        <th>Average Earnings</th>
         <th>Expenses</th>
         <th>Gear</th>
         <th />

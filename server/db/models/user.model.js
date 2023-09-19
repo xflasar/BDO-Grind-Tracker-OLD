@@ -23,7 +23,12 @@ const userSchema = new mongoose.Schema({
   Settings: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'UserSettings'
+  },
+  RecentActivity: [{
+    activity: String,
+    date: Date
   }
+  ]
 })
 
 const User = mongoose.model('Users', userSchema, 'Users')
