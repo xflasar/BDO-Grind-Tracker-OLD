@@ -241,6 +241,7 @@ exports.AddSite = async (req, res, newSite = false) => {
     return site
   }
 }
+
 // Data Modify
 exports.ModifySession = async (req, res) => {
   try {
@@ -263,21 +264,32 @@ exports.ModifySession = async (req, res) => {
       { new: true }
     )
 
-    req.body.SiteId = updatedSession.SiteId
-    req.body.TotalTime = updatedSession.TimeSpent
-    req.body.TotalEarned = updatedSession.Earnings
-    req.body.TotalExpenses = updatedSession.Expenses
+    const updateData = {
+      SiteId: updatedSession.SiteId,
+      TotalTime: updatedSession.TimeSpent,
+      TotalEarned: updatedSession.Earnings,
+      TotalExpenses: updatedSession.Expenses,
+      ModifySession: true,
+      ModifyUser: true
+    }
 
-    req.body.ModifySite = true
-    await this.ModifySite(req, res)
+    await this.ModifySite({ ...req, body: updateData }, res)
 
-    req.body.ModifyUser = true
-    await this.ModifyUserData(req, res)
+    await this.ModifyUserData({ ...req, body: updateData }, res)
 
-    UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session edited!', date: new Date() })
+    UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+      activity: 'Session edited!',
+      date: new Date()
+    })
 
-    // This can be yet changed with the updateSessionData
-    res.status(200).send({ _id: updatedSession._id, Date: updatedSession.Date, TimeSpent: updatedSession.TimeSpent, Earnings: updatedSession.Earnings, Expenses: updatedSession.Expenses, Gear: updatedSession.Gear })
+    res.status(200).send({
+      _id: updatedSession._id,
+      Date: updatedSession.Date,
+      TimeSpent: updatedSession.TimeSpent,
+      Earnings: updatedSession.Earnings,
+      Expenses: updatedSession.Expenses,
+      Gear: updatedSession.Gear
+    })
   } catch (err) {
     console.error('Error updating session:', err)
     res.status(500).send({ message: 'An error occured while updating the session.', err })
