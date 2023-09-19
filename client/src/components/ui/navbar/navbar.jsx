@@ -213,9 +213,6 @@ function Navigation () {
                             <li className="history">
                                 <Link to="/history" className={state.activeLink === '/history' ? 'active' : ''} aria-label="history-link">History</ Link>
                             </li>
-                            <li className="analytics">
-                                <Link to="/analytics" className={state.activeLink === '/analytics' ? 'active' : ''} aria-label="analytics-link">Analytics  </Link>
-                            </li>
                           </ul>
                           )}
                       </ul>
@@ -267,9 +264,6 @@ function Navigation () {
                       </li>
                       <li className="history">
                           <Link to="/history" aria-label="history-hamburger-link" onClick={() => closeMenu()} >History</Link>
-                      </li>
-                      <li className="analytics">
-                          <Link to="/analytics" aria-label="analytics-hamburger-link" onClick={() => closeMenu()} >Analytics</Link>
                       </li>
                       </>
                       )}

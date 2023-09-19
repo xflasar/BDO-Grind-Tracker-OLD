@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import './assets/pages/index.scss'
 import Homepage from './pages/Home/Homepage'
 import Sites from './pages/Sites/Sites'
-import Analytics from './pages/Analytics/Analytics'
 import History from './pages/History/History'
 import Navigation from './components/ui/navbar/navbar'
 import Profile from './pages/UserControlPanel/Profile'
@@ -39,7 +38,6 @@ const App = () => {
         <Routes>
           <Route exact path="/" element={<Homepage />} />
           <Route exact path='/sites' element={<ProtectedRoute element={<Sites />} />} />
-          <Route exact path='/analytics' element={<ProtectedRoute element={<Analytics />} />} />
           <Route exact path='/history' element={<ProtectedRoute element={<History />} />} />
           <Route exact path='/profile' element={<ProtectedRoute element={<Profile />} />} />
           <Route exact path='/privacy' element={<PrivacyPolicy/>} />

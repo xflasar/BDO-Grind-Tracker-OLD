@@ -89,7 +89,7 @@ function History () {
   return (
     <>
       {isSignedIn && (
-        <div role="historyContainer">
+        <div role="historyContainer" className='historyContainer'>
           <div className="sessionAdd">
             <button name="sessionAdd button" onClick={handleAddSession}>
               Add Session
