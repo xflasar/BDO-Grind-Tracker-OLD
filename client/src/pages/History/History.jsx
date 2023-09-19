@@ -32,6 +32,9 @@ function History () {
         if (data.message === 'No token provided!') {
           dispatch({ type: 'SET_HISTORY', payload: [] })
           return
+        } else if (data.message === 'No sessions found!') {
+          dispatch({ type: 'SET_HISTORY', payload: [] })
+          return
         }
         dispatch({ type: 'SET_HISTORY', payload: data })
       })

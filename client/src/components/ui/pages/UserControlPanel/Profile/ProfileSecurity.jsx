@@ -11,7 +11,7 @@ const ProfileSecurity = () => {
   const SubmitSecurityData = async (e) => {
     e.preventDefault()
     if (userNewPassword !== userNewPasswordConfirm) {
-      console.log('Passwords doesn`t match!!')
+      console.log('Passwords doesn`t match!!') // fixme: add to state and show this for user to know
       return
     }
 
@@ -25,6 +25,7 @@ const ProfileSecurity = () => {
         userNewPassword
       })
     })
+    // show this for user to know
     const data = await response.json()
     console.log(data)
   }
@@ -46,6 +47,7 @@ const ProfileSecurity = () => {
       window.location.href = '/'
     }
   }, [])
+
   return (
         <div aria-label='profileSecurity-container' className='profileSecurity-container'>
             <form aria-label='profileSecurity-container-form'>

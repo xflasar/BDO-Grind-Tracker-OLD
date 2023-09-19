@@ -106,6 +106,11 @@ exports.AddUserRecentActivity = async (dbSchema, userId, data) => {
   }
 }
 
+exports.FormatSessionDate = (date) => {
+  const formattedDate = new Date(date)
+  return `${formattedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ${formattedDate.toLocaleDateString('en-US')}`
+}
+
 // #region AddSession helper functions
 exports.CreateSession = async (Session, siteId, sessionData, userId) => {
   const sessionToAdd = new Session({

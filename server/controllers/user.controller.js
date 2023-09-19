@@ -18,6 +18,8 @@ exports.SetUserProfileData = (req, res) => {
     }
   }
 
+  if (profileData.RecentActivity.length >= 10) profileData.RecentActivity.shift()
+
   profileData.RecentActivity.add({
     activity: 'Profile  data updated!',
     date: new Date()
@@ -75,7 +77,7 @@ exports.SetUserSettingsData = async (req, res) => {
 
       await userSettings.save()
 
-      UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+      await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
         activity: 'Settings created!',
         date: new Date()
       })
@@ -83,7 +85,7 @@ exports.SetUserSettingsData = async (req, res) => {
 
     UserControllerHelper.UserSettingsModify(updateData, userSettings)
 
-    UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
       activity: 'Settings changed!',
       date: new Date()
     })
@@ -106,12 +108,14 @@ exports.UploadProfilePicture = async (req, res) => {
 
       user.ImageUrl = imgUploadResponse.image.url
 
+      if (user.RecentActivity.length >= 10) user.RecentActivity.shift()
+
       user.RecentActivity.push({
         activity: 'Uploaded profile picture!',
         date: new Date()
       })
 
-      user.save().catch((err) => { throw err })
+      await user.save()
     } catch (error) {
       console.error(error.message)
       res.status(500).send({ message: error.message })
@@ -282,7 +286,7 @@ exports.ModifySession = async (req, res) => {
 
     await this.ModifyUserData({ ...req, body: updateData }, res)
 
-    UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
       activity: 'Session edited!',
       date: new Date()
     })
@@ -302,7 +306,13 @@ exports.ModifySession = async (req, res) => {
 }
 
 exports.ModifySite = async (req, res) => {
-  const updateObject = {}
+  const updateObject = {
+    TotalTime: req.body.TimeSpent,
+    TotalEarned: req.body.TotalEarned,
+    TotalExpenses: req.body.TotalExpenses,
+    AverageEarnings: req.body.TotalEarned
+  }
+
   const sumSiteDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.body.SiteId, 'Site')
 
   if (sumSiteDataDoc.length === 0) req.body.ModifySite = false
@@ -319,11 +329,6 @@ exports.ModifySite = async (req, res) => {
       { new: true }
     )
   } else {
-    updateObject.TotalTime = req.body.TimeSpent
-    updateObject.TotalEarned = req.body.TotalEarned
-    updateObject.TotalExpenses = req.body.TotalExpenses
-    updateObject.AverageEarnings = req.body.TotalEarned
-
     await Site.findByIdAndUpdate(
       req.body.SiteId,
       { $set: { ...updateObject } },
@@ -333,7 +338,13 @@ exports.ModifySite = async (req, res) => {
 }
 
 exports.ModifyUserData = async (req, res) => {
-  const updateObject = {}
+  const updateObject = {
+    TotalTime: req.body.TotalTime,
+    TotalEarnings: req.body.TotalEarned,
+    TotalExpenses: req.body.TotalExpenses,
+    AverageEarnings: req.body.TotalEarned
+  }
+
   const sumUserDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.userId, 'User')
 
   if (sumUserDataDoc.length === 0) req.body.ModifyUser = false
@@ -350,11 +361,6 @@ exports.ModifyUserData = async (req, res) => {
       { new: true }
     )
   } else {
-    updateObject.TotalTime = req.body.TotalTime
-    updateObject.TotalEarnings = req.body.TotalEarned
-    updateObject.TotalExpenses = req.body.TotalExpenses
-    updateObject.AverageEarnings = req.body.TotalEarned
-
     await User.findByIdAndUpdate(
       req.userId,
       { $set: { ...updateObject } },
@@ -379,24 +385,20 @@ exports.DeleteSession = async (req, res) => {
     const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, 'Site', session._id)
     const userUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.UserId, 'User', session._id)
 
+    const defaultUpdate = {
+      TotalTime: 0,
+      TotalEarned: 0,
+      TotalExpenses: 0,
+      AverageEarnings: 0,
+      weightedAverage: 0
+    }
+
     if (userUpdate.length === 0 || userUpdate[0].TotalEntries === 0) {
-      userUpdate.push({
-        TotalTime: 0,
-        TotalEarned: 0,
-        TotalExpenses: 0,
-        AverageEarnings: 0,
-        weightedAverage: 0
-      })
+      userUpdate.push(defaultUpdate)
     }
 
     if (siteUpdate.length === 0 || siteUpdate[0].TotalEntries === 0) {
-      siteUpdate.push({
-        TotalTime: 0,
-        TotalEarned: 0,
-        TotalExpenses: 0,
-        AverageEarnings: 0,
-        weightedAverage: 0
-      })
+      siteUpdate.push(defaultUpdate)
     }
 
     if (user) {
@@ -420,7 +422,7 @@ exports.DeleteSession = async (req, res) => {
 
     await Session.findByIdAndDelete(req.body.SessionId)
 
-    UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session deleted!', date: new Date() })
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session deleted!', date: new Date() })
 
     res.status(200).send({ message: 'Session deleted!' })
   } catch (err) {
@@ -432,17 +434,20 @@ exports.DeleteSession = async (req, res) => {
 // This is a dangerous function, it will delete all user data, including sessions and sites and authentication data | This function will be called when the user deletes his account
 exports.DeleteUserData = async (req, res) => {
   try {
+    // Delete user-related data
     await Site.deleteMany({ UserId: req.userId })
     await Session.deleteMany({ UserId: req.userId })
     await User.findByIdAndDelete(req.userId)
     await Auth.findOneAndDelete({ UserId: req.userId })
 
+    // Clear user session
     req.session = null
     res.session.destroy()
 
     res.status(200).send({ message: 'User data deleted!' })
   } catch (err) {
-    res.status(500).send({ message: err.message })
+    console.log('Error deleting user data:', err)
+    res.status(500).send({ message: 'An error occurred while deleting user data!' })
   }
 }
 
@@ -453,23 +458,21 @@ exports.GetHomepageData = async (req, res) => {
     const user = await User.findById(req.userId)
     if (!user) return res.status(404).send({ message: 'User not found!' })
 
-    const HomepageDataObj = {
+    const homepageData = {
       TotalTime: user.TotalTime,
       TotalEarnings: user.TotalEarned,
       TotalExpenses: user.TotalExpenses,
       AverageEarnings: user.AverageEarnings,
-      TopSite: ''
+      TopSite: 'No Site'
     }
 
     const sites = await Site.findOne({ UserId: req.userId }).sort('-TotalTime')
 
-    if (!sites) {
-      HomepageDataObj.TopSite = 'No Site'
-    } else {
-      HomepageDataObj.TopSite = sites.SiteName
+    if (sites) {
+      homepageData.TopSite = sites.SiteName
     }
 
-    res.status(200).send(HomepageDataObj)
+    res.status(200).send(homepageData)
   } catch (err) {
     console.log(err)
     res.status(500).send({ message: err.message })
@@ -481,7 +484,7 @@ exports.GetSiteData = async (req, res) => {
   try {
     const sites = await Site.find({ UserId: req.userId })
 
-    if (!sites) return res.status(404).send({ message: 'Sites not found!' })
+    if (!sites || sites.length === 0) return res.status(404).send({ message: 'Sites not found!' })
 
     const data = sites.map((site) => ({
       SiteName: site.SiteName,
@@ -493,7 +496,7 @@ exports.GetSiteData = async (req, res) => {
 
     res.status(200).send(data)
   } catch (err) {
-    console.log(err)
+    console.error(err)
     res.status(500).send({ message: err.message })
   }
 }
@@ -503,25 +506,24 @@ exports.GetSessionsData = async (req, res) => {
   try {
     const sessions = await Session.find({ UserId: req.userId }).populate('SiteId', 'SiteName')
 
-    if (!sessions) return res.status(404).send({ message: 'Sessions not found!' })
+    if (!sessions || sessions.length === 0) {
+      return res.status(200).send({ message: 'No sessions found!' })
+    }
 
-    const data = sessions.map((session) => {
-      const date = new Date(session.TimeCreated)
-      return {
-        _id: session._id,
-        Date: `${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ${date.toLocaleDateString('en-US')}`,
-        SiteName: session.SiteId.SiteName,
-        TimeSpent: session.TimeSpent,
-        Earnings: session.Earnings,
-        AverageEarnings: session.AverageEarnings,
-        Expenses: session.Expenses,
-        Gear: session.Gear
-      }
-    })
+    const data = sessions.map((session) => ({
+      _id: session._id,
+      Date: UserControllerHelper.FormatSessionDate(session.TimeCreated),
+      SiteName: session.SiteId.SiteName,
+      TimeSpent: session.TimeSpent,
+      Earnings: session.Earnings,
+      AverageEarnings: session.AverageEarnings,
+      Expenses: session.Expenses,
+      Gear: session.Gear
+    }))
 
     res.status(200).send(data)
   } catch (err) {
-    console.log(err)
+    console.error(err)
     res.status(500).send({ message: err.message })
   }
 }
