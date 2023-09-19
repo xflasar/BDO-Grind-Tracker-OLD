@@ -40,18 +40,9 @@ exports.SetUserSecurityData = async (req, res) => {
     if (await !bcrypt.compareSync(await req.body.userPassword, auth.password)) return res.status(401).send({ message: 'Wrong Password!' })
 
     auth.password = await bcrypt.hash(req.body.userNewPassword, 8)
-    auth.save()
+    await auth.save()
 
-    // We can probably do this in an user_controller.helper.js
-    const user = await User.findById(req.userId)
-    if (!user) return
-
-    user.RecentActivity.push({
-      activity: 'Password changed!',
-      date: new Date()
-    })
-
-    user.save()
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Password changed!', date: new Date() })
 
     res.status(200).send({ message: 'Confirmed!' })
   } catch (error) {
@@ -74,14 +65,8 @@ exports.SetUserSettingsData = async (req, res) => {
         tax: UserControllerHelper.TaxCalculation({ valuePack: req.body.valuePack, merchantRing: req.body.merchantRing, familyFame: req.body.familyFame })
       })
 
-      userSettingsNew.save().then((userSettingsSaved) => User.findById(req.userId).then((user) => {
-        user.Settings = userSettingsSaved._id
-        user.RecentActivity.push({
-          activity: 'Settings changed!',
-          date: new Date()
-        })
-        user.save().catch((err) => { throw err })
-      }))
+      userSettingsNew.save().then((userSettingsSaved) => UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Settings created!', date: new Date() })
+      )
 
       res.status(500).send({ message: 'UserSettings not found! Creating new one!' })
     }
@@ -96,14 +81,7 @@ exports.SetUserSettingsData = async (req, res) => {
 
     UserControllerHelper.UserSettingsModify(updateData, userSettings)
 
-    const user = User.findById(req.userId)
-    if (!user) return
-
-    user.RecentActivity.push({
-      activity: 'Settings changed!',
-      date: new Date()
-    })
-    user.save()
+    UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Settings changed!', date: new Date() })
 
     res.status(200).send(updateData)
   } catch (error) {
@@ -211,6 +189,7 @@ exports.AddSession = async (req, res) => {
   try {
     const user = await User.findById(req.userId)
     if (!user) return res.status(500).send({ message: 'User not found!' })
+
     let site = await Site.findOne({ SiteName: req.body.SiteName, UserId: req.userId })
     // Pre-update for add Session feature
     // if(!site) return res.status(500).send({ message: 'Site not found!' })
@@ -224,18 +203,9 @@ exports.AddSession = async (req, res) => {
       await this.ModifySite(req, res)
     }
 
-    const sessionToAdd = new Session({
-      SiteId: site._id,
-      TimeSpent: req.body.TimeSpent,
-      Earnings: req.body.TotalEarned,
-      Expenses: req.body.TotalExpenses,
-      Gear: { TotalAP: req.body.AP, TotalDP: req.body.DP },
-      TimeCreated: Date.now(),
-      UserId: req.userId
-    })
+    const sessionToAdd = await UserControllerHelper.CreateSession(Session, site.id, req.body, req.userId)
 
-    const savedSession = await sessionToAdd.save()
-    if (!savedSession) {
+    if (!sessionToAdd) {
       req.body.ModifySite = true
       req.body.TotalTime *= -1
       req.body.TotalEarned *= -1
@@ -244,33 +214,10 @@ exports.AddSession = async (req, res) => {
       return res.status(500).send({ message: 'Session not saved!' })
     }
 
-    user.Sessions.push(savedSession._id)
-    user.TotalEarned += savedSession.Earnings
-    user.TotalExpenses += savedSession.Expenses
-    user.TotalTime += savedSession.TimeSpent
-    // user.AverageEarnings += savedSession.AverageEarnings Needs to be updated
-    user.RecentActivity.push({ activity: 'Added new session.', date: new Date() })
-    await user.save().catch((error) => {
-      Session.findOneAndDelete(savedSession.id)
-      req.body.ModifySite = true
-      req.body.TotalTime *= -1
-      req.body.TotalEarned *= -1
-      req.body.TotalExpenses *= -1
-      this.ModifySite(req, res)
-      res.status(500).send({ message: error })
-      return res.status(500).send({ message: 'User not saved!' })
-    })
+    await UserControllerHelper.UpdateUserAfterSessionSaved(user, sessionToAdd)
 
     // Here should be the site update later
-    res.status(200).send({
-      _id: savedSession._id,
-      Date: `${savedSession.TimeCreated.getDate()}/${savedSession.TimeCreated.getMonth() + 1}/${savedSession.TimeCreated.getFullYear()}`,
-      SiteName: site.SiteName,
-      TimeSpent: savedSession.TimeSpent,
-      Earnings: savedSession.Earnings,
-      Expenses: savedSession.Expenses,
-      Gear: { TotalAP: savedSession.Gear.TotalAP, TotalDP: savedSession.Gear.TotalDP }
-    })
+    res.status(200).send(UserControllerHelper.SessionAddFormatedResponse(sessionToAdd, site))
   } catch (error) {
     console.error(error)
     res.status(500).send({ message: error })
@@ -327,14 +274,7 @@ exports.ModifySession = async (req, res) => {
     req.body.ModifyUser = true
     await this.ModifyUserData(req, res)
 
-    const user = await User.findById(req.userId)
-    if (!user) return
-
-    user.RecentActivity.push({
-      activity: 'Session edited!',
-      date: new Date()
-    })
-    user.save()
+    UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session edited!', date: new Date() })
 
     // This can be yet changed with the updateSessionData
     res.status(200).send({ _id: updatedSession._id, Date: updatedSession.Date, TimeSpent: updatedSession.TimeSpent, Earnings: updatedSession.Earnings, Expenses: updatedSession.Expenses, Gear: updatedSession.Gear })
@@ -463,9 +403,9 @@ exports.DeleteSession = async (req, res) => {
 
     await Session.findByIdAndDelete(req.body.SessionId)
 
+    UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session deleted!', date: new Date() })
+
     res.status(200).send({ message: 'Session deleted!' })
-    user.RecentActivity.push({ activity: 'Deleted an session', date: new Date() })
-    user.save()
   } catch (err) {
     console.log('User Controller:', err)
     res.status(500).send({ message: 'An error occured while deleting the session!' })

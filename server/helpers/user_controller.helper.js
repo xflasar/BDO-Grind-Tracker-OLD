@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose")
+const { default: mongoose } = require('mongoose')
 
 exports.TaxCalculation = (data) => {
   let taxCalculated = -0.35
@@ -96,3 +96,52 @@ exports.GetWeightedAverage = async (dbSchema, id, type, excludeMatch = false) =>
     }
   ])
 }
+
+exports.AddUserRecentActivity = async (dbSchema, userId, data) => {
+  const doc = await dbSchema.findOne({ UserId: userId })
+  if (doc) {
+    if (doc.RecentActivity.length >= 10) doc.RecentActivity.shift()
+    doc.RecentActivity.push(data)
+    await doc.save()
+  }
+}
+
+// #region AddSession helper functions
+exports.CreateSession = async (Session, siteId, sessionData, userId) => {
+  const sessionToAdd = new Session({
+    SiteId: siteId,
+    TimeSpent: sessionData.TimeSpent,
+    Earnings: sessionData.TotalEarned,
+    Expenses: sessionData.TotalExpenses,
+    Gear: { TotalAP: sessionData.AP, TotalDP: sessionData.DP },
+    TimeCreated: Date.now(),
+    UserId: userId
+  })
+
+  return await sessionToAdd.save()
+}
+
+exports.UpdateUserAfterSessionSaved = async (user, savedSession) => {
+  user.Sessions.push(savedSession._id)
+  user.TotalEarned += savedSession.Earnings
+  user.TotalExpenses += savedSession.Expenses
+  user.TotalTime += savedSession.TimeSpent
+  // user.AverageEarnings += savedSession.AverageEarnings Needs to be updated
+  user.RecentActivity.push({ activity: 'Added new session.', date: new Date() })
+
+  return await user.save()
+}
+
+exports.SessionAddFormatedResponse = (session, site) => {
+  return {
+    _id: session._id,
+    Date: `${session.TimeCreated.getDate()}/${session.TimeCreated.getMonth() + 1}/${session.TimeCreated.getFullYear()}`,
+    SiteName: site.SiteName,
+    TimeSpent: session.TimeSpent,
+    Earnings: session.Earnings,
+    Expenses: session.Expenses,
+    Gear: { TotalAP: session.Gear.TotalAP, TotalDP: session.Gear.TotalDP }
+  }
+}
+
+// #endregion
