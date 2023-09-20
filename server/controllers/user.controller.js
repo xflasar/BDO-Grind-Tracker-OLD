@@ -532,20 +532,35 @@ exports.GetSessionsData = async (req, res) => {
 
 // Marketplace
 exports.GetMarketplaceData = async (req, res) => {
-  Items.find({ validMarketplace: true }).then(async (items) => {
-    if (!items) {
-      return res.status(500).send({ message: 'No items found!' })
+  try {
+    if (!req.body.docCount) {
+      req.body.docCount = await Items.countDocuments({ validMarketplace: true })
     }
 
-    const data = items.map(item => {
-      return {
-        _id: item._id,
-        Name: item.Name,
-        Price: item.Price,
-        Description: item.Description,
-        Image: item.Image
-      }
-    })
+    if (req.body.currentPage === 1) {
+      req.body.currentPage = 0
+    }
+
+    const items = await Items.find({ validMarketplace: true }, {}, { skip: req.body.currentPage * req.body.recordsPerPage, limit: req.body.recordsPerPage })
+
+    if (!items || items.length === 0) return res.status(500).send({ message: 'No items found!' })
+
+    const data = {
+      items: items.map(item => {
+        return {
+          _id: item.id,
+          Name: item.name,
+          Price: item.basePrice,
+          Stock: item.currentStock,
+          Image: 'https://' + item.icon
+        }
+      }),
+      totalItems: req.body.docCount
+    }
+
     res.status(200).send(data)
-  })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ message: err.message })
+  }
 }

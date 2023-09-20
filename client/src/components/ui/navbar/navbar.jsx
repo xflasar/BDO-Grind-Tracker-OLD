@@ -202,16 +202,19 @@ function Navigation () {
                   <div className="logo">BDO Grind Tracker</div>
                   <div className="navbar-section">
                       <ul>
-                          <li className="home">
+                          <li className="home-link">
                               <Link to="/" className={state.activeLink === '/' ? 'active' : ''} aria-label="home-link">Home</Link>
                           </li>
                           {isSignedIn && (
                           <ul>
-                            <li className="sites">
+                            <li className="sites-link">
                                 <Link to="/sites" className={state.activeLink === '/sites' ? 'active' : ''} aria-label="sites-link">Sites</ Link>
                             </li>
-                            <li className="history">
+                            <li className="history-link">
                                 <Link to="/history" className={state.activeLink === '/history' ? 'active' : ''} aria-label="history-link">History</ Link>
+                            </li>
+                            <li className='marketplace-link'>
+                              <Link to="/marketplace" className={state.activeLink === '/marketplace' ? 'active' : ''} aria-label='marketplace-link'>Marketplace</Link>
                             </li>
                           </ul>
                           )}

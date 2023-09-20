@@ -44,5 +44,5 @@ module.exports = function (app) {
   app.get('/api/user/historydata', [verifyToken], controller.GetSessionsData)
 
   // Marketplace data
-  app.get('/api/user/marketplace', [verifyToken], controller.GetMarketplaceData)
+  app.post('/api/user/marketplace', [verifyToken], controller.GetMarketplaceData)
 }
