@@ -28,14 +28,17 @@ exports.UserSettingsModify = async (data, initialData) => {
   return initialData
 }
 
-exports.GetWeightedAverage = async (dbSchema, id, type, excludeMatch = false) => {
-  if (mongoose.Types.ObjectId.isValid(id)) id = new mongoose.Types.ObjectId(id)
+exports.GetWeightedAverage = async (dbSchema, siteId = null, userId = null, type, excludeMatch = false) => {
+  if (mongoose.Types.ObjectId.isValid(siteId)) siteId = new mongoose.Types.ObjectId(siteId)
+  if (mongoose.Types.ObjectId.isValid(userId)) userId = new mongoose.Types.ObjectId(userId)
 
   let match = {}
   if (type === 'User') {
-    match = { UserId: id }
+    match = { UserId: userId }
   } else if (type === 'Site') {
-    match = { SiteId: id }
+    match = { SiteId: siteId }
+  } else if (type === 'SessionCreation') {
+    match = { UserId: userId, SiteId: siteId }
   } else {
     match = { _id: { $exists: true } }
   }
@@ -126,12 +129,13 @@ exports.CreateSession = async (Session, siteId, sessionData, userId) => {
   return await sessionToAdd.save()
 }
 
-exports.UpdateUserAfterSessionSaved = async (user, savedSession) => {
+exports.UpdateUserAfterSessionSaved = async (user, savedSession, Session) => {
   user.Sessions.push(savedSession._id)
   user.TotalEarned += savedSession.Earnings
   user.TotalExpenses += savedSession.Expenses
   user.TotalTime += savedSession.TimeSpent
-  // user.AverageEarnings += savedSession.AverageEarnings Needs to be updated
+  const data = await this.GetWeightedAverage(Session, savedSession.SiteId, user._id, 'SessionCreation')
+  user.AverageEarnings = data[0].weightedAverage
   user.RecentActivity.push({ activity: 'Added new session.', date: new Date() })
 
   return await user.save()
