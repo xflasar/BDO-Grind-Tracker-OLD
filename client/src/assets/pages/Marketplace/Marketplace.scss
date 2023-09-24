@@ -23,6 +23,7 @@
     width: 90%;
     border-radius: 1rem;
     background-color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
 
     &-menu {
       position: relative;
@@ -30,7 +31,7 @@
       width: 100%;
       min-height: inherit;
       flex-basis: 20%;
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: #292a2c;
       border-radius: 1rem 0 1rem 1rem;
       color: white;
       
@@ -45,19 +46,12 @@
       }
 
       &-categories {
+        padding: 1rem;
+        cursor: pointer;
+        height: calc(100vh - 180px - 1rem - 60px);
 
-        div {
-          padding: 1rem;
-          text-align: left;
-          cursor: pointer;
-          
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-          }
-
-          a {
-            text-decoration: none;
-          }
+        a {
+          text-decoration: none;
         }
       }
     }

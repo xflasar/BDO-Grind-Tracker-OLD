@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import '../../assets/pages/Marketplace/Marketplace.scss'
 import { SessionContext } from '../../contexts/SessionContext'
+import MarketplaceMenu from './MarketplaceMenu'
 
 const Marketplace = () => {
   const { authorizedFetch } = useContext(SessionContext)
@@ -66,23 +67,7 @@ const Marketplace = () => {
             <h2>Menu</h2>
           </div>
           <div className='Marketplace-container-menu-categories'>
-            {/* <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Registration Queue</a></div>
-            <div><div></div><a onClick={() => setSearchData({ category: 'MainWeapon' })}>Main Weapon</a></div>
-            <div><a onClick={() => setSearchData({ category: 'SubWeapon' })}>Sub Weapon</a></div>
-            <div><a onClick={() => setSearchData({ category: 'AwakeningWeapon' })}>Awakening Weapon</a></div>
-            <div><a onClick={() => setSearchData({ category: 'Armor' })}>Armor</a></div>
-            <div><a onClick={() => setSearchData({ category: 'Lightstone' })}>Lightstone</a></div>
-            <div><a onClick={() => setSearchData({ category: 'Accessories' })}>Accessories</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Material</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Enhancement Items</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Consumables</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Life Tools</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Alchemy Stone</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Magic Crystal</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Mount Items</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Ship Items</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Wagon Items</a></div>
-            <div><a onClick={() => setSearchData({ category: 'RegistrationQueue' })}>Furniture Items</a></div> */}
+            <MarketplaceMenu />
           </div>
         </aside>
         <div className='Marketplace-container-maincontent'>
