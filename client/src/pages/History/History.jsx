@@ -69,11 +69,14 @@ function History () {
           SessionId: id
         })
       })
-      const confirmation = await res.json()
-      if (confirmation.message === 'Session deleted!') {
-        fetchHistoryData().then((data) => dispatch({ type: 'SET_HISTORY', payload: data })) // This is network expensive different approach needed!
-      } else {
-        // Handle Error when confirmation is false
+
+      if (res.ok) {
+        const response = await res.json()
+        if (response.message === 'No sessions found!') {
+          dispatch({ type: 'SET_HISTORY', payload: [] })
+        } else {
+          dispatch({ type: 'SET_HISTORY', payload: response })
+        }
       }
     } catch (error) {
       console.error('Failed to delete session:', error)

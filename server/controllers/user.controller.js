@@ -419,7 +419,7 @@ exports.DeleteSession = async (req, res) => {
 
     await UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session deleted!', date: new Date() })
 
-    res.status(200).send({ message: 'Session deleted!' })
+    this.GetSessionsData(req, res)
   } catch (err) {
     console.log('User Controller:', err)
     res.status(500).send({ message: 'An error occured while deleting the session!' })
