@@ -163,17 +163,6 @@ function Navigation () {
     }
   }
 
-  // Transfer this into profile
-  /*   const handleTestButtonFire = async () => {
-    await authorizedFetch('/api/user/uploadprofilepicture', { method: 'POST' }).then(res => res.json()).then(data => {
-      console.log(data)
-    })
-
-    <li className='TestBtn'>
-      <button aria-label="TestBtn" onClick={handleTestButtonFire}>Test</button>
-    </li>
-  } */
-
   return (
     <>
         {state.showSignin && <Portal el={(

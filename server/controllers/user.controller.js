@@ -208,24 +208,19 @@ exports.AddSession = async (req, res) => {
     if (!site) {
       site = await this.AddSite(req, res, true)
       user.Sites.push([site._id])
-    } else {
-      req.body.ModifySite = true
-      req.body.SiteId = site._id
-      await this.ModifySite(req, res)
     }
 
     const sessionToAdd = await UserControllerHelper.CreateSession(Session, site.id, req.body, req.userId)
 
     if (!sessionToAdd) {
-      req.body.ModifySite = true
-      req.body.TotalTime *= -1
-      req.body.TotalEarned *= -1
-      req.body.TotalExpenses *= -1
-      this.ModifySite(req, res)
       return res.status(500).send({ message: 'Session not saved!' })
     }
 
-    await UserControllerHelper.UpdateUserAfterSessionSaved(user, sessionToAdd)
+    req.body.ModifySite = true
+    req.body.SiteId = site._id
+    await this.ModifySite(req, res)
+
+    await UserControllerHelper.UpdateUserAfterSessionSaved(user, sessionToAdd, Session)
 
     // Here should be the site update later
     res.status(200).send(UserControllerHelper.SessionAddFormatedResponse(sessionToAdd, site))
@@ -280,7 +275,7 @@ exports.ModifySession = async (req, res) => {
       TotalTime: updatedSession.TimeSpent,
       TotalEarned: updatedSession.Earnings,
       TotalExpenses: updatedSession.Expenses,
-      ModifySession: true,
+      ModifySite: true,
       ModifyUser: true
     }
 
@@ -315,7 +310,7 @@ exports.ModifySite = async (req, res) => {
     AverageEarnings: req.body.TotalEarned
   }
 
-  const sumSiteDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.body.SiteId, 'Site')
+  const sumSiteDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.body.SiteId, null, 'Site')
 
   if (sumSiteDataDoc.length === 0) req.body.ModifySite = false
 
@@ -323,7 +318,7 @@ exports.ModifySite = async (req, res) => {
     updateObject.TotalTime = sumSiteDataDoc[0].TotalTime
     updateObject.TotalEarned = sumSiteDataDoc[0].TotalEarned
     updateObject.TotalExpenses = sumSiteDataDoc[0].TotalExpenses
-    updateObject.AverageEarnings = sumSiteDataDoc[0].weightedAverage // FIXME: [BDOGT-55] AverageEarnings is not being updated at same time
+    updateObject.AverageEarnings = sumSiteDataDoc[0].weightedAverage
 
     await Site.findByIdAndUpdate(
       req.body.SiteId,
@@ -347,7 +342,7 @@ exports.ModifyUserData = async (req, res) => {
     AverageEarnings: req.body.TotalEarned
   }
 
-  const sumUserDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.userId, 'User')
+  const sumUserDataDoc = await UserControllerHelper.GetWeightedAverage(Session, null, req.userId, 'User')
 
   if (sumUserDataDoc.length === 0) req.body.ModifyUser = false
 
@@ -355,7 +350,7 @@ exports.ModifyUserData = async (req, res) => {
     updateObject.TotalTime = sumUserDataDoc[0].TotalTime
     updateObject.TotalEarned = sumUserDataDoc[0].TotalEarned
     updateObject.TotalExpenses = sumUserDataDoc[0].TotalExpenses
-    updateObject.AverageEarnings = sumUserDataDoc[0].weightedAverage // FIXME: [BDOGT-55] AverageEarnings is not being updated at same time
+    updateObject.AverageEarnings = sumUserDataDoc[0].weightedAverage
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -384,8 +379,8 @@ exports.DeleteSession = async (req, res) => {
 
     const user = await User.findById(session.UserId)
     const site = await Site.findById(session.SiteId)
-    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, 'Site', session._id)
-    const userUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.UserId, 'User', session._id)
+    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, null, 'Site', session._id)
+    const userUpdate = await UserControllerHelper.GetWeightedAverage(Session, null, session.UserId, 'User', session._id)
 
     const defaultUpdate = {
       TotalTime: 0,
@@ -426,7 +421,7 @@ exports.DeleteSession = async (req, res) => {
 
     await UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session deleted!', date: new Date() })
 
-    res.status(200).send({ message: 'Session deleted!' })
+    this.GetSessionsData(req, res)
   } catch (err) {
     console.log('User Controller:', err)
     res.status(500).send({ message: 'An error occured while deleting the session!' })
