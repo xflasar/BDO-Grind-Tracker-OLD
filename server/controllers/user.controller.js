@@ -5,10 +5,11 @@ const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
 /* const UserSettings = require('../db/models/settings.model.js') */
 const FreeImage = require('../services/freeImage.js')
-const Items = require('../db/models/item.model.js')
+// const Items = require('../db/models/item.model.js')
 const validator = require('../validators/user.validator.js')
 const UserControllerHelper = require('../helpers/user_controller.helper.js')
 const UserSettings = require('../db/models/settings.model.js')
+const BDO_API = require('../services/bdo_api.js')
 
 // Sets
 exports.SetUserProfileData = (req, res) => {
@@ -528,7 +529,7 @@ exports.GetSessionsData = async (req, res) => {
 // Marketplace
 exports.GetMarketplaceData = async (req, res) => {
   try {
-    if (!req.body.docCount) {
+    /* if (!req.body.docCount) {
       req.body.docCount = await Items.countDocuments({ validMarketplace: true })
     }
 
@@ -551,6 +552,15 @@ exports.GetMarketplaceData = async (req, res) => {
         }
       }),
       totalItems: req.body.docCount
+    } */
+    const searchData = {
+      docCount: req.body.docCount,
+      currentPage: req.body.currentPage
+    }
+    const responseData = await BDO_API.GetMarketplaceCategoryData(searchData, req.body.searchData.mainCategory, req.body.searchData.subCategory)
+    const data = {
+      items: responseData.items,
+      totalItems: responseData.totalItems
     }
 
     res.status(200).send(data)

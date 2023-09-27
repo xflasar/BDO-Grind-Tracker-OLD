@@ -1,5 +1,6 @@
 const Items = require('../db/models/item.model.js')
 const { GetFetch } = require('../api/handleFetch.js')
+const BDO_API_HELPER = require('../helpers/bdo_api.helper.js')
 
 // Used to populate database with BDO Market items
 exports.GetDatabaseDump = async () => {
@@ -120,4 +121,17 @@ exports.UpdateMarketItemPrices = async () => {
   } catch (error) {
     console.log(error)
   }
+}
+
+// Updates the database with the item categories one time run or when new items are added
+exports.UpdateDatabaseItemCategories = () => {
+  try {
+    BDO_API_HELPER.DatabaseItemCategoryUpdate(Items)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+exports.GetMarketplaceCategoryData = async (searchData, mainCategory, subCategory = 1) => {
+  return await BDO_API_HELPER.GetCategoryDataFromDB(Items, searchData, mainCategory, subCategory)
 }

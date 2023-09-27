@@ -9,6 +9,8 @@ const itemSchema = new mongoose.Schema({
   name: String,
   grade: String,
   icon: String,
+  mainCategory: String,
+  subCategory: String,
   validMarketplace: Boolean,
   currentStock: {
     type: Number,

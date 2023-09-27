@@ -16,7 +16,8 @@ const Marketplace = () => {
   const [totalPages, setTotalPages] = useState(0)
 
   const [searchData, setSearchData] = useState({
-    category: '',
+    mainCategory: '',
+    subCategory: '',
     itemName: '',
     itemId: ''
   })
@@ -49,14 +50,17 @@ const Marketplace = () => {
     }
   }
 
-  /* const handleSearch = (e) => {
-    e.preventDefault()
-  } */
+  const handleSearch = (mainCategory, subCategory) => {
+    setSearchData(prevSearchData => ({ ...prevSearchData, mainCategory, subCategory }))
+    setCurrentPage(1)
+    console.log(mainCategory, subCategory)
+    console.log(searchData)
+  }
 
   useEffect(() => {
     fetchMarketplaceData()
     setTotalPages(Math.ceil(totalItems / recordsPerPage))
-  }, [currentPage])
+  }, [searchData])
 
   return (
     <section className='Marketplace'>
@@ -67,7 +71,7 @@ const Marketplace = () => {
             <h2>Menu</h2>
           </div>
           <div className='Marketplace-container-menu-categories'>
-            <MarketplaceMenu />
+            <MarketplaceMenu handleSearch={handleSearch}/>
           </div>
         </aside>
         <div className='Marketplace-container-maincontent'>

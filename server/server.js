@@ -71,6 +71,9 @@ app.get('/api', (req, res) => {
 })
 // #endregion
 
+// Udate database item categories
+//BDOAPI.UpdateDatabaseItemCategories()
+
 // cron setup
 // const getBDOMarketplaceDBDump = new cron.CronJob('0 */1 * * * *', function () {
 // BDOAPI.GetDatabaseDump()
