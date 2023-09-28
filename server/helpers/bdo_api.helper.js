@@ -332,41 +332,47 @@ function GetCategoryByIds (mainCategoryId, subCategoryId, reverse = false) {
   return categoryData
 }
 
+async function fetchItemIcon (item) {
+  const resImg = await fetch(`https://${item.icon}`)
+  return resImg.ok ? `https://${item.icon}` : '../assets/no-image.png'
+}
+
+async function formatItem (item) {
+  const iconUrl = await fetchItemIcon(item)
+  const itemName = item.name.includes('&#39;') ? item.name.replace('&#39;', "'") : item.name
+
+  return {
+    _id: item._id,
+    Name: itemName,
+    Image: iconUrl,
+    Price: item.basePrice,
+    Stock: item.currentStock
+  }
+}
+
 exports.GetCategoryDataFromDB = async (dbSchema, searchData, mainCategory = 'All', subCategory = 'All') => {
   try {
     if (searchData.currentPage === 1) {
       searchData.currentPage = 0
     }
-    let items = []
 
-    if (mainCategory === 'All' && subCategory === 'All') {
-      if (!searchData.docCount) {
-        searchData.docCount = await dbSchema.countDocuments({ validMarketplace: true })
-      }
-
-      items = await dbSchema.find({}, {}, { skip: searchData.currentPage * searchData.recordsPerPage, limit: searchData.recordsPerPage })
-    } else {
-      if (!searchData.docCount) {
-        searchData.docCount = await dbSchema.countDocuments({ validMarketplace: true, mainCategory, subCategory })
-      }
-
-      items = await dbSchema.find({ validMarketplace: true, mainCategory, subCategory }, {}, { skip: searchData.currentPage * searchData.recordsPerPage, limit: searchData.recordsPerPage })
+    const query = { validMarketplace: true }
+    if (mainCategory !== 'All' && subCategory !== 'All') {
+      query.mainCategory = mainCategory
+      query.subCategory = subCategory
     }
 
-    // Formating the items
-    items = items.map((item) => {
-      const dataC = {
-        _id: item._id,
-        Name: item.name,
-        Image: `https://${item.icon}`,
-        Price: item.basePrice,
-        Stock: item.currentStock
-      }
-      return dataC
-    })
+    if (!searchData.docCount) {
+      searchData.docCount = await dbSchema.countDocuments(query)
+    }
+
+    const items = await dbSchema
+      .find(query, {}, { skip: searchData.currentPage * searchData.recordsPerPage, limit: searchData.recordsPerPage })
+
+    const fixItems = await Promise.all(items.map(formatItem))
 
     const data = {
-      items,
+      fixItems,
       totalItems: searchData.docCount
     }
 
@@ -374,6 +380,96 @@ exports.GetCategoryDataFromDB = async (dbSchema, searchData, mainCategory = 'All
   } catch (error) {
     console.log(error)
   }
+}
+
+// Create a function that gets the registration queue
+exports.GetRegistrationQueue = async (dbSchema) => {
+  try {
+    const response = await fetch('https://api.arsha.io/v1/eu/GetWorldMarketWaitList')
+
+    if (!response.ok) {
+      console.log(response.status)
+      return { fixItems: [], totalItems: 0 }
+    }
+
+    const resData = await response.json()
+    const tempResData = resData.resultMsg.split('|')
+
+    const resDataTemp = tempResData
+      .filter(item => item !== '')
+      .map(item => {
+        const [id, , basePrice, timespan] = item.split('-')
+        return {
+          id,
+          basePrice,
+          timespan
+        }
+      })
+
+    const itemIds = resDataTemp.map(item => item.id)
+
+    const items = await dbSchema.find({ id: { $in: itemIds } }, '_id id name icon currentStock')
+
+    const missingItems = []
+    const unformattedItems = resDataTemp.map(item => {
+      const itemFromDB = items.find(itemInner => itemInner.id === Number(item.id))
+      if (!itemFromDB) {
+        missingItems.push(item.id)
+        return null
+      }
+      return {
+        id: itemFromDB._id,
+        name: itemFromDB.name,
+        icon: itemFromDB.icon,
+        basePrice: item.basePrice,
+        identifier: item.id
+      }
+    }).filter(item => item !== null)
+
+    if (missingItems.length > 0) {
+      console.log(`Missing items: ${missingItems}`)
+    }
+
+    // Use 'Promise.all' to parallelize fetching item images
+    const fixItems = await Promise.all(unformattedItems.map(async (item) => {
+      const resImg = await fetch(`https://${item.icon}`)
+      if (resImg.ok) {
+        item.icon = `https://${item.icon}`
+      } else {
+        item.icon = '../assets/no-image.png'
+      }
+
+      if (item.name.includes('&#39;')) {
+        item.name = item.name.toString().replace('&#39;', "'")
+      }
+
+      return {
+        _id: item.id,
+        Name: item.name,
+        Image: item.icon,
+        Price: item.basePrice,
+        identifier: GenerateUniqueId()
+      }
+    }))
+
+    const itemsData = {
+      fixItems,
+      totalItems: unformattedItems.length
+    }
+    return itemsData
+  } catch (error) {
+    console.log(error)
+    return { fixItems: [], totalItems: 0 }
+  }
+}
+
+function GenerateUniqueId () {
+  const timestamp = new Date().getTime()
+  const random = Math.floor(Math.random() * 1000000)
+
+  const uniqueId = `${timestamp}${random}`
+
+  return uniqueId
 }
 
 const UpdateDatabaseByItemIds = async (dbSchema, items) => {

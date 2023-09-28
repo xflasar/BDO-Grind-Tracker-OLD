@@ -16,7 +16,7 @@ const Marketplace = () => {
   const [totalPages, setTotalPages] = useState(0)
 
   const [searchData, setSearchData] = useState({
-    mainCategory: '',
+    mainCategory: 'Registration Queue',
     subCategory: '',
     itemName: '',
     itemId: ''
@@ -39,11 +39,9 @@ const Marketplace = () => {
 
       if (!data.ok) throw data
       const res = await data.json()
-      console.log(res)
       setData(res)
       setTotalItems(res.totalItems)
       setDataLoading(false)
-      console.log(dataLoading)
     } catch (error) {
       console.log(error)
       setSearchData({})
@@ -53,8 +51,6 @@ const Marketplace = () => {
   const handleSearch = (mainCategory, subCategory) => {
     setSearchData(prevSearchData => ({ ...prevSearchData, mainCategory, subCategory }))
     setCurrentPage(1)
-    console.log(mainCategory, subCategory)
-    console.log(searchData)
   }
 
   useEffect(() => {
@@ -92,7 +88,7 @@ const Marketplace = () => {
             <tbody>
             {(data.items && dataLoading === false)
               ? data.items.map(item => (
-              <tr key={item._id}>
+              <tr key={item._id + item.identifier}>
                 <td><img src={item.Image} alt='' />{item.Name}</td>
                 <td>{item.Stock}</td>
                 <td>{item.Price}</td>

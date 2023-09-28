@@ -133,5 +133,6 @@ exports.UpdateDatabaseItemCategories = () => {
 }
 
 exports.GetMarketplaceCategoryData = async (searchData, mainCategory, subCategory = 1) => {
+  if (mainCategory === 'Registration Queue') return await BDO_API_HELPER.GetRegistrationQueue(Items)
   return await BDO_API_HELPER.GetCategoryDataFromDB(Items, searchData, mainCategory, subCategory)
 }

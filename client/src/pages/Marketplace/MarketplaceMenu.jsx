@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import '../../assets/pages/Marketplace/MarketplaceMenu.scss'
 
@@ -9,10 +9,8 @@ import '../../assets/pages/Marketplace/MarketplaceMenu.scss'
 // reformat whole menu
 const MarketplaceMenu = ({ handleSearch }) => {
   const [activeMainCategory, setMainActiveCategory] = useState('')
-  const [activeSubCategory, setSubActiveCategory] = useState('')
 
   const handleSelectSubCategory = (value) => {
-    setSubActiveCategory(value)
     handleSearch(activeMainCategory, value)
   }
 
@@ -20,260 +18,258 @@ const MarketplaceMenu = ({ handleSearch }) => {
     setMainActiveCategory(value)
   }
 
-  useEffect(() => {
-    console.log(activeMainCategory)
-    console.log(activeSubCategory)
-  }, [])
-
   return (
     <div className='marketplace-menu'>
-      <div className={activeMainCategory === 'RegistrationQueue' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectSubCategory('RegistrationQueue')}>Registration Queue</a>
+      <div className={activeMainCategory === 'RegistrationQueue' ? 'category active-menu-category' : 'category'} onClick={() => {
+        handleSelectMainCategory('Registration Queue')
+        handleSearch('Registration Queue', '')
+      }}>Registration Queue
       </div>
-      <div className={activeMainCategory === 'Main Weapon' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Main Weapon')}>Main Weapon</a>
+      <div className={activeMainCategory === 'Main Weapon' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Main Weapon')}>Main Weapon
       {activeMainCategory === 'Main Weapon' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Longsword')}>Longsword</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Longbow')}>Longbow</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Amulet')}>Amulet</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Axe')}>Axe</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Shortsword')}>Shortsword</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Blade')}>Blade</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Staff')}>Staff</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Kriegsmesser')}>Kriegsmesser</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Gauntlet')}>Gauntlet</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Crescent Pendulum')}>Crescent Pendulum</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Crossbow')}>Crossbow</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Florang')}>Florang</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Battle Axe')}>Battle Axe</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Shamshir')}>Shamshir</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Morning Star')}>Morning Star</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Kyve')}>Kyve</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Serenaca')}>Serenaca</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Slayer')}>Slayer</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Swallowtail Fan')}>Swallowtail Fan</a></div>
+          <div onClick={() => handleSelectSubCategory('Longsword')}>Longsword</div>
+          <div onClick={() => handleSelectSubCategory('Longbow')}>Longbow</div>
+          <div onClick={() => handleSelectSubCategory('Amulet')}>Amulet</div>
+          <div onClick={() => handleSelectSubCategory('Axe')}>Axe</div>
+          <div onClick={() => handleSelectSubCategory('Shortsword')}>Shortsword</div>
+          <div onClick={() => handleSelectSubCategory('Blade')}>Blade</div>
+          <div onClick={() => handleSelectSubCategory('Staff')}>Staff</div>
+          <div onClick={() => handleSelectSubCategory('Kriegsmesser')}>Kriegsmesser</div>
+          <div onClick={() => handleSelectSubCategory('Gauntlet')}>Gauntlet</div>
+          <div onClick={() => handleSelectSubCategory('Crescent Pendulum')}>Crescent Pendulum</div>
+          <div onClick={() => handleSelectSubCategory('Crossbow')}>Crossbow</div>
+          <div onClick={() => handleSelectSubCategory('Florang')}>Florang</div>
+          <div onClick={() => handleSelectSubCategory('Battle Axe')}>Battle Axe</div>
+          <div onClick={() => handleSelectSubCategory('Shamshir')}>Shamshir</div>
+          <div onClick={() => handleSelectSubCategory('Morning Star')}>Morning Star</div>
+          <div onClick={() => handleSelectSubCategory('Kyve')}>Kyve</div>
+          <div onClick={() => handleSelectSubCategory('Serenaca')}>Serenaca</div>
+          <div onClick={() => handleSelectSubCategory('Slayer')}>Slayer</div>
+          <div onClick={() => handleSelectSubCategory('Swallowtail Fan')}>Swallowtail Fan</div>
         </div>
       )}</div>
-      <div className={activeMainCategory === 'Sub Weapon' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Sub Weapon')}>Sub Weapon</a>
+      <div className={activeMainCategory === 'Sub Weapon' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Sub Weapon')}>Sub Weapon
       {activeMainCategory === 'Sub Weapon' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Shield')}>Shield</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Dagger')}>Dagger</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Talisman')}>Talisman</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Ornamental Knot')}>Ornamental Knot</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Trinket')}>Trinket</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Horn Bow')}>Horn Bow</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Kunai')}>Kunai</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Shuriken')}>Shuriken</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Vambrace')}>Vambrace</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Noble Sword')}>Noble Sword</a></div>
-          <div><a onClick={() => handleSelectSubCategory('ra&apos;ghon')}>ra&apos;ghon</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Vitclari')}>Vitclari</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Haladie')}>Haladie</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Quoratum')}>Quoratum</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Mareca')}>Mareca</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Shard')}>Shard</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Do Stave')}>Do Stave</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Binyeo Knife')}>Binyeo Knife</a></div>
+          <div onClick={() => handleSelectSubCategory('Shield')}>Shield</div>
+          <div onClick={() => handleSelectSubCategory('Dagger')}>Dagger</div>
+          <div onClick={() => handleSelectSubCategory('Talisman')}>Talisman</div>
+          <div onClick={() => handleSelectSubCategory('Ornamental Knot')}>Ornamental Knot</div>
+          <div onClick={() => handleSelectSubCategory('Trinket')}>Trinket</div>
+          <div onClick={() => handleSelectSubCategory('Horn Bow')}>Horn Bow</div>
+          <div onClick={() => handleSelectSubCategory('Kunai')}>Kunai</div>
+          <div onClick={() => handleSelectSubCategory('Shuriken')}>Shuriken</div>
+          <div onClick={() => handleSelectSubCategory('Vambrace')}>Vambrace</div>
+          <div onClick={() => handleSelectSubCategory('Noble Sword')}>Noble Sword</div>
+          <div onClick={() => handleSelectSubCategory('ra&apos;ghon')}>ra&apos;ghon</div>
+          <div onClick={() => handleSelectSubCategory('Vitclari')}>Vitclari</div>
+          <div onClick={() => handleSelectSubCategory('Haladie')}>Haladie</div>
+          <div onClick={() => handleSelectSubCategory('Quoratum')}>Quoratum</div>
+          <div onClick={() => handleSelectSubCategory('Mareca')}>Mareca</div>
+          <div onClick={() => handleSelectSubCategory('Shard')}>Shard</div>
+          <div onClick={() => handleSelectSubCategory('Do Stave')}>Do Stave</div>
+          <div onClick={() => handleSelectSubCategory('Binyeo Knife')}>Binyeo Knife</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Awakening Weapon' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Awakening Weapon')}>Awakening Weapon</a>
+      <div className={activeMainCategory === 'Awakening Weapon' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Awakening Weapon')}>Awakening Weapon
       {activeMainCategory === 'Awakening Weapon' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Great Sword')}>Great Sword</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Scythe')}>Scythe</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Iron Buster')}>Iron Buster</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Kamasylven Sword')}>Kamasylven Sword</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Celestial Bo Staff')}>Celestial Bo Staff</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Lancia')}>Lancia</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Crescent Blade')}>CrescentBlade</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Kerispear')}>Kerispear</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Sura Katana')}>Sura Katana</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Sah Chakram')}>Sah Chakram</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Aad Sphera')}>Aad Sphera</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Godr Sphera')}>Godr Sphera</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Vediant')}>Vediant</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Gardbrace')}>Gardbrace</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Cestus')}>Cestus</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Crimson Glaives')}>Crimson Glaives</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Greatbow')}>Greatbow</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Jordun')}>Jordun</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Dual Glaives')}>Dual Glaives</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Sting')}>Sting</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Kibelius')}>Kibelius</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Patraca')}>Patraca</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Trion')}>Trion</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Soul Tome')}>Soul Tome</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Foxtail Fans')}>Foxtail Fans</a></div>
+          <div onClick={() => handleSelectSubCategory('Great Sword')}>Great Sword</div>
+          <div onClick={() => handleSelectSubCategory('Scythe')}>Scythe</div>
+          <div onClick={() => handleSelectSubCategory('Iron Buster')}>Iron Buster</div>
+          <div onClick={() => handleSelectSubCategory('Kamasylven Sword')}>Kamasylven Sword</div>
+          <div onClick={() => handleSelectSubCategory('Celestial Bo Staff')}>Celestial Bo Staff</div>
+          <div onClick={() => handleSelectSubCategory('Lancia')}>Lancia</div>
+          <div onClick={() => handleSelectSubCategory('Crescent Blade')}>CrescentBlade</div>
+          <div onClick={() => handleSelectSubCategory('Kerispear')}>Kerispear</div>
+          <div onClick={() => handleSelectSubCategory('Sura Katana')}>Sura Katana</div>
+          <div onClick={() => handleSelectSubCategory('Sah Chakram')}>Sah Chakram</div>
+          <div onClick={() => handleSelectSubCategory('Aad Sphera')}>Aad Sphera</div>
+          <div onClick={() => handleSelectSubCategory('Godr Sphera')}>Godr Sphera</div>
+          <div onClick={() => handleSelectSubCategory('Vediant')}>Vediant</div>
+          <div onClick={() => handleSelectSubCategory('Gardbrace')}>Gardbrace</div>
+          <div onClick={() => handleSelectSubCategory('Cestus')}>Cestus</div>
+          <div onClick={() => handleSelectSubCategory('Crimson Glaives')}>Crimson Glaives</div>
+          <div onClick={() => handleSelectSubCategory('Greatbow')}>Greatbow</div>
+          <div onClick={() => handleSelectSubCategory('Jordun')}>Jordun</div>
+          <div onClick={() => handleSelectSubCategory('Dual Glaives')}>Dual Glaives</div>
+          <div onClick={() => handleSelectSubCategory('Sting')}>Sting</div>
+          <div onClick={() => handleSelectSubCategory('Kibelius')}>Kibelius</div>
+          <div onClick={() => handleSelectSubCategory('Patraca')}>Patraca</div>
+          <div onClick={() => handleSelectSubCategory('Trion')}>Trion</div>
+          <div onClick={() => handleSelectSubCategory('Soul Tome')}>Soul Tome</div>
+          <div onClick={() => handleSelectSubCategory('Foxtail Fans')}>Foxtail Fans</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Armor' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Armor')}>Armor</a>
+      <div className={activeMainCategory === 'Armor' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Armor')}>Armor
       {activeMainCategory === 'Armor' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Helmet')}>Helmet</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Armor')}>Armor</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Gloves')}>Gloves</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Shoes')}>Shoes</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Functional Clothes')}>Functional Clothes</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Crafted Clothes')}>Crafted Clothes</a></div>
+          <div onClick={() => handleSelectSubCategory('Helmet')}>Helmet</div>
+          <div onClick={() => handleSelectSubCategory('Armor')}>Armor</div>
+          <div onClick={() => handleSelectSubCategory('Gloves')}>Gloves</div>
+          <div onClick={() => handleSelectSubCategory('Shoes')}>Shoes</div>
+          <div onClick={() => handleSelectSubCategory('Functional Clothes')}>Functional Clothes</div>
+          <div onClick={() => handleSelectSubCategory('Crafted Clothes')}>Crafted Clothes</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Lightstone' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Lightstone')}>Lightstone</a>
+      <div className={activeMainCategory === 'Lightstone' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Lightstone')}>Lightstone
       {activeMainCategory === 'Lightstone' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Lightstone Of Fire')}>Lightstone Of Fire</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Lightstone Of Earth')}>Lightstone Of Earth</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Lightstone Of Earth')}>Lightstone Of Earth</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Lightstone Of Earth')}>Lightstone Of Earth</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Special Lightstone')}>Special Lightstone</a></div>
+          <div onClick={() => handleSelectSubCategory('Lightstone Of Fire')}>Lightstone Of Fire</div>
+          <div onClick={() => handleSelectSubCategory('Lightstone Of Earth')}>Lightstone Of Earth</div>
+          <div onClick={() => handleSelectSubCategory('Lightstone Of Earth')}>Lightstone Of Earth</div>
+          <div onClick={() => handleSelectSubCategory('Lightstone Of Earth')}>Lightstone Of Earth</div>
+          <div onClick={() => handleSelectSubCategory('Special Lightstone')}>Special Lightstone</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Accessory' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Accessory')}>Accessories</a>
+      <div className={activeMainCategory === 'Accessory' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Accessory')}>Accessories
       {activeMainCategory === 'Accessory' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Ring')}>Ring</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Necklace')}>Necklace</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Earring')}>Earring</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Belt')}>Belt</a></div>
+          <div onClick={() => handleSelectSubCategory('Ring')}>Ring</div>
+          <div onClick={() => handleSelectSubCategory('Necklace')}>Necklace</div>
+          <div onClick={() => handleSelectSubCategory('Earring')}>Earring</div>
+          <div onClick={() => handleSelectSubCategory('Belt')}>Belt</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Material' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Material')}>Material</a>
+      <div className={activeMainCategory === 'Material' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Material')}>Material
       {activeMainCategory === 'Material' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Ore/Gem')}>Ore/Gem</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Plants')}>Plants</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Seed/Fruit')}>Seed/Fruit</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Leather')}>Leather</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Blood')}>Blood</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Meat')}>Meat</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Seafood')}>Seafood</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Misc.')}>Misc.</a></div>
+          <div onClick={() => handleSelectSubCategory('Ore/Gem')}>Ore/Gem</div>
+          <div onClick={() => handleSelectSubCategory('Plants')}>Plants</div>
+          <div onClick={() => handleSelectSubCategory('Seed/Fruit')}>Seed/Fruit</div>
+          <div onClick={() => handleSelectSubCategory('Leather')}>Leather</div>
+          <div onClick={() => handleSelectSubCategory('Blood')}>Blood</div>
+          <div onClick={() => handleSelectSubCategory('Meat')}>Meat</div>
+          <div onClick={() => handleSelectSubCategory('Seafood')}>Seafood</div>
+          <div onClick={() => handleSelectSubCategory('Misc.')}>Misc.</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Enhancement/Upgrade' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Enhancement/Upgrade')}>Enhancement/Upgrade</a>
+      <div className={activeMainCategory === 'Enhancement/Upgrade' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Enhancement/Upgrade')}>Enhancement/Upgrade
       {activeMainCategory === 'Enhancement/Upgrade' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Black Stone')}>Black Stone</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Upgrade')}>Upgrade</a></div>
+          <div onClick={() => handleSelectSubCategory('Black Stone')}>Black Stone</div>
+          <div onClick={() => handleSelectSubCategory('Upgrade')}>Upgrade</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Consumables' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Consumables')}>Consumables</a>
+      <div className={activeMainCategory === 'Consumables' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Consumables')}>Consumables
       {activeMainCategory === 'Consumables' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Offensive Elixir')}>(Elixir) Offensive</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Defensive Elixir')}>(Elixir) Defensive</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Functional Elixir')}>(Elixir) Functional</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Food')}>Food</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Potion')}>Potion</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Siege Items')}>Siege Items</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Item Parts')}>Item Parts</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Other Consumables')}>Other consumables</a></div>
+          <div onClick={() => handleSelectSubCategory('Offensive Elixir')}>(Elixir) Offensive</div>
+          <div onClick={() => handleSelectSubCategory('Defensive Elixir')}>(Elixir) Defensive</div>
+          <div onClick={() => handleSelectSubCategory('Functional Elixir')}>(Elixir) Functional</div>
+          <div onClick={() => handleSelectSubCategory('Food')}>Food</div>
+          <div onClick={() => handleSelectSubCategory('Potion')}>Potion</div>
+          <div onClick={() => handleSelectSubCategory('Siege Items')}>Siege Items</div>
+          <div onClick={() => handleSelectSubCategory('Item Parts')}>Item Parts</div>
+          <div onClick={() => handleSelectSubCategory('Other Consumables')}>Other consumables</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Life Tools' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Life Tools')}>Life Tools</a>
+      <div className={activeMainCategory === 'Life Tools' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Life Tools')}>Life Tools
       {activeMainCategory === 'Life Tools' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Lumbering Axe')}>Lumbering Axe</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Fluid Collector')}>Fluid Collector</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Butcher Knife')}>Butcher Knife</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Pickaxe')}>Pickaxe</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Hoe')}>Hoe</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Tanning Knife')}>Tanning Knife</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Fishing Tools')}>Fishing Tools</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Matchlock')}>Matchlock</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Alchemy/Cooking')}>Alchemy/Cooking</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Other Tools')}>Other Tools</a></div>
+          <div onClick={() => handleSelectSubCategory('Lumbering Axe')}>Lumbering Axe</div>
+          <div onClick={() => handleSelectSubCategory('Fluid Collector')}>Fluid Collector</div>
+          <div onClick={() => handleSelectSubCategory('Butcher Knife')}>Butcher Knife</div>
+          <div onClick={() => handleSelectSubCategory('Pickaxe')}>Pickaxe</div>
+          <div onClick={() => handleSelectSubCategory('Hoe')}>Hoe</div>
+          <div onClick={() => handleSelectSubCategory('Tanning Knife')}>Tanning Knife</div>
+          <div onClick={() => handleSelectSubCategory('Fishing Tools')}>Fishing Tools</div>
+          <div onClick={() => handleSelectSubCategory('Matchlock')}>Matchlock</div>
+          <div onClick={() => handleSelectSubCategory('Alchemy/Cooking')}>Alchemy/Cooking</div>
+          <div onClick={() => handleSelectSubCategory('Other Tools')}>Other Tools</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Alchemy Stone' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Alchemy Stone')}>Alchemy Stone</a>
+      <div className={activeMainCategory === 'Alchemy Stone' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Alchemy Stone')}>Alchemy Stone
       {activeMainCategory === 'Alchemy Stone' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Destruction')}>Destruction</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Protection')}>Protection</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Life')}>Life</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Spirit Stone')}>Spirit Stone</a></div>
+          <div onClick={() => handleSelectSubCategory('Destruction')}>Destruction</div>
+          <div onClick={() => handleSelectSubCategory('Protection')}>Protection</div>
+          <div onClick={() => handleSelectSubCategory('Life')}>Life</div>
+          <div onClick={() => handleSelectSubCategory('Spirit Stone')}>Spirit Stone</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Magic Crystal' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Magic Crystal')}>Life Tools</a>
+      <div className={activeMainCategory === 'Magic Crystal' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Magic Crystal')}>Life Tools
       {activeMainCategory === 'Magic Crystal' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Main Weapon')}>Main Weapon</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Sub-weapon')}>Sub-weapon</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Awakening Weapon')}>Awakening Weapon</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Helmet')}>Helmet</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Armor')}>Armor</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Gloves')}>Gloves</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Shoes')}>Shoes</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Versatile')}>Versatile</a></div>
+          <div onClick={() => handleSelectSubCategory('Main Weapon')}>Main Weapon</div>
+          <div onClick={() => handleSelectSubCategory('Sub-weapon')}>Sub-weapon</div>
+          <div onClick={() => handleSelectSubCategory('Awakening Weapon')}>Awakening Weapon</div>
+          <div onClick={() => handleSelectSubCategory('Helmet')}>Helmet</div>
+          <div onClick={() => handleSelectSubCategory('Armor')}>Armor</div>
+          <div onClick={() => handleSelectSubCategory('Gloves')}>Gloves</div>
+          <div onClick={() => handleSelectSubCategory('Shoes')}>Shoes</div>
+          <div onClick={() => handleSelectSubCategory('Versatile')}>Versatile</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Mount' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Mount')}>Mount Items</a>
+      <div className={activeMainCategory === 'Mount' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Mount')}>Mount Items
       {activeMainCategory === 'Mount' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Registration')}>Registration</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Feed')}>Feed</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Champron')}>Champron</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Barding')}>Barding</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Saddle')}>Saddle</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Stirrups')}>Stirrups</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Horseshoe')}>Horseshoe</a></div>
-          <div><a onClick={() => handleSelectSubCategory('[Elephant] Stirrups')}>(Elephant) Stirrups</a></div>
-          <div><a onClick={() => handleSelectSubCategory('[Elephant] Armor')}>(Elephant) Armor</a></div>
-          <div><a onClick={() => handleSelectSubCategory('[Elephant] Mask')}>(Elephant) Mask</a></div>
-          <div><a onClick={() => handleSelectSubCategory('[Elephant] Saddle')}>(Elephant) Saddle</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Courser Training')}>Courser Training</a></div>
+          <div onClick={() => handleSelectSubCategory('Registration')}>Registration</div>
+          <div onClick={() => handleSelectSubCategory('Feed')}>Feed</div>
+          <div onClick={() => handleSelectSubCategory('Champron')}>Champron</div>
+          <div onClick={() => handleSelectSubCategory('Barding')}>Barding</div>
+          <div onClick={() => handleSelectSubCategory('Saddle')}>Saddle</div>
+          <div onClick={() => handleSelectSubCategory('Stirrups')}>Stirrups</div>
+          <div onClick={() => handleSelectSubCategory('Horseshoe')}>Horseshoe</div>
+          <div onClick={() => handleSelectSubCategory('[Elephant] Stirrups')}>(Elephant) Stirrups</div>
+          <div onClick={() => handleSelectSubCategory('[Elephant] Armor')}>(Elephant) Armor</div>
+          <div onClick={() => handleSelectSubCategory('[Elephant] Mask')}>(Elephant) Mask</div>
+          <div onClick={() => handleSelectSubCategory('[Elephant] Saddle')}>(Elephant) Saddle</div>
+          <div onClick={() => handleSelectSubCategory('Courser Training')}>Courser Training</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Ship' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Ship')}>Ship Items</a>
+      <div className={activeMainCategory === 'Ship' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Ship')}>Ship Items
       {activeMainCategory === 'Ship' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Registration')}>Registration</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Cargo')}>Cargo</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Prow')}>Prow</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Decoration')}>Decoration</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Totem')}>Totem</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Prow Statue')}>Prow Statue</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Plating')}>Plating</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Cannon')}>Cannon</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Sail')}>Sail</a></div>
+          <div onClick={() => handleSelectSubCategory('Registration')}>Registration</div>
+          <div onClick={() => handleSelectSubCategory('Cargo')}>Cargo</div>
+          <div onClick={() => handleSelectSubCategory('Prow')}>Prow</div>
+          <div onClick={() => handleSelectSubCategory('Decoration')}>Decoration</div>
+          <div onClick={() => handleSelectSubCategory('Totem')}>Totem</div>
+          <div onClick={() => handleSelectSubCategory('Prow Statue')}>Prow Statue</div>
+          <div onClick={() => handleSelectSubCategory('Plating')}>Plating</div>
+          <div onClick={() => handleSelectSubCategory('Cannon')}>Cannon</div>
+          <div onClick={() => handleSelectSubCategory('Sail')}>Sail</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Wagon' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Wagon')}>Wagon Items</a>
+      <div className={activeMainCategory === 'Wagon' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Wagon')}>Wagon Items
       {activeMainCategory === 'Wagon' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Registration')}>Registration</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Wheel')}>Wheel</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Cover')}>Cover</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Flag')}>Flag</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Emblem')}>Emblem</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Lamp')}>Lamp</a></div>
+          <div onClick={() => handleSelectSubCategory('Registration')}>Registration</div>
+          <div onClick={() => handleSelectSubCategory('Wheel')}>Wheel</div>
+          <div onClick={() => handleSelectSubCategory('Cover')}>Cover</div>
+          <div onClick={() => handleSelectSubCategory('Flag')}>Flag</div>
+          <div onClick={() => handleSelectSubCategory('Emblem')}>Emblem</div>
+          <div onClick={() => handleSelectSubCategory('Lamp')}>Lamp</div>
         </div>
       )}
       </div>
-      <div className={activeMainCategory === 'Furniture' ? 'category active-menu-category' : 'category'}><a onClick={() => handleSelectMainCategory('Furniture')}>Furniture Items</a>
+      <div className={activeMainCategory === 'Furniture' ? 'category active-menu-category' : 'category'} onClick={() => handleSelectMainCategory('Furniture')}>Furniture Items
       {activeMainCategory === 'Furniture' && (
         <div className='marketplace-menu-content'>
-          <div><a onClick={() => handleSelectSubCategory('Bed')}>Bed</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Bedside Table/Table')}>Bedside Table/Table</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Wardrobe/Bookshelf')}>Wardrobe Bookshelf/Bookshelf</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Sofa/Chair')}>Sofa/Chair</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Chandelier')}>Chandelier</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Floor/Carpet')}>Floor/Carpet</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Wall/Curtain')}>Wall/Curtain</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Decoration')}>Decoration</a></div>
-          <div><a onClick={() => handleSelectSubCategory('Others')}>Others</a></div>
+          <div onClick={() => handleSelectSubCategory('Bed')}>Bed</div>
+          <div onClick={() => handleSelectSubCategory('Bedside Table/Table')}>Bedside Table/Table</div>
+          <div onClick={() => handleSelectSubCategory('Wardrobe/Bookshelf')}>Wardrobe Bookshelf/Bookshelf</div>
+          <div onClick={() => handleSelectSubCategory('Sofa/Chair')}>Sofa/Chair</div>
+          <div onClick={() => handleSelectSubCategory('Chandelier')}>Chandelier</div>
+          <div onClick={() => handleSelectSubCategory('Floor/Carpet')}>Floor/Carpet</div>
+          <div onClick={() => handleSelectSubCategory('Wall/Curtain')}>Wall/Curtain</div>
+          <div onClick={() => handleSelectSubCategory('Decoration')}>Decoration</div>
+          <div onClick={() => handleSelectSubCategory('Others')}>Others</div>
         </div>
       )}
       </div>

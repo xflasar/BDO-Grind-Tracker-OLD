@@ -529,6 +529,7 @@ exports.GetSessionsData = async (req, res) => {
 // Marketplace
 exports.GetMarketplaceData = async (req, res) => {
   try {
+    // transfer to helper function
     /* if (!req.body.docCount) {
       req.body.docCount = await Items.countDocuments({ validMarketplace: true })
     }
@@ -559,7 +560,7 @@ exports.GetMarketplaceData = async (req, res) => {
     }
     const responseData = await BDO_API.GetMarketplaceCategoryData(searchData, req.body.searchData.mainCategory, req.body.searchData.subCategory)
     const data = {
-      items: responseData.items,
+      items: responseData.fixItems,
       totalItems: responseData.totalItems
     }
 

@@ -8,7 +8,6 @@ const SessionProvider = ({ children }) => {
   const { isSignedIn, isLoading, signin, signout, userData, setUserData } = Auth.useAuthentication()
 
   const unauthorizedInterceptor = (response) => {
-    console.log('unauthorizedInterceptor', response)
     if (response.status === 401) {
       handleUnauthorized()
     } else if (response.statusText === 'Forbidden') {
