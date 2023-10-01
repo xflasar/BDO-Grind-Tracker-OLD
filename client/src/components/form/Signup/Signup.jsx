@@ -50,9 +50,7 @@ const Signup = ({ onSignupSuccess }) => {
     const email = checkValidationOfData('email', state.email) ? state.email : false
     const password = checkValidationOfData('password', state.password) ? state.password : false
 
-    if (username === false || email === false || password === false) {
-      return
-    }
+    if (username === false || email === false || password === false) return
 
     try {
       const response = await authorizedFetch('api/auth/signup', {
@@ -66,30 +64,34 @@ const Signup = ({ onSignupSuccess }) => {
           password
         })
       })
-      const res = await response.json()
-      if (res.accessToken) {
-        signin(res.accessToken)
+      if (response.ok) {
+        signin()
         onSignupSuccess()
         dispatch({ type: 'SIGNUP_SUCCESS' })
       } else {
-        if (res.message === 'Failed! Username is already in use!') {
-          dispatch({ type: 'SIGNUP_USERNAME_ERROR', payload: { msg: 'Username is already in use.' } })
-        } else if (res.message === 'Failed! Email is already in use!') {
-          dispatch({ type: 'SIGNUP_EMAIL_ERROR', payload: { msg: 'Email is already in use.' } })
-        } else if (res.message === 'Validation fail.') {
-          res.errorsList.forEach(error => {
-            switch (error.type) {
-              case 'username':
-                dispatch({ type: 'SIGNUP_USERNAME_ERROR', payload: { msg: error.message } })
-                break
-              case 'email':
-                dispatch({ type: 'SIGNUP_EMAIL_ERROR', payload: { msg: error.message } })
-                break
-              case 'password':
-                dispatch({ type: 'SIGNUP_PASSWORD_ERROR', payload: { msg: error.message } })
-                break
-            }
-          })
+        const res = response.JSON()
+        switch (res.message) {
+          case 'Failed! Username is already in use!':
+            dispatch({ type: 'SIGNUP_USERNAME_ERROR', payload: { msg: 'Username is already in use.' } })
+            break
+          case 'Failed! Email is already in use!':
+            dispatch({ type: 'SIGNUP_EMAIL_ERROR', payload: { msg: 'Email is already in use.' } })
+            break
+          case 'Validation fail.':
+            res.errorsList.forEach(error => {
+              switch (error.type) {
+                case 'username':
+                  dispatch({ type: 'SIGNUP_USERNAME_ERROR', payload: { msg: error.message } })
+                  break
+                case 'email':
+                  dispatch({ type: 'SIGNUP_EMAIL_ERROR', payload: { msg: error.message } })
+                  break
+                case 'password':
+                  dispatch({ type: 'SIGNUP_PASSWORD_ERROR', payload: { msg: error.message } })
+                  break
+              }
+            })
+            break
         }
       }
     } catch (error) {

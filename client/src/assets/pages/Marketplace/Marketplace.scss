@@ -1,0 +1,197 @@
+.Marketplace {
+  min-height: calc(100vh - 60px - 91px);
+  max-height: calc(100vh - 60px - 91px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-bottom: 21px;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+  }
+
+  .Marketplace-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    min-height: calc(100vh - 180px);
+    max-height: calc(100vh - 180px);
+    width: 90%;
+    border-radius: 1rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+
+    &-menu {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-height: inherit;
+      flex-basis: 20%;
+      background-color: #292a2c;
+      border-radius: 1rem 0 1rem 1rem;
+      color: white;
+      
+      &-header {
+        top: 0;
+        padding: 1rem 0 1rem 0;
+        background-color: rgba(0, 0, 0, 0.6);
+
+        h2 {
+          margin: 0;
+        }
+      }
+
+      &-categories {
+        padding: 1rem;
+        cursor: pointer;
+        height: calc(100vh - 180px - 1rem - 60px);
+
+        a {
+          text-decoration: none;
+        }
+      }
+    }
+
+    &-maincontent {
+      position: relative;
+      width: 100%;
+      border-radius: 0 1rem 0 0;
+      display: flex;
+      flex-direction: column;
+      min-height: inherit;
+
+      &-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 1.5rem;
+      }
+
+      &-table{
+        position: absolute;
+        width: 100%;
+        height: 95%;
+        max-height: 90%;
+        overflow: hidden;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+          width: 5px;
+          background-color: rgba(100, 100, 100, 0.3);
+          border-radius: 1rem;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          
+          thead {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            tr {
+              display: flex;
+              justify-content: space-between;
+              th {
+                padding: 5px;
+                text-align: center;
+                min-width: 100px;
+                &:first-child {
+                  min-width: 150px;
+                  width: 65%;
+                }
+                &:nth-child(2) {
+                  min-width: 100px;
+                  width: 15%;
+                }
+                &:nth-child(3) {
+                  min-width: 100px;
+                  width: 15%;
+                }
+              }
+            }
+          }
+
+          tbody {
+            background-color: rgba(100, 100, 100, 0.5);
+            tr {
+              display: flex;
+              justify-content: space-between;
+
+              td {
+                display: flex;
+                color: white;
+                padding: 5px;
+                min-width: 100px;
+                min-height: 50px;
+                height: 50px;
+                justify-content: center;
+                align-items: center;
+
+                img {
+                  width: 3rem;
+                  height: 3rem;
+                }
+
+                &:first-child {
+                  min-width: 150px;
+                  width: 65%;
+                  justify-content: left;
+                }
+
+                &:nth-child(2) {
+                  min-width: 100px;
+                  width: 15%;
+                }
+
+                &:nth-child(3) {
+                  min-width: 100px;
+                  width: 15%;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      &-pagination {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+
+        button {
+          background-color: #012B39;
+          border: none;
+          color: #fff;
+          padding: 8px 16px;
+          margin: 0 4px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #014055;
+          }
+        }
+
+        label {
+          font-size: 1.2rem;
+          font-weight: bold;
+          margin: 0 20px;
+        }
+      }
+    }
+  }
+}

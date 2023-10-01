@@ -7,11 +7,8 @@
   font-family: sans-serif;
 }
 
-main {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 1rem;
-  padding: 1rem;
+.Homepage {
+  min-height: calc(100vh - 70px - 44px); // fixme: problematic
 }
 
 .box-container {

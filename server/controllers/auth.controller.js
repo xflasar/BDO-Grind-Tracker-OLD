@@ -5,7 +5,7 @@ const Auth = require('../db/models/auth.model.js')
 const User = require('../db/models/user.model.js')
 const UserSettings = require('../db/models/settings.model.js')
 
-exports.signup = async (req, res) => {
+exports.SignUp = async (req, res) => {
   const validationErrors = await validateRegistrationData(req.body.username, req.body.email, req.body.password)
 
   if (validationErrors.length > 0) {
@@ -45,7 +45,7 @@ exports.signup = async (req, res) => {
   })
 }
 
-exports.signin = (req, res) => {
+exports.SignIn = (req, res) => {
   Auth.findOne({
     username: req.body.username
   }).populate('UserId').then(async (user) => {
@@ -71,19 +71,28 @@ exports.signin = (req, res) => {
     await res.status(200).send({
       userData: {
         ImageUrl: user.UserId.ImageUrl
-      },
-      accessToken: token
+      }
     })
   }).catch(err => { res.status(500).send({ message: err }) })
 }
 
-exports.signout = (req, res) => {
+exports.SignOut = (req, res) => {
   try {
     req.session = null
     return res.status(200).send({ message: 'Successfully signed out!' })
   } catch (err) {
     console.log(err)
   }
+}
+
+exports.CheckAuth = (req, res) => {
+  if (req.session.token == null) return res.status(200).send({ message: 'Not logged in!' })
+  jwt.verify(req.session.token, config.secret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: 'Unauthorized!' + err })
+    }
+    return res.status(200).send({ message: 'Authorized!' })
+  })
 }
 
 const validateRegistrationData = (username, email, password) => {

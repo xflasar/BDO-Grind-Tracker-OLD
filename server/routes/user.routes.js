@@ -19,6 +19,9 @@ module.exports = function (app) {
   // Gets
   app.get('/api/user/userprofiledata', [verifyToken], controller.GetUserProfileData)
   app.get('/api/user/usersettingsdata', [verifyToken], controller.GetUserSettingsData)
+
+  app.get('/api/user/recentactivity', [verifyToken], controller.GetRecentActivity)
+
   app.get('/api/user/getaddsessionsites', [verifyToken], controller.GetAddSessionSites)
   app.get('/api/user/getaddsessionsitesitemdata', [verifyToken], controller.GetAddSessionSitesItemData)
 
@@ -35,11 +38,14 @@ module.exports = function (app) {
 
   // Data Get routes
   // Homepage data
-  app.get('/api/user/homepage', [verifyToken], controller.GetHomepageData)
+  app.get('/api/user/homepageuserdata', [verifyToken], controller.GetHomepageData)
 
   // Site data
   app.get('/api/user/sitedata', [verifyToken], controller.GetSiteData)
 
   // Sessions/history data
   app.get('/api/user/historydata', [verifyToken], controller.GetSessionsData)
+
+  // Marketplace data
+  app.post('/api/user/marketplace', [verifyToken], controller.GetMarketplaceData)
 }

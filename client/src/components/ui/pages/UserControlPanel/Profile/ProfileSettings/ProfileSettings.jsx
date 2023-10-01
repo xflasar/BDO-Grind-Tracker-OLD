@@ -39,15 +39,15 @@ const ProfileSettings = () => {
   }
 
   const handleFamilyFameChange = (e) => {
-    let tempFamilyFame = e.target.value
-    // Fix this it writes NaN if we delete the last number character
-    if (isNaN(e.target.value)) {
+    let tempFamilyFame = e.target.value.trim()
+
+    if (tempFamilyFame === '' || isNaN(tempFamilyFame)) {
       tempFamilyFame = 0
     } else {
-      if (e.target.validity.valid) {
-        tempFamilyFame = parseInt(e.target.value)
-      } else {
-        tempFamilyFame = parseInt(state.familyFame.toString().replace(/\D/g, ''))
+      tempFamilyFame = parseInt(tempFamilyFame, 10)
+
+      if (isNaN(tempFamilyFame)) {
+        tempFamilyFame = 0
       }
     }
     dispatch({ type: 'PROFILE_SETTINGS_INPUT_CHANGE', payload: { name: e.target.name, value: tempFamilyFame } })
@@ -72,11 +72,11 @@ const ProfileSettings = () => {
         familyFame
       })
     })
-    const data = await response.json()
-    if (data.status !== 200) {
-      if (data.message === 'Failed to edit data!') {
-        console.log('Data failed to be edited.')
-      }
+    if (response.ok) {
+      const data = await response.json()
+      dispatch({ type: 'PROFILE_SETTINGS_UPDATE_FETCH', payload: data })
+    } else {
+      console.log('Failed to save settings data')
     }
   }
 
@@ -99,7 +99,7 @@ const ProfileSettings = () => {
                   </div>
                   <label htmlFor='tax'>Tax</label>
                 <div className='profileSettings-container-form-inputlabel-tax'>
-                        <input type='text' className='profileSettings-container-form-inputlabel-tax-total' disabled value={(1 + state.tax) * 100 + '%'} />
+                        <input type='text' className='profileSettings-container-form-inputlabel-tax-total' disabled value={((1 + state.tax) * 100).toFixed(2) + '%'} />
                         <div className='profileSettings-container-form-inputlabel-tax-deliminator'>|</div>
                         <input type='text' className='profileSettings-container-form-inputlabel-tax-taxed' disabled value={state.tax * 100 + '%'} />
                 </div>

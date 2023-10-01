@@ -1,0 +1,104 @@
+.contact-form-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  left: 10%;
+  width: 80%;
+  height: 50%;
+  color: white;
+  align-items: center;
+
+  
+  .contact-form-content {
+    width: 100%;
+    height: 100%;
+    max-width: 720px;
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #333;
+  }
+
+  h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+  }
+
+  form {
+      display: grid;
+      grid-template-columns: minmax(200px, 250px) 60%;
+      grid-template-rows: 70% 30%;
+      grid-gap: 1rem;
+      margin-bottom: 2rem;
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+      border-radius: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      .contact-form-content-leftside {
+        grid-column: 1;
+        grid-row: span;
+      }
+
+      .contact-form-content-rightside {
+        grid-column: 2;
+        grid-row: span;
+      }
+
+      .contact-form-content-bottom {
+        grid-column: 2 span;
+        grid-row: 2;
+        &-response-message {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 50%;
+          margin-bottom: 1rem;
+          border-radius: 1rem;
+          background-color: green;
+
+          &.error {
+            background-color: red;
+          }
+        }
+
+        button {
+          width: 100%;
+          background-color: #ffa600;
+          color: black;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.2s ease-in-out;
+          &:hover {
+              background-color: #b97900;
+          }
+        }
+      }
+
+      label {
+          display: block;
+          margin-bottom: 5px;
+      }
+
+      input {
+          width: 80%;
+          padding: 10px;
+          margin-bottom: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 100%;
+        min-height: 6.5rem;
+        border-radius: 0.5rem;
+        resize: none; /* Allow vertical resizing of the textarea */
+        height: auto;
+      }
+
+      
+  }
+}

@@ -1,10 +1,16 @@
+const fs = require('fs')
 const bcrypt = require('bcryptjs')
 const User = require('../db/models/user.model.js')
 const Session = require('../db/models/session.model.js')
 const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
-const UserSettings = require('../db/models/settings.model.js')
+// const UserSiteData = require('../db/models/userSiteData.model.js')
 const FreeImage = require('../services/freeImage.js')
+const Items = require('../db/models/item.model.js')
+const validator = require('../validators/user.validator.js')
+const UserControllerHelper = require('../helpers/user_controller.helper.js')
+const UserSettings = require('../db/models/settings.model.js')
+const BDO_API = require('../services/bdo_api.js')
 
 // #region Sets
 exports.SetUserProfileData = (req, res) => {
@@ -16,6 +22,13 @@ exports.SetUserProfileData = (req, res) => {
     }
   }
 
+  if (profileData.RecentActivity.length >= 10) profileData.RecentActivity.shift()
+
+  profileData.RecentActivity.add({
+    activity: 'Profile  data updated!',
+    date: new Date()
+  })
+
   User.findByIdAndUpdate(req.userId,
     { $set: { ...profileData } },
     { new: true }
@@ -26,116 +39,178 @@ exports.SetUserProfileData = (req, res) => {
 }
 
 exports.SetUserSecurityData = async (req, res) => {
-  await Auth.findOne({ UserId: req.userId }).then(async (auth) => {
-    if (await bcrypt.compareSync(await req.body.userPassword, auth.password)) {
-      auth.password = await bcrypt.hash(req.body.userNewPassword, 8)
-      auth.save()
-      return res.status(200).send({ message: 'Confirmed!' })
-    } else {
-      return res.status(401).send({ message: 'Wrong Password!' })
-    }
-  }).catch((err) => { res.status(500).send({ message: 'Errored: ' + err }) })
+  try {
+    const auth = await Auth.findOne({ UserId: req.userId })
+    if (!auth) return res.status(500).send({ message: 'Auth not found!' })
+
+    if (await !bcrypt.compareSync(await req.body.userPassword, auth.password)) return res.status(401).send({ message: 'Wrong Password!' })
+
+    auth.password = await bcrypt.hash(req.body.userNewPassword, 8)
+    await auth.save()
+
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Password changed!', date: new Date() })
+
+    res.status(200).send({ message: 'Confirmed!' })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
 exports.SetUserSettingsData = async (req, res) => {
-  UserSettings.findOne({ userId: req.userId }).then((settings) => {
-    let taxCalculated = 0
-    if (req.body.valuePack && req.body.merchantRing) {
-      taxCalculated = (-0.35 + 0.2275).toFixed(4)
-    } else if (req.body.valuePack) {
-      taxCalculated = (-0.35 + 0.195).toFixed(4)
-    } else if (req.body.merchantRing) {
-      taxCalculated = (-0.35 + 0.0325).toFixed(4)
-    }
+  try {
+    let userSettings = await UserSettings.findOne({ userId: req.userId })
 
-    if (!settings) {
-      const userSettings = new UserSettings({
-        userId: req.userId,
-        region: req.body.regionServer,
+    const updateData = {
+      region: req.body.regionServer,
+      valuePack: req.body.valuePack,
+      merchantRing: req.body.merchantRing,
+      familyFame: req.body.familyFame,
+      tax: UserControllerHelper.TaxCalculation({
         valuePack: req.body.valuePack,
         merchantRing: req.body.merchantRing,
-        familyFame: req.body.familyFame,
-        tax: taxCalculated
+        familyFame: req.body.familyFame
       })
-      userSettings.save().then((userSettingsSaved) => {
-        User.findById(req.userId).then((user) => {
-          user.Settings = userSettingsSaved._id
-          user.save().catch((err) => { return res.status(500).send({ message: 'Failed to save User with newly updated UserSettings!' + err }) })
-        }).catch((err) => { return res.status(500).send({ message: 'Failed to update User with newly created UserSettings!' + err }) })
-        return res.status(200).send({ message: 'UserSettings created successfully!' })
-      }).catch((err) => { return res.status(500).send({ message: 'Error creating usersettings ' + err }) })
-    } else {
-      settings.region = req.body.regionServer
-      settings.valuePack = req.body.valuePack
-      settings.merchantRing = req.body.merchantRing
-      settings.familyFame = req.body.familyFame
-      settings.tax = taxCalculated
-
-      settings.save().then(() => res.status(200).send({ message: 'UserSettings updated successfully!' })).catch((err) => { return res.status(500).send({ message: 'Error updating usersettings! ' + err }) })
     }
-  }).catch((err) => { return res.status(500).send({ message: 'Error finding usersettings! ' + err }) })
+
+    if (!userSettings) {
+      userSettings = new UserSettings({
+        userId: req.userId,
+        ...updateData
+      })
+
+      await userSettings.save()
+
+      await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+        activity: 'Settings created!',
+        date: new Date()
+      })
+    }
+
+    UserControllerHelper.UserSettingsModify(updateData, userSettings)
+
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+      activity: 'Settings changed!',
+      date: new Date()
+    })
+
+    res.status(200).send(updateData)
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
 exports.UploadProfilePicture = async (req, res) => {
   if (!req.body.image64base) return
   const imgUploadResponse = await FreeImage.UploadImage(req.body.image64base)
   if (imgUploadResponse.success) {
-    User.findById(req.userId).then(user => {
-      if (!user) {
-        return res.status(500).send({ message: 'User not found' })
-      }
+    try {
+      const user = await User.findById(req.userId)
+
+      if (!user) return res.status(500).send({ message: 'User not found!' })
+
       user.ImageUrl = imgUploadResponse.image.url
-      user.save().catch((err) => { throw err })
-    }).catch((err) => { res.status(500).send({ message: err.message }) })
+
+      if (user.RecentActivity.length >= 10) user.RecentActivity.shift()
+
+      user.RecentActivity.push({
+        activity: 'Uploaded profile picture!',
+        date: new Date()
+      })
+
+      await user.save()
+    } catch (error) {
+      console.error(error.message)
+      res.status(500).send({ message: error.message })
+    }
+
     res.sendStatus(200)
   }
 }
 // #endregion
 
 // #region Gets
-exports.GetUserProfileData = (req, res) => {
-  User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username').then(async (user) => {
-    if (!user) {
-      return await res.status(500).send({ message: 'User not found!' })
-    }
+exports.GetUserProfileData = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username')
+
+    if (!user) return res.status(500).send({ message: 'User not found!' })
 
     const data = {
       DisplayName: user.DisplayName,
       Username: user.authenticationId.username,
       FamilyName: user.FamilyName
     }
+
     res.status(200).send(data)
-  })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
-exports.GetUserSettingsData = (req, res) => {
-  User.findById(req.userId, 'Settings').populate('Settings').then(async (user) => {
-    if (!user) {
-      return await res.status(500).send({ message: 'User not found!' })
-    }
+exports.GetUserSettingsData = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'Settings').populate('Settings')
+
+    if (!user) return res.status(500).send({ message: 'User not found!' })
 
     const data = {
-      RegionServer: user.Settings.region,
-      ValuePack: user.Settings.valuePack,
-      MerchantRing: user.Settings.merchantRing,
-      FamilyFame: user.Settings.familyFame,
-      Tax: user.Settings.tax
+      region: user.Settings.region,
+      valuePack: user.Settings.valuePack,
+      merchantRing: user.Settings.merchantRing,
+      familyFame: user.Settings.familyFame,
+      tax: user.Settings.tax
+    }
+
+    res.status(200).send(data)
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
+}
+
+exports.GetRecentActivity = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'RecentActivity').populate('RecentActivity')
+
+    if (!user) return res.status(500).send({ message: 'User not found!' })
+    const userRecentActivity = user.RecentActivity.sort((a, b) => (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0)).map((activity) => {
+      return {
+        date: `${activity.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ${activity.date.toLocaleDateString('en-US')}`,
+        activity: activity.activity
+      }
+    })
+
+    const data = {
+      RecentActivity: userRecentActivity
     }
     res.status(200).send(data)
-  }).catch((err) => res.status(500).send({ message: err }))
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: error.message })
+  }
 }
 
 exports.GetAddSessionSites = (req, res) => {
-  Site.find('_id SiteName').then((sites) => {
+  Site.find({}, '_id SiteName').then((sites) => {
     if (!sites) {
       return res.status(500).send({ message: 'No sites found!' })
     }
-    res.status(200).send(sites)
+
+    const dataSites = []
+
+    sites.forEach((site) => {
+      dataSites.push({ _id: site._id, SiteName: site.SiteName })
+    })
+
+    res.status(200).send(dataSites)
   })
 }
 
 exports.GetAddSessionSitesItemData = (req, res) => {
-  Site.findById(req.body.siteId).then((site) => {
+  Site.findById(req.body.siteId).populate('DroppedItems').then((site) => {
     if (!site) {
       return res.status(500).send({ message: 'No site found!' })
     } else {
@@ -147,104 +222,133 @@ exports.GetAddSessionSitesItemData = (req, res) => {
 
 // #region Data Add
 exports.AddSession = async (req, res) => {
-  await User.findById(req.userId).then(async (user) => {
-    await Site.findOne({ SiteName: req.body.SiteName }, { UserId: req.userId }).then(async site => {
-      if (!site) {
-        return res.status(500).send({ message: 'Failed to find Site!' })
-        /* req.body.TotalTime = BodyObj.TotalSpent
-        site = await this.AddSite(req, res, true)
-        user.Sites.push([site._id]) */
-      } else {
-        const BodyObj = {
-          TimeSpent: parseInt(req.body.TimeSpent),
-          TotalEarned: parseInt(req.body.TotalEarned),
-          AverageEarnings: parseInt(req.body.AverageEarnings),
-          TotalSpent: parseInt(req.body.TotalSpent),
-          AP: parseInt(req.body.AP),
-          DP: parseInt(req.body.DP)
-        }
-
-        if (!BodyObj.TimeSpent || !BodyObj.TotalEarned || !BodyObj.AverageEarnings ||   !BodyObj.TotalSpent || !BodyObj.AP || !BodyObj.DP) {
-          return res.status(400).send({ message: 'Missing required properties in  request body' })
-        }
-
-        req.body.SiteId = site.id
-        req.body.ModifySite = true
-        req.body.TimeSpent = BodyObj.TimeSpent
-        req.body.TotalEarned = BodyObj.TotalEarned
-        req.body.TotalSpent = BodyObj.TotalSpent
-        req.body.AverageEarnings = BodyObj.AverageEarnings
-        await this.ModifySite(req, res)
-
-        const session = new Session({
-          SiteId: site._id,
-          TimeSpent: BodyObj.TimeSpent,
-          Earnings: BodyObj.TotalEarned,
-          AverageEarnings: BodyObj.AverageEarnings,
-          Expenses: BodyObj.TotalSpent,
-          Gear: { TotalAP: BodyObj.AP, TotalDP: BodyObj.DP },
-          TimeCreated: Date.now(),
-          UserId: req.userId
-        })
-
-        await session.save().then(async (savedSession) => {
-          user.Sessions.push([savedSession._id])
-          await user.save().then(async () => {
-            await this.GetSessionsData(req, res)
-          }).catch(err => { res.status(500).send({ message: err }) })
-        }).catch(err => { res.status(500).send({ message: err }) })
-      }
-    }).catch(err => { res.status(500).send({ message: err }) })
-  }).catch(err => { res.status(500).send({ message: err }) })
-}
-// #endregion
-
-// #region Data Modify
-exports.ModifySession = async (req, res) => {
-  const BodyObj = {
-    SessionId: req.body._id,
-    TimeSpent: parseInt(req.body.TimeSpent),
-    Earnings: parseInt(req.body.TotalEarned),
-    AverageEarnings: parseInt(req.body.AverageEarnings),
-    Expenses: parseInt(req.body.TotalSpent),
-    Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
+  const validation = validator.AddSessionValidator(req.body)
+  if (!validation.result) {
+    return res.status(500).send(validation.errors)
   }
 
-  // Find All the keys in the body object that are in the session schema
-  const updateObject = {}
-  for (const key in BodyObj) {
-    if (Object.prototype.hasOwnProperty.call(BodyObj, key)) {
-      updateObject[key] = BodyObj[key]
+  try {
+    const user = await User.findById(req.userId)
+    if (!user) return res.status(500).send({ message: 'User not found!' })
+
+    let site = await Site.findOne({ SiteName: req.body.SiteName }).populate({ path: 'SiteData', match: { UserId: req.userId } }).SiteData
+    // Pre-update for add Session feature
+    // if(!site) return res.status(500).send({ message: 'Site not found!' })
+
+    if (!site) {
+      site = await this.AddSite(req, res, true)
+      user.Sites.push([site._id])
     }
-  }
 
-  // Update the session then update Site and UserData
-  await Session.findByIdAndUpdate(
-    req.body.SessionId,
-    { $set: { ...updateObject } },
-    { new: true }
-  ).then(async (session) => {
-    req.body.SiteId = session.SiteId
-    req.body.TimeSpent = session.TimeSpent
-    req.body.TotalEarned = session.Earnings
-    req.body.TotalSpent = session.Expenses
-    req.body.AverageEarnings = session.AverageEarnings
+    const sessionToAdd = await UserControllerHelper.CreateSession(Session, site.id, req.body, req.userId)
+
+    if (!sessionToAdd) {
+      return res.status(500).send({ message: 'Session not saved!' })
+    }
+
     req.body.ModifySite = true
+    req.body.SiteId = site._id
     await this.ModifySite(req, res)
-    req.body.ModifyUser = true
-    await this.ModifyUserData(req, res)
-    this.GetSessionsData(req, res)
-  }).catch(err => { res.status(500).send({ message: err }) })
+
+    await UserControllerHelper.UpdateUserAfterSessionSaved(user, sessionToAdd, Session)
+
+    // Here should be the site update later
+    res.status(200).send(UserControllerHelper.SessionAddFormatedResponse(sessionToAdd, site))
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ message: error })
+  }
+}
+
+exports.AddSite = async (req, res, newSite = false) => {
+  const site = new Site({
+    SiteName: req.body.SiteName,
+    TotalTime: req.body.TimeSpent,
+    TotalEarned: req.body.TotalEarned,
+    TotalExpenses: req.body.TotalExpenses,
+    // AverageEarnings: req.body.AverageEarnings,
+    UserId: req.userId
+  })
+
+  await site.save().catch(err => { res.status(500).send({ message: err }) })
+  if (!newSite) {
+    res.status(200).send({ message: 'Site added!' })
+  } else {
+    return site
+  }
+}
+
+// Data Modify
+exports.ModifySession = async (req, res) => {
+  try {
+    const sessionToUpdate = await Session.findById(req.body.SessionId)
+
+    if (!sessionToUpdate) {
+      return res.status(404).send({ message: 'Session not found!' })
+    }
+
+    const udateSessionData = {
+      TimeSpent: parseInt(req.body.TimeSpent),
+      Earnings: parseInt(req.body.TotalEarned),
+      Expenses: parseInt(req.body.TotalExpenses),
+      Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
+    }
+
+    const updatedSession = await Session.findByIdAndUpdate(
+      req.body.SessionId,
+      { $set: { ...udateSessionData } },
+      { new: true }
+    )
+
+    const updateData = {
+      SiteId: updatedSession.SiteId,
+      TotalTime: updatedSession.TimeSpent,
+      TotalEarned: updatedSession.Earnings,
+      TotalExpenses: updatedSession.Expenses,
+      ModifySite: true,
+      ModifyUser: true
+    }
+
+    await this.ModifySite({ ...req, body: updateData }, res)
+
+    await this.ModifyUserData({ ...req, body: updateData }, res)
+
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
+      activity: 'Session edited!',
+      date: new Date()
+    })
+
+    res.status(200).send({
+      _id: updatedSession._id,
+      Date: updatedSession.Date,
+      TimeSpent: updatedSession.TimeSpent,
+      Earnings: updatedSession.Earnings,
+      Expenses: updatedSession.Expenses,
+      Gear: updatedSession.Gear
+    })
+  } catch (err) {
+    console.error('Error updating session:', err)
+    res.status(500).send({ message: 'An error occured while updating the session.', err })
+  }
 }
 
 exports.ModifySite = async (req, res) => {
-  const updateObject = {}
+  const updateObject = {
+    TotalTime: req.body.TimeSpent,
+    TotalEarned: req.body.TotalEarned,
+    TotalExpenses: req.body.TotalExpenses,
+    AverageEarnings: req.body.TotalEarned
+  }
+
+  const sumSiteDataDoc = await UserControllerHelper.GetWeightedAverage(Session, req.body.SiteId, null, 'Site')
+
+  if (sumSiteDataDoc.length === 0) req.body.ModifySite = false
+
   if (req.body.ModifySite) {
-    const objectToBeUpdated = await Site.findById(req.body.SiteId)
-    updateObject.TotalTime = req.body.TimeSpent = objectToBeUpdated.TotalTime + req.body.TimeSpent
-    updateObject.TotalEarned = req.body.TotalEarned = objectToBeUpdated.TotalEarned + req.body.TotalEarned
-    updateObject.TotalSpent = req.body.TotalSpent = objectToBeUpdated.TotalSpent + req.body.TotalSpent
-    updateObject.AverageEarnings = req.body.AverageEarnings = objectToBeUpdated.AverageEarnings + req.body.AverageEarnings
+    updateObject.TotalTime = sumSiteDataDoc[0].TotalTime
+    updateObject.TotalEarned = sumSiteDataDoc[0].TotalEarned
+    updateObject.TotalExpenses = sumSiteDataDoc[0].TotalExpenses
+    updateObject.AverageEarnings = sumSiteDataDoc[0].weightedAverage
 
     await Site.findByIdAndUpdate(
       req.body.SiteId,
@@ -252,26 +356,31 @@ exports.ModifySite = async (req, res) => {
       { new: true }
     )
   } else {
-    updateObject.TotalTime = req.body.TimeSpent
-    updateObject.TotalEarned = req.body.TotalEarned
-    updateObject.TotalSpent = req.body.TotalSpent
-    updateObject.AverageEarnings = req.body.AverageEarnings
-
     await Site.findByIdAndUpdate(
       req.body.SiteId,
       { $set: { ...updateObject } },
       { new: true }
     )
-    res.status(200).send({ message: 'Site modified!' })
   }
 }
 
 exports.ModifyUserData = async (req, res) => {
-  const updateObject = {}
+  const updateObject = {
+    TotalTime: req.body.TotalTime,
+    TotalEarnings: req.body.TotalEarned,
+    TotalExpenses: req.body.TotalExpenses,
+    AverageEarnings: req.body.TotalEarned
+  }
+
+  const sumUserDataDoc = await UserControllerHelper.GetWeightedAverage(Session, null, req.userId, 'User')
+
+  if (sumUserDataDoc.length === 0) req.body.ModifyUser = false
+
   if (req.body.ModifyUser) {
-    updateObject.TotalTime = req.body.TimeSpent
-    updateObject.TotalEarnings = req.body.Earnings
-    updateObject.TotalExpenses = req.body.Expenses
+    updateObject.TotalTime = sumUserDataDoc[0].TotalTime
+    updateObject.TotalEarned = sumUserDataDoc[0].TotalEarned
+    updateObject.TotalExpenses = sumUserDataDoc[0].TotalExpenses
+    updateObject.AverageEarnings = sumUserDataDoc[0].weightedAverage
 
     await User.findByIdAndUpdate(
       req.userId,
@@ -279,10 +388,6 @@ exports.ModifyUserData = async (req, res) => {
       { new: true }
     )
   } else {
-    updateObject.TotalTime = req.body.TotalTime
-    updateObject.TotalEarnings = req.body.TotalEarned
-    updateObject.TotalExpenses = req.body.TotalSpent
-
     await User.findByIdAndUpdate(
       req.userId,
       { $set: { ...updateObject } },
@@ -293,127 +398,241 @@ exports.ModifyUserData = async (req, res) => {
 }
 // #endregion
 
-// #region Data Delete
-exports.DeleteSession = (req, res) => {
-  Session.findById(req.body.SessionId).then(async (session) => {
-    if (session) {
-      req.body.SiteId = session.SiteId
-      req.body.TimeSpent = -session.TimeSpent
-      req.body.TotalEarned = -session.Earnings
-      req.body.TotalSpent = -session.Expenses
-      req.body.AverageEarnings = -session.AverageEarnings
-      req.body.ModifySite = true
-      await this.ModifySite(req, res)
-      req.body.ModifyUser = true
-      await this.ModifyUserData(req, res)
-      Session.findByIdAndDelete(req.body.SessionId).then(() => {
-        res.status(200).send({ message: 'Session deleted!' })
-      }).catch(err => { res.status(500).send({ message: err }) })
-    } else {
-      console.log('User Controller: \n' + req.body)
-      console.log('User Controller: Failed to delete session!')
+// Data Delete
+exports.DeleteSession = async (req, res) => {
+  try {
+    const session = await Session.findById(req.body.SessionId)
+
+    if (!session) {
+      console.log('User Controller: Failed to find session to delete!')
+      return res.status(500).send({ message: 'Session not found!' })
     }
-  }).catch(err => { res.status(500).send({ message: err }) })
+
+    const user = await User.findById(session.UserId)
+    const site = await Site.findById(session.SiteId)
+    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, null, 'Site', session._id)
+    const userUpdate = await UserControllerHelper.GetWeightedAverage(Session, null, session.UserId, 'User', session._id)
+
+    const defaultUpdate = {
+      TotalTime: 0,
+      TotalEarned: 0,
+      TotalExpenses: 0,
+      AverageEarnings: 0,
+      weightedAverage: 0
+    }
+
+    if (userUpdate.length === 0 || userUpdate[0].TotalEntries === 0) {
+      userUpdate.push(defaultUpdate)
+    }
+
+    if (siteUpdate.length === 0 || siteUpdate[0].TotalEntries === 0) {
+      siteUpdate.push(defaultUpdate)
+    }
+
+    if (user) {
+      user.Sessions = user.Sessions.filter(sessionId => sessionId.toString() !== session._id.toString())
+      user.TotalTime = userUpdate[0].TotalTime
+      user.TotalEarned = userUpdate[0].TotalEarned
+      user.TotalExpenses = userUpdate[0].TotalExpenses
+      user.AverageEarnings = userUpdate[0].weightedAverage
+
+      await user.save()
+    }
+
+    if (site) {
+      site.TotalTime = siteUpdate[0].TotalTime
+      site.TotalEarned = siteUpdate[0].TotalEarned
+      site.TotalExpenses = siteUpdate[0].TotalExpenses
+      site.AverageEarnings = siteUpdate[0].weightedAverage
+
+      await site.save()
+    }
+
+    await Session.findByIdAndDelete(req.body.SessionId)
+
+    await UserControllerHelper.AddUserRecentActivity(User, req.userId, { activity: 'Session deleted!', date: new Date() })
+
+    this.GetSessionsData(req, res)
+  } catch (err) {
+    console.log('User Controller:', err)
+    res.status(500).send({ message: 'An error occured while deleting the session!' })
+  }
 }
 
 // This is a dangerous function, it will delete all user data, including sessions and sites and authentication data | This function will be called when the user deletes his account
-exports.DeleteUserData = (req, res) => {
-  Site.deleteMany({ UserId: req.userId }).then(() => {
-    Session.deleteMany({ UserId: req.userId }).then(() => {
-      User.findByIdAndDelete(req.userId).then(() => {
-        Auth.findOneAndDelete({ UserId: req.userId }).then(() => {
-          try {
-            req.session = null
-            res.session.destroy()
-            res.status(200).send({ message: 'User data deleted!' })
-          } catch (err) {
-            res.status(500).send({ message: err })
-          }
-        }).catch(err => { res.status(500).send({ message: err }) })
-      }).catch(err => { res.status(500).send({ message: err }) })
-    }).catch(err => { res.status(500).send({ message: err }) })
-  }).catch(err => { res.status(500).send({ message: err }) })
+exports.DeleteUserData = async (req, res) => {
+  try {
+    // Delete user-related data
+    await Site.deleteMany({ UserId: req.userId })
+    await Session.deleteMany({ UserId: req.userId })
+    await User.findByIdAndDelete(req.userId)
+    await Auth.findOneAndDelete({ UserId: req.userId })
+
+    // Clear user session
+    req.session = null
+    res.session.destroy()
+
+    res.status(200).send({ message: 'User data deleted!' })
+  } catch (err) {
+    console.log('Error deleting user data:', err)
+    res.status(500).send({ message: 'An error occurred while deleting user data!' })
+  }
 }
 // #endregion
 
 // #region Data Get routes
 // Homepage data
 exports.GetHomepageData = async (req, res) => {
-  User.findById(req.userId).then(async (user) => {
-    try {
-      const data = {
-        TotalTimeO: {
+  try {
+    const user = await User.findById(req.userId)
+    if (!user) return res.status(404).send({ message: 'User not found!' })
 
-          Title: 'Total Time',
-          Content: user.TotalTime
-        },
-        TotalEarningsO: {
-          Title: 'Total Earnings',
-          Content: user.TotalEarnings
-        },
-        TotalExpensesO: {
-          Title: 'Total Expenses',
-          Content: user.TotalExpenses
-        },
-        AverageEarningsO: {
-          Title: 'Average Earnings',
-          Content: 0
-        },
-        SiteO: {
-          Title: 'Top Site',
-          Content: ''
-        }
-      }
-      await Site.findOne({ UserId: req.userId }).sort('-TotalTime').then(async (sites) => {
-        if (!sites) {
-          data.SiteO.Content = 'No Site'
-          data.AverageEarningsO.Content = 0
-        } else {
-          data.SiteO.Content = sites.SiteName
-          data.AverageEarningsO.Content = sites.AverageEarnings
-        }
-      }).catch(err => { res.status(500).send({ message: err }) })
-      res.status(200).send(data)
-    } catch (err) {
-      console.log(err)
+    const homepageData = {
+      TotalTime: user.TotalTime,
+      TotalEarnings: user.TotalEarned,
+      TotalExpenses: user.TotalExpenses,
+      AverageEarnings: user.AverageEarnings,
+      TopSite: 'No Site'
     }
-  }).catch(err => { console.log(err); res.status(500).send({ message: err }) })
+
+    const sites = await Site.findOne({ UserId: req.userId }).sort('-TotalTime')
+
+    if (sites) {
+      homepageData.TopSite = sites.SiteName
+    }
+
+    res.status(200).send(homepageData)
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
 }
 
 // Site data
 exports.GetSiteData = async (req, res) => {
-  Site.find({ UserId: req.userId }).then(async (sites) => {
-    const data = []
-    for (let i = 0; i < sites.length; i++) {
-      data.push({
-        SiteName: sites[i].SiteName,
-        TotalTime: sites[i].TotalTime,
-        TotalEarned: sites[i].TotalEarned,
-        TotalSpent: sites[i].TotalSpent,
-        AverageEarnings: sites[i].AverageEarnings
-      })
-    }
+  try {
+    const sites = await Site.find({ UserId: req.userId })
+
+    if (!sites || sites.length === 0) return res.status(404).send({ message: 'Sites not found!' })
+
+    const data = sites.map((site) => ({
+      SiteName: site.SiteName,
+      TotalTime: site.TotalTime,
+      TotalEarned: site.TotalEarned,
+      TotalExpenses: site.TotalExpenses,
+      AverageEarnings: site.AverageEarnings
+    }))
+
     res.status(200).send(data)
-  }).catch(err => { res.status(500).send({ message: err }) })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ message: err.message })
+  }
 }
 
 // History data
 exports.GetSessionsData = async (req, res) => {
-  Session.find({ UserId: req.userId }).populate('SiteId', 'SiteName').then(async (sessions) => {
-    const data = sessions.map(session => {
-      const date = new Date(session.TimeCreated)
-      return {
-        _id: session._id,
-        Date: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
-        SiteName: session.SiteId.SiteName,
-        TimeSpent: session.TimeSpent,
-        Earnings: session.Earnings,
-        AverageEarnings: session.AverageEarnings,
-        Expenses: session.Expenses,
-        Gear: session.Gear
-      }
-    })
+  try {
+    const sessions = await Session.find({ UserId: req.userId }).populate('SiteId').populate('GearId')
+
+    if (!sessions || sessions.length === 0) {
+      return res.status(200).send({ message: 'No sessions found!' })
+    }
+
+    const data = sessions.map((session) => ({
+      _id: session._id,
+      Date: UserControllerHelper.FormatSessionDate(session.TimeCreated),
+      SiteName: session.SiteId.SiteName,
+      TimeSpent: session.TimeSpent,
+      Earnings: session.Earnings,
+      AverageEarnings: session.AverageEarnings,
+      Expenses: session.Expenses,
+      Gear: { AP: session.GearId.AP, DP: session.GearId.DP }
+    }))
+
     res.status(200).send(data)
-  }).catch(err => { res.status(500).send({ message: err }) })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
+// Marketplace
+exports.GetMarketplaceData = async (req, res) => {
+  try {
+    // transfer to helper function
+    /* if (!req.body.docCount) {
+      req.body.docCount = await Items.countDocuments({ validMarketplace: true })
+    }
+
+    if (req.body.currentPage === 1) {
+      req.body.currentPage = 0
+    }
+
+    const items = await Items.find({ validMarketplace: true }, {}, { skip: req.body.currentPage * req.body.recordsPerPage, limit: req.body.recordsPerPage })
+
+    if (!items || items.length === 0) return res.status(500).send({ message: 'No items found!' })
+
+    const data = {
+      items: items.map(item => {
+        return {
+          _id: item.id,
+          Name: item.name,
+          Price: item.basePrice,
+          Stock: item.currentStock,
+          Image: 'https://' + item.icon
+        }
+      }),
+      totalItems: req.body.docCount
+    } */
+    const searchData = {
+      docCount: req.body.docCount,
+      currentPage: req.body.currentPage
+    }
+    const responseData = await BDO_API.GetMarketplaceCategoryData(searchData, req.body.searchData.mainCategory, req.body.searchData.subCategory)
+    const data = {
+      items: responseData.fixItems,
+      totalItems: responseData.totalItems
+    }
+
+    res.status(200).send(data)
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ message: err.message })
+  }
 }
 // #endregion
+
+exports.InsertSitesDataFromJson = async () => {
+  const jsonSiteData = fs.readFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/Site_data.json', 'utf8')
+  const SitesData = JSON.parse(jsonSiteData)
+  const DataToFix = []
+  for (const site of Object.values(SitesData)) {
+    const dropItemsTemp = []
+    for (let dropItem of Object.values(site.DropItems)) {
+      dropItem = dropItem.replace("'", '&#39;')
+      const itemDB = await Items.findOne({ name: dropItem })
+      if (itemDB) {
+        if (itemDB.validMarketplace) {
+          dropItemsTemp.push(itemDB._id)
+        } else {
+          DataToFix.push({
+            name: dropItem,
+            itemdb: itemDB._id,
+            id: itemDB.id
+          })
+        }
+      } else {
+        DataToFix.push({
+          name: dropItem,
+          itemdb: 'Not Found',
+          id: 'Not Found'
+        })
+        dropItemsTemp.push(dropItem)
+      }
+    }
+    site.DropItems = dropItemsTemp
+  }
+  fs.writeFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/Site_data_fixed.json', JSON.stringify(DataToFix))
+  console.log(SitesData)
+}

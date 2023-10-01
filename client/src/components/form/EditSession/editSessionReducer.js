@@ -4,7 +4,6 @@ export const INITIAL_STATE = {
   siteName: '',
   timeSpent: '',
   earnings: '',
-  averageEarnings: '',
   expenses: '',
   gear: {
     TotalAP: 0,
@@ -28,11 +27,10 @@ export const editSessionReducer = (state, action) => {
       return {
         ...state,
         sessionId: action.payload._id,
-        date: ParseData(action.payload.Date),
+        date: action.payload.Date,
         siteName: action.payload.SiteName,
         timeSpent: action.payload.TimeSpent,
         earnings: action.payload.Earnings,
-        averageEarnings: action.payload.AverageEarnings,
         expenses: action.payload.Expenses,
         gear: action.payload.Gear
       }
@@ -44,15 +42,4 @@ export const editSessionReducer = (state, action) => {
     default:
       return state
   }
-}
-
-function ParseData (date) {
-  const dateParts = date.split('/')
-
-  const day = dateParts[0].padStart(2, '0')
-  const month = dateParts[1].padStart(2, '0')
-  const year = dateParts[2]
-
-  const formattedDate = `${year}-${month}-${day}`
-  return new Date(formattedDate).toISOString().substring(0, 10)
 }

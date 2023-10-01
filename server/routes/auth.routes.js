@@ -11,7 +11,10 @@ module.exports = function (app) {
   })
 
   // Post
-  app.post('/api/auth/signup', [checkDuplicateUsernameOrEmail], controller.signup)
-  app.post('/api/auth/signin', controller.signin)
-  app.post('/api/auth/signout', controller.signout)
+  app.post('/api/auth/signup', [checkDuplicateUsernameOrEmail], controller.SignUp)
+  app.post('/api/auth/signin', controller.SignIn)
+  app.post('/api/auth/signout', controller.SignOut)
+
+  // Get
+  app.get('/api/auth/access', controller.CheckAuth)
 }

@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 
 const userSiteDataSchema = new mongoose.Schema({
+  UserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   SiteId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Site'

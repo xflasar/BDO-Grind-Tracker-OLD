@@ -65,8 +65,18 @@ const ProfileView = () => {
     })
   }
 
-  return (
+  // Implement this to upload and change profile picture
+  /*   const handleTestButtonFire = async () => {
+    await authorizedFetch('/api/user/uploadprofilepicture', { method: 'POST' }).then(res => res.json()).then(data => {
+      console.log(data)
+    })
 
+    <li className='TestBtn'>
+      <button aria-label="TestBtn" onClick={handleTestButtonFire}>Test</button>
+    </li>
+  } */
+
+  return (
     <div aria-label='profileView-container' className='profileView-container'>
         {user && (
       <form aria-label='profileView-container-form'>
