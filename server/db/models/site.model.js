@@ -3,18 +3,19 @@ const mongoose = require('mongoose')
 const siteSchema = new mongoose.Schema({
   SiteName: String,
   Location: String,
-  RecommendedAP: Number,
-  RecommendedDP: Number,
+  RecommendedAP: String,
+  RecommendedDP: String,
   AverageGlobalSilverEarnings: Number,
-  DroppedItems: [
+  DropItems: [
     {
-      itemName: String,
-      amount: Number
+      itemId: mongoose.Schema.Types.ObjectId,
+      itemName: String
     }
   ],
   SiteData: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserSiteData'
+    ref: 'UserSiteData',
+    default: []
   }]
 })
 

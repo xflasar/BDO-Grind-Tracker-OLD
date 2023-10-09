@@ -9,62 +9,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   const [state, dispatch] = useReducer(addSessionReducer, INITIAL_STATE)
 
   useEffect(() => {
-    // fetchSites()
-    const sitesTest = [
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f8',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f2',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f3',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f4',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f5',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f6',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f7',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8e1',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f9',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f0',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8f1',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8e2',
-        SiteName: 'Test Site'
-      },
-      {
-        _id: '5f2d5d0f7e8d9b0b8f8f8e3',
-        SiteName: 'Test Site'
-      }
-    ]
-    dispatch({ type: 'ADD_SESSION_SITES_FETCH', payload: sitesTest })
+    fetchSites()
   }, [])
 
   async function handleAddSessionSubmit (e) {
@@ -90,21 +35,31 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     }
   }
 
+  const fetchDropItems = async (siteId) => {
+    try {
+      const response = await authorizedFetch(`/api/user/getaddsessionsitesitemdata/${siteId}`)
+      const data = await response.json()
+      dispatch({ type: 'ADD_SESSION_DROP_ITEMS_FETCH', payload: data })
+    } catch (error) {
+      console.log('Failed to fetch drop items:', error)
+    }
+  }
+
   // eslint-disable-next-line no-unused-vars
   const fetchSites = async () => {
     const response = await authorizedFetch('/api/user/getaddsessionsites')
     if (response.ok) {
       const res = await response.json()
-      dispatch({ type: 'ADD_SESSION_SITES_FETCH', payload: res.data })
+      dispatch({ type: 'ADD_SESSION_SITES_FETCH', payload: res })
     } else {
       console.log('No data. ' + response.message)
     }
   }
 
-  // This is re-rendering the entire component -> Good idea would be to re-render only the MainContent that changes while the Sites gonna change only the color of the active site
-  const handleSiteChoosing = (siteId) => {
-    console.log(`Choosen site with id: ${siteId}`)
+  const handleSiteChoosing = (e, siteId) => {
+    e.preventDefault()
     dispatch({ type: 'ADD_SESSION_ACTIVE_SITE', payload: siteId })
+    fetchDropItems(siteId)
   }
 
   const handleClose = (e) => {
@@ -123,9 +78,8 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
           </div>
           <div className='sessionSiteChoosing-SiteList'>
             {state.Sites && (
-              console.log(state.Sites),
               Object.values(state.Sites).map((site) => {
-                return (<div key={site._id} className='sessionSiteChoosing-SiteList-Item'><label key={site._id} className={state.activeSite === site._id ? 'active' : ''} onClick={() => handleSiteChoosing(site._id)}>{site.SiteName}</label></div>)
+                return (<div key={site._id} className='sessionSiteChoosing-SiteList-Item'><label key={site._id} className={state.activeSite === site._id ? 'active' : ''} onClick={(e) => handleSiteChoosing(e, site._id)}>{site.SiteName}</label></div>)
               })
             )}
           </div>
@@ -133,72 +87,61 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
         <div className='sessionMainContent'>
         <div className='sessionMainContent-HeaderContent'>
             <div className='sessionMainContent-HeaderContent-SessionTime'>
-              <h4>Session Time</h4>
+              <h3>Session Time</h3>
               <div className='sessionMainContent-HeaderContent-SessionTime-Content'>
-                <p>0h</p>
-                <p>|</p>
-                <p>0m</p>
+                <h3>0h</h3>
+                <h3>|</h3>
+                <h3>0m</h3>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-TotalSilverAfterTaxes'>
-              <h4>Total Silver After Taxes</h4>
+              <h3>Total Silver After Taxes</h3>
               <div className='sessionMainContent-HeaderContent-TotalSilverAfterTaxes-Content'>
-                <p>0</p>
+                <h3>0</h3>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes'>
-              <h4>Silver Pre Hour Before Taxes</h4>
+              <h3>Silver Pre Hour Before Taxes</h3>
               <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes-Content'>
-                <p>0</p>
+                <h3>0</h3>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-SilverPreHourAfterTaxes'>
-              <h4>Silver Pre Hour After Taxes</h4>
+              <h3>Silver Pre Hour After Taxes</h3>
               <div className='sessionMainContent-HeaderContent-SilverPreHourAfterTaxes-Content'>
-                <p>0</p>
+                <h3>0</h3>
               </div>
             </div>
           </div>
           <div className='sessionMainContent-SetupContent'>
             <div className='sessionMainContent-SetupContent-Items'>
-              <p>Items</p>
+              <h2>Items</h2>
+              {state.DropItems.length > 0
+                ? (
+                <div className='sessionMainContent-SetupContent-Items-Content'>
+                    {Object.values(state.DropItems).map((item, index) => {
+                      return (<div key={item.itemId ? item.itemId : index} className='sessionMainContent-SetupContent-Items-Content-Item'>
+                        <label>{item.itemName}</label>
+                        <input type='text' name={item.itemId ? item.itemId : index} placeholder='0'/>
+                        </div>)
+                    })}
+                </div>
+                  )
+                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
             </div>
             <div className='sessionMainContent-SetupContent-Gear'>
-              <p>Gear</p>
+              <h2>Gear</h2>
+              {state.activeSite ? null : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
             </div>
             <div className='sessionMainContent-SetupContent-Settings'>
-              <p>Settings</p>
+              <h2>Settings</h2>
+              {state.activeSite ? null : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
             </div>
-          </div>
-          <div className='sessionMainContent-SideContent'>
-
           </div>
         </div>
       </form>
       </div>
     </div>
-
-  /* <div className='sessionAddForm'>
-        <form aria-label='sessionAddForm' onSubmit={handleAddSessionSubmit}>
-        <button type='button' aria-label='addSessionExitButton' className='close' onClick={handleClose}>X</button>
-          <label htmlFor='SiteName'>Site Name</label>
-          <input type='text' aria-label='Site Name' name='SiteName' id='siteName' />
-          <label htmlFor='TimeSpent'>Time Spent</label>
-          <input type='text' aria-label='Time Spent' name='TimeSpent' id='timeSpent' pattern='[0-9.]+' />
-          <label htmlFor='TotalEarned'>Earnings</label>
-          <input type='text' aria-label='Earnings' name='TotalEarned' id='earnings' pattern='[0-9.]+'/>
-          <label htmlFor='AverageEarnings'>Average Earnings</label>
-          <input type='text' aria-label='Average Earnings' name='AverageEarnings' id='averageEarnings' pattern='[0-9.]+'/>
-          <label htmlFor='TotalSpent'>Expenses</label>
-          <input type='text' aria-label='Expenses' name='TotalSpent' id='expenses' pattern='[0-9.]+'/>
-          <label htmlFor='gear'>Gear</label>
-          <input type='text' aria-label='TotalAP' name='AP' id='AP' pattern='[0-9.]+'/>
-          <input type='text' aria-label='TotalDP' name='DP' id='DP' pattern='[0-9.]+'/>
-          <button type='submit' aria-label='addSessionSubmitButton' name='sessionAddSubmit'>
-            Submit
-          </button>
-      </form>
-  </div> */
   )
 }
 

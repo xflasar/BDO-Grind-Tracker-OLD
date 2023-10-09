@@ -210,11 +210,15 @@ exports.GetAddSessionSites = (req, res) => {
 }
 
 exports.GetAddSessionSitesItemData = (req, res) => {
-  Site.findById(req.body.siteId).populate('DroppedItems').then((site) => {
+  Site.findById(req.params.siteId).populate('DropItems').then((site) => {
     if (!site) {
       return res.status(500).send({ message: 'No site found!' })
     } else {
-      res.status(200).send(site.DroppedItems)
+      site.DropItems.map((item) => {
+        if (item.itemName.includes('&#39;')) item.itemName = item.itemName.replace('&#39;', "'")
+        return item
+      })
+      res.status(200).send(site.DropItems)
     }
   })
 }
@@ -604,35 +608,84 @@ exports.GetMarketplaceData = async (req, res) => {
 // #endregion
 
 exports.InsertSitesDataFromJson = async () => {
+  /* await Site.deleteMany({}).then((result) => console.log('Deleted all sites from db => ' + result.deletedCount))
+  return null */
   const jsonSiteData = fs.readFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/Site_data.json', 'utf8')
   const SitesData = JSON.parse(jsonSiteData)
   const DataToFix = []
+  const bulkInsertOperations = []
   for (const site of Object.values(SitesData)) {
     const dropItemsTemp = []
     for (let dropItem of Object.values(site.DropItems)) {
       dropItem = dropItem.replace("'", '&#39;')
       const itemDB = await Items.findOne({ name: dropItem })
+
+      const itemObj = {
+        itemId: null,
+        itemName: ''
+      }
+
       if (itemDB) {
-        if (itemDB.validMarketplace) {
-          dropItemsTemp.push(itemDB._id)
-        } else {
-          DataToFix.push({
-            name: dropItem,
-            itemdb: itemDB._id,
-            id: itemDB.id
-          })
-        }
+        itemObj.itemId = itemDB._id
+        itemObj.itemName = itemDB.name
+        dropItemsTemp.push(itemObj)
       } else {
         DataToFix.push({
           name: dropItem,
           itemdb: 'Not Found',
           id: 'Not Found'
         })
-        dropItemsTemp.push(dropItem)
+        itemObj.itemId = null
+        itemObj.itemName = dropItem
+        dropItemsTemp.push(itemObj)
       }
     }
     site.DropItems = dropItemsTemp
+    bulkInsertOperations.push({
+      insertOne: {
+        document: site
+      }
+    })
   }
+
   fs.writeFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/Site_data_fixed.json', JSON.stringify(DataToFix))
-  console.log(SitesData)
+
+  await Site.bulkWrite(bulkInsertOperations).then((result) => console.log('Finished inserting data to db => ' + result.insertedCount))
+
+  console.log('Done With ISDFJ')
+}
+
+exports.InsertItemDataFromJson = async () => {
+  const jsonItemData = fs.readFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/ids.json', 'utf8')
+  const itemData = JSON.parse(jsonItemData)
+  itemData.map((item) => {
+    item.basePrice = item.basePrice.replaceAll(',', '')
+    return item
+  })
+
+  const itemsWithoutDuplicates = itemData.reduce((uniqueItems, item) =>
+    uniqueItems.some(existingItem => existingItem.id === item.id)
+      ? uniqueItems
+      : [...uniqueItems, item], [])
+
+  const bulkUpdateOperations = []
+
+  for (const item of itemsWithoutDuplicates) {
+    bulkUpdateOperations.push({
+      updateOne: {
+        filter: { id: item.id },
+        update: {
+          basePrice: item.basePrice
+        }
+      }
+    })
+  }
+
+  const validBulkUpdateOperations = bulkUpdateOperations.filter(op => op)
+
+  try {
+    await Items.bulkWrite(validBulkUpdateOperations).then((result, error) => console.log('Finished editing data to db => ' + result.modifiedCount + 'Errors: ' + error))
+  } catch (error) {
+    console.log(error)
+  }
 }

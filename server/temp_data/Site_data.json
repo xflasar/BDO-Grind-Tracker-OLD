@@ -27,8 +27,7 @@
       "18": "Rich Merchant's Ring Piece",
       "19": "Tungrad Ring (PRI)",
       "20": "Tungrad Ring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "1": {
     "SiteName": "Star's End",
@@ -54,8 +53,7 @@
       "15": "Black Distortion Earring (PRI)",
       "16": "Black Distortion Earring (DUO)"
     }
-    ,
-    "SiteData": {}
+    
   },
   "2": {
     "SiteName": "Hystria Ruins",
@@ -86,8 +84,7 @@
       "19": "Upgraded Compass Parts",
       "20": "Tungrad Necklace (PRI)",
       "21": "Tungrad Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "3": {
     "SiteName": "Tunkuta",
@@ -118,8 +115,7 @@
       "19": "Ulutuka (BOSS)",
       "20": "Turo's Belt (PRI)",
       "21": "Turo's Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "4": {
     "SiteName": "Olun's Valley",
@@ -141,8 +137,7 @@
       "10": "Silver",
       "11": "Quturan's Right Lung",
       "12": "Rich Merchant's Ring Piece"
-    },
-    "SiteData": {}
+    }
   },
   "5": {
     "SiteName": "Aakman Temple",
@@ -173,8 +168,7 @@
       "19": "Upgraded Compass Parts",
       "20": "Tungrad Earring (PRI)",
       "21": "Tungrad Earring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "6": {
     "SiteName": "Thornwood Forest",
@@ -205,8 +199,7 @@
       "19": "Dark Knight (BOSS)",
       "20": "Ominous Ring (PRI)",
       "21": "Ominous Ring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "7": {
     "SiteName": "Crypt of Resting Thoughts",
@@ -236,8 +229,7 @@
       "18": "Rich Merchant's Ring Piece",
       "19": "Deboreka Belt (PRI)",
       "20": "Deboreka Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "8": {
     "SiteName": "Kratuga Ancient Ruins",
@@ -268,8 +260,7 @@
       "19": "Tungrad Earring (DUO)",
       "20": "Laytenn's Power Source (PRI)",
       "21": "Laytenn's Power Source (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "9": {
     "SiteName": "Padix Island",
@@ -303,8 +294,7 @@
       "22": "Red Coral Earring (DUO)",
       "23": "Red Coral Earring (TRI)",
       "24": "Red Coral Earring (TET)"
-    },
-    "SiteData": {}
+    }
   },
   "10": {
     "SiteName": "Abandoned Monastery",
@@ -329,8 +319,7 @@
       "13": "Silver",
       "14": "Dawn Earring (PRI)",
       "15": "Dawn Earring (PRI)"
-    },
-    "SiteData": {}
+    }
   },
   "11": { 
     "SiteName": "Biraghi Den",
@@ -356,8 +345,7 @@
       "14": "Silver",
       "15": "Burning Valtarra's Jordun",
       "16": "Biraghi Den (BOSS)"
-    },
-    "SiteData": {}
+    }
   },
   "12": {
     "SiteName": "Altar Imp Habitat",
@@ -380,8 +368,7 @@
       "11": "Silver",
       "12": "Burning Valtarra's Jordun",
       "13": "Altar Imp Captain (BOSS)"
-    },
-    "SiteData": {}
+    }
   },
   "13": {
     "SiteName": "Swamp Fogan Habitat",
@@ -407,8 +394,7 @@
       "14": "Mass of Pure Magic",
       "15": "Burning Valtarra's Jordun",
       "16": "Fogan Prince Titium (BOSS)"
-    },
-    "SiteData": {}
+    }
   },
   "14": {
     "SiteName": "Swamp Naga Habitat",
@@ -433,8 +419,7 @@
       "13": "Trace of Battle",
       "14": "Mass of Pure Magic",
       "15": "Burning Valtarra's Jordun"
-    },
-    "SiteData": {}
+    }
   },
   "15": {
     "SiteName": "Castle Ruins",
@@ -456,8 +441,7 @@
       "10": "Silver",
       "11": "Burning Valtarra's Jordun",
       "12": "Al Rhundi's Secret Orders"
-    },
-    "SiteData": {}
+    }
   },
   "16": {
     "SiteName": "Orc Camp",
@@ -478,8 +462,7 @@
       "9": "Mass of Pure Magic",
       "10": "Burning Valtarra's Jordun",
       "11": "Orc Chief (BOSS)"
-    },
-    "SiteData": {}
+    }
   },
   "17": {
     "SiteName": "Bloody Monastery",
@@ -502,8 +485,7 @@
       "11": "Burning Valtarra's Jordun",
       "12": "Crimson Bell",
       "13": "Muskan (BOSS)"
-    },
-    "SiteData": {}
+    }
   },
   "18": {
     "SiteName": "Blood Wolf Settlement",
@@ -545,8 +527,7 @@
       "30": "Kagtum Submission Ring (TET)",
       "31": "Eye of the Ruins Ring (PRI)",
       "32": "Eye of the Ruins Ring (PRI)"
-    },
-    "SiteData": {}
+    }
   },
   "19": {
     "SiteName": "Sherekhan (Day)",
@@ -579,12 +560,11 @@
       "21": "Imperfect Lightstone of Wind",
       "22": "Any Artifact",
       "23": "Specter's Energy",
-      "24": "Ancient Sherekhan's Penacea",
+      "24": "Ancient Sherekhan's Panacea",
       "25": "Great Marni's Stone (Sherekhan - Day)",
       "26": "Orkinrad's Belt (PRI)",
       "27": "Orkinrad's Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "20": {
     "SiteName": "Tshira Ruins",
@@ -619,8 +599,7 @@
       "23": "Great Marni's Stone (Tshira Ruins)",
       "24": "Eye of the Ruins Ring (PRI)",
       "25": "Eye of the Ruins Ring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "21": {
     "SiteName": "Manshaum Forest",
@@ -655,8 +634,7 @@
       "23": "Great Marni's Stone (Manshaum)",
       "24": "Narc Ear Accessory (PRI)",
       "25": "Narc Ear Accessory (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "22": {
     "SiteName": "Tooth Fairy Forest",
@@ -690,8 +668,7 @@
       "22": "Great Marni's Stone (Forest Ronaros)",
       "23": "Forest Ronaros Ring (PRI)",
       "24": "Forest Ronaros Ring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "23": {
     "SiteName": "Ash Forest",
@@ -718,8 +695,7 @@
       "15": "Rich Merchant's Ring Piece",
       "16": "Deboreka Necklace (PRI)",
       "17": "Deboreka Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "24": {
     "SiteName": "Mirumok Ruins",
@@ -753,8 +729,7 @@
       "22": "Silver",
       "23": "Valtarra Eclipsed Belt (PRI)",
       "24": "Valtarra Eclipsed Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "25": {
     "SiteName": "Polly's Forest",
@@ -785,8 +760,7 @@
       "19": "Any Artifact",
       "20": "Manos Craftman's Clothes",
       "21": "Great Marni's Stone (Polly's Forest)"
-    },
-    "SiteData": {}
+    }
   },
   "26": {
     "SiteName": "Sycraia Underwater Ruins (Upper)",
@@ -818,8 +792,7 @@
       "20": "Great Marni's Stone (Sycraia Upper Zone)",
       "21": "Tungrad Ring (PRI)",
       "22": "Tungrad Ring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "27": {
     "SiteName": "Gyfin Rhasia Temple",
@@ -851,8 +824,7 @@
       "20": "Silver",
       "21": "Tungrad Belt (PRI)",
       "22": "Tungrad Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "28": {
     "SiteName": "Shultz Guard",
@@ -883,8 +855,7 @@
       "19": "Necklace of Shultz the Gladiator (DUO)",
       "20": "Necklace of Shultz the Gladiator (TRI)",
       "21": "Necklace of Shultz the Gladiator (TET)"
-    },
-    "SiteData": {}
+    }
   },
   "29": {
     "SiteName": "Protty Cave",
@@ -916,8 +887,7 @@
       "20": "Rainbow Coral Ring (DUO)",
       "21": "Rainbow Coral Ring (TRI)",
       "22": "Rainbow Coral Ring (TET)"
-    },
-    "SiteData": {}
+    }
   },
   "30": {
     "SiteName": "Fadus Habitat",
@@ -950,8 +920,7 @@
       "21": "Any Artifact",
       "22": "Specter's Energy",
       "23": "Great Marni's Stone (Fadus)"
-    },
-    "SiteData": {}
+    }
   },
   "31": {
     "SiteName": "Navarn Steppe",
@@ -977,8 +946,7 @@
       "14": "Imperfect Lightstone of Earth",
       "15": "Imperfect Lightstone of Wind",
       "16": "Any Artifact"
-    },
-    "SiteData": {}
+    }
   },
   "32": {
     "SiteName": "Gahaz Bandit's Lair",
@@ -1009,8 +977,7 @@
       "19": "Great Marni's Stone (Gahaz Bandits)",
       "20": "Serap's Necklace (PRI)",
       "21": "Serap's Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "33": {
     "SiteName": "Traitor's Graveyard",
@@ -1037,8 +1004,7 @@
       "15": "Witch's Earring (DUO)",
       "16": "Witch's Earring (TRI)",
       "17": "Witch's Earring (TET)"
-    },
-    "SiteData": {}
+    }
   },
   "34": {
     "SiteName": "Lekrashan",
@@ -1072,8 +1038,7 @@
       "22": "Zulatia Crystal",
       "23": "Shimmering Piece of the Old Moon",
       "24": "Rich Merchant's Ring Piece"
-    },
-    "SiteData": {}
+    }
   },
   "35": {
     "SiteName": "Crocs",
@@ -1104,8 +1069,7 @@
       "19": "Mass-Covered Map",
       "20": "Shimmering Piece of the Old Moon",
       "21": "Rich Merchant's Ring Piece"
-    },
-    "SiteData": {}
+    }
   },
   "36": {
     "SiteName": "Desert Naga Temple",
@@ -1136,8 +1100,7 @@
       "19": "Great Marni's Stone (Desert Naga)",
       "20": "Serap's Necklace (PRI)",
       "21": "Serap's Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "37": {
     "SiteName": "Titium Valley",
@@ -1166,8 +1129,7 @@
       "17": "Specter's Energy",
       "18": "Serap's Necklace (PRI)",
       "19": "Serap's Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "38": {
     "SiteName": "Bashim Base",
@@ -1195,8 +1157,7 @@
       "16": "Any Artifact",
       "17": "Specter's Energy",
       "18": "Great Marni's Stone (Bashim)"
-    },
-    "SiteData": {}
+    }
   },
   "39": {
     "SiteName": "Crescent Shrine",
@@ -1226,8 +1187,7 @@
       "18": "Crescent Chief Gatekeeper (BOSS)",
       "19": "Ring of Crescent Guardian (PRI)",
       "20": "Ring of Crescent Guardian (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "40": {
     "SiteName": "Cadry Ruins",
@@ -1261,8 +1221,7 @@
       "22": "Great Marni's Stone (Cadry)",
       "23": "Serap's Necklace (PRI)",
       "24": "Serap's Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "41": {
     "SiteName": "Waragon Nest",
@@ -1290,8 +1249,7 @@
       "16": "Specter's Energy",
       "17": "Serap's Necklace (PRI)",
       "18": "Serap's Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "42": {
     "SiteName": "Basilisk Den",
@@ -1322,8 +1280,7 @@
       "19": "Great Marni's Stone (Basilisk)",
       "20": "Basilisk's Belt (PRI)",
       "21": "Basilisk's Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "43": {
     "SiteName": "Centaurus Herd",
@@ -1353,8 +1310,7 @@
       "18": "Great Marni's Stone (Centaurus)",
       "19": "Centaurus Belt (PRI)",
       "20": "Centaurus Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "44": {
     "SiteName": "Roud Sulfur Mine",
@@ -1389,8 +1345,7 @@
       "23": "Great Marni's Stone (Roud Sulfur Mine)",
       "24": "Sicil's Necklace (PRI)",
       "25": "Sicil's Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "45": {
     "SiteName": "Pila Ku Jail",
@@ -1424,8 +1379,7 @@
       "22": "Great Marni's Stone (Pila Ku)",
       "23": "Sicil's Necklace (PRI)",
       "24": "Sicil's Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "46": {
     "SiteName": "Gyfin Rhasia Underground",
@@ -1457,8 +1411,7 @@
       "20": "Tungrad Necklace (DUO)",
       "21": "Tungrad Belt (PRI)",
       "22": "Tungrad Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "47": {
     "SiteName": "Jade Starlight Forest",
@@ -1485,8 +1438,7 @@
       "15": "Iridescent Lightstone",
       "16": "Any Artifact",
       "17": "Flame of Frost"
-    },
-    "SiteData": {}
+    }
   },
   "48": {
     "SiteName": "Murrowak's Labyrinth",
@@ -1520,8 +1472,7 @@
       "22": "Any Artifact",
       "23": "Flame of Frost",
       "24": "Iridescent Lightstone"
-    },
-    "SiteData": {}
+    }
   },
   "49": {
     "SiteName": "Winter Tree Fossil",
@@ -1553,8 +1504,7 @@
       "20": "Any Artifact",
       "21": "Forgotten Witch's Token",
       "22": "Iridescent Lightstone"
-    },
-    "SiteData": {}
+    }
   },
   "50": {
     "SiteName": "Erethea's Limbo",
@@ -1582,8 +1532,7 @@
       "16": "Ouk Pill of Time and Tide",
       "17": "Iridescent Lightstone",
       "18": "Flame of Frost"
-    },
-    "SiteData": {}
+    }
   },
   "51": {
     "SiteName": "Star's End Pillars",
@@ -1608,8 +1557,7 @@
       "13": "Any Artifact",
       "14": "Black Distortion Earring (PRI)",
       "15": "Black Distortion Earring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "52": {
     "SiteName": "Sherekhan (Night)",
@@ -1645,8 +1593,7 @@
       "24": "Any Artifact",
       "25": "Orkinrad's Belt (PRI)",
       "26": "Orkinrad's Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "53": {
     "SiteName": "Primal Giant Post",
@@ -1668,8 +1615,7 @@
       "10": "Black Distortion Earring",
       "11": "Blessed Soul Fragment",
       "12": "Ancient Spirit Light"
-    },
-    "SiteData": {}
+    }
   },
   "54": {
     "SiteName": "Troll Habitat",
@@ -1691,8 +1637,7 @@
       "10": "Black Distortion Earring",
       "11": "Blessed Soul Fragment",
       "12": "Ancient Spirit Light"
-    },
-    "SiteData": {}
+    }
   },
   "55": {
     "SiteName": "Rhutum Outstation",
@@ -1714,8 +1659,7 @@
       "10": "Black Distortion Earring",
       "11": "Blessed Soul Fragment",
       "12": "Ancient Spirit Light"
-    },
-    "SiteData": {}
+    }
   },
   "56": {
     "SiteName": "Saunil Camp",
@@ -1737,8 +1681,7 @@
       "10": "Black Distortion Earring",
       "11": "Blessed Soul Fragment",
       "12": "Ancient Spirit Light"
-    },
-    "SiteData": {}
+    }
   },
   "57": {
     "SiteName": "Hexe Sanctuary",
@@ -1760,8 +1703,7 @@
       "10": "Black Distortion Earring",
       "11": "Blessed Soul Fragment",
       "12": "Ancient Spirit Light"
-    },
-    "SiteData": {}
+    }
   },
   "58": {
     "SiteName": "[Dehkia] Ash Forest",
@@ -1788,8 +1730,7 @@
       "15": "Rich Merchant's Ring Piece",
       "16": "Deboreka Necklace (PRI)",
       "17": "Deboreka Necklace (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "59": {
     "SiteName": "[Dehkia] Olun's Valley",
@@ -1815,8 +1756,7 @@
       "14": "Rich Merchant's Ring Piece",
       "15": "Deboreka Earring (PRI)",
       "16": "Deboreka Earring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "60": {
     "SiteName": "[Dehkia] Tunkuta",
@@ -1849,8 +1789,7 @@
       "21": "Ulutuka (BOSS)",
       "22": "Turo's Belt (PRI)",
       "23": "Turo's Belt (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "61": {
     "SiteName": "[Dehkia] Thornwood Forest",
@@ -1880,8 +1819,7 @@
       "18": "Quturan's Left Lung",
       "19": "Ominous Ring (PRI)",
       "20": "Ominous Ring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "62": {
     "SiteName": "City of the Dead",
@@ -1905,8 +1843,7 @@
       "12": "Origin of Dark Hunger",
       "13": "Specter's Energy",
       "14": "Lafi Bedmountain's Upgraded Telescope Parts"
-    },
-    "SiteData": {}
+    }
   },
   "63": {
     "SiteName": "Tungrad Ruins",
@@ -1930,8 +1867,7 @@
       "12": "Imperfect Lightstone of Earth",
       "13": "Imperfect Lightstone of Wind",
       "14": "Lafi Bedmountain's Upgraded Telescope Parts"
-    },
-    "SiteData": {}
+    }
   },
   "64": {
     "SiteName": "Winter Tree Fossil (280ap)",
@@ -1963,8 +1899,7 @@
       "20": "Any Artifact",
       "21": "Forgotten Witch's Token",
       "22": "Iridescent Lightstone"
-    },
-    "SiteData": {}
+    }
   },
   "65": {
     "SiteName": "Winter Tree Fossil (250ap)",
@@ -1996,8 +1931,7 @@
       "20": "Any Artifact",
       "21": "Forgotten Witch's Token",
       "22": "Iridescent Lightstone"
-    },
-    "SiteData": {}
+    }
   },
   "66": {
     "SiteName": "[Dehkia] Cyclops Land",
@@ -2023,8 +1957,7 @@
       "14": "Imperfect Lightstone of Wind",
       "15": "Dawn Earring (PRI)",
       "16": "Dawn Earring (DUO)"
-    },
-    "SiteData": {}
+    }
   },
   "67": {
     "SiteName": "Margoria Pirate Fleet",
@@ -2060,7 +1993,6 @@
       "24": "[Guild] Candidum Shell",
       "25": "Shimmering Piece of the Old Moon",
       "26": "Rich Merchant's Ring Piece"
-    },
-    "SiteData": {}
+    }
   }
 }

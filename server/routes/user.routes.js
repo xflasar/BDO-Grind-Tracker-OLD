@@ -23,7 +23,7 @@ module.exports = function (app) {
   app.get('/api/user/recentactivity', [verifyToken], controller.GetRecentActivity)
 
   app.get('/api/user/getaddsessionsites', [verifyToken], controller.GetAddSessionSites)
-  app.get('/api/user/getaddsessionsitesitemdata', [verifyToken], controller.GetAddSessionSitesItemData)
+  app.get('/api/user/getaddsessionsitesitemdata/:siteId', [verifyToken], controller.GetAddSessionSitesItemData)
 
   // Data Add
   app.post('/api/user/addsession', [verifyToken], controller.AddSession)

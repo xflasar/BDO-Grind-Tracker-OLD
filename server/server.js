@@ -85,7 +85,9 @@ app.get('/api', (req, res) => {
 // BDOAPI.GetDatabaseDump()
 // BDOAPI.UpdateMarketItemPrices()
 
-// UserController.InsertSitesDataFromJson()
+//UserController.InsertSitesDataFromJson()
+
+// UserController.InsertItemDataFromJson()
 
 http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))
 https.createServer({ key, cert }, app).listen(port, () => console.log('Https Server running on port ' + port))

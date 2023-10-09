@@ -1,5 +1,6 @@
 export const INITIAL_STATE = {
   Sites: [],
+  DropItems: [],
   activeSite: '',
   SiteName: '',
   TimeSpent: '',
@@ -25,6 +26,11 @@ export const addSessionReducer = (state, action) => {
       return {
         ...state,
         [action.payload.name]: action.payload.value
+      }
+    case 'ADD_SESSION_DROP_ITEMS_FETCH':
+      return {
+        ...state,
+        DropItems: action.payload
       }
     default:
       return state
