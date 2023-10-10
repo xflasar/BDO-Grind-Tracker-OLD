@@ -25,8 +25,11 @@ module.exports = function (app) {
   app.get('/api/user/getaddsessionsites', [verifyToken], controller.GetAddSessionSites)
   app.get('/api/user/getaddsessionsitesitemdata/:siteId', [verifyToken], controller.GetAddSessionSitesItemData)
 
+  app.get('/api/user/getloadouts', [verifyToken], controller.GetUserLoadouts)
+
   // Data Add
   app.post('/api/user/addsession', [verifyToken], controller.AddSession)
+  app.post('/api/user/addloadout', [verifyToken], controller.AddUserLoadout)
 
   // Data Modify
   app.post('/api/user/modifysession', [verifyToken], controller.ModifySession)

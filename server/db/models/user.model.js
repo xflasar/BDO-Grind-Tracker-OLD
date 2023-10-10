@@ -8,9 +8,9 @@ const userSchema = new mongoose.Schema({
   TotalEarned: Number,
   TotalExpenses: Number,
   AverageEarnings: Number,
-  Sites: [{
+  SiteData: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Sites'
+    ref: 'UserSiteData'
   }],
   authenticationId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   }],
   UserLoadouts: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Loadout'
+    ref: 'Loadouts'
   }]
 })
 

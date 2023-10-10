@@ -1,7 +1,7 @@
 export const INITIAL_STATE = {
   Sites: [],
   DropItems: [],
-  Loadout: [],
+  Loadouts: [],
   DropRate: {
     lvlOne: {
       active: false,
@@ -109,6 +109,12 @@ export const INITIAL_STATE = {
       icon: '../assets/AddSession/morningLightTraditionalWine.webp'
     }
   },
+  AddLoadoutData: {
+    name: '',
+    class: '',
+    AP: '',
+    DP: ''
+  },
   ecologyDropRate: 0,
   nodeLevel: 0,
   DropRateTotal: 0,
@@ -118,7 +124,8 @@ export const INITIAL_STATE = {
   SiteName: '',
   TimeSpent: '',
   TotalEarned: '',
-  TotalSpent: ''
+  TotalSpent: '',
+  AddLoadout: false
 }
 
 export const addSessionReducer = (state, action) => {
@@ -138,6 +145,31 @@ export const addSessionReducer = (state, action) => {
         ...state,
         [action.payload.name]: action.payload.value
       }
+    case 'ADD_SESSION_ADD_LOADOUT':
+      return {
+        ...state,
+        AddLoadout: true
+      }
+    case 'ADD_SESSION_LOADOUTS_FETCH':
+      return {
+        ...state,
+        Loadouts: action.payload,
+        AddLoadout: false
+      }
+    case 'ADD_SESSION_ADDLOADOUT_ONCHANGE_INPUT':
+      return {
+        ...state,
+        AddLoadoutData: {
+          ...state.AddLoadoutData,
+          [action.payload.name]: action.payload.value
+        }
+      }
+    case 'ADD_SESSION_SUCCESSFULL_ADD_LOADOUT':
+      return {
+        ...state,
+        Loadouts: [...state.Loadouts, action.payload],
+        AddLoadout: false
+      }
     case 'ADD_SESSION_DROP_ITEMS_FETCH':
       return {
         ...state,
@@ -153,6 +185,11 @@ export const addSessionReducer = (state, action) => {
             active: !state.DropRate[action.payload].active
           }
         }
+      }
+    case 'ADD_SESSION_DROP_RATE_TOTAL_CHANGE':
+      return {
+        ...state,
+        DropRateTotal: action.payload
       }
     default:
       return state

@@ -4,6 +4,7 @@ const User = require('../db/models/user.model.js')
 const Session = require('../db/models/session.model.js')
 const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
+const Loadouts = require('../db/models/loadouts.model.js')
 // const UserSiteData = require('../db/models/userSiteData.model.js')
 const FreeImage = require('../services/freeImage.js')
 const Items = require('../db/models/item.model.js')
@@ -606,6 +607,50 @@ exports.GetMarketplaceData = async (req, res) => {
   }
 }
 // #endregion
+
+exports.GetUserLoadouts = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'UserLoadouts').populate('UserLoadouts')
+    if (!user || user.UserLoadouts.length === 0) return res.status(200).send({ message: 'No loadouts found!' })
+
+    const loadoutsArr = []
+
+    user.UserLoadouts.forEach((loadout) => {
+      const loadoutObj = {
+        id: loadout._id,
+        name: loadout.name,
+        class: loadout.class,
+        AP: loadout.AP,
+        DP: loadout.DP
+      }
+      loadoutsArr.push(loadoutObj)
+    })
+
+    res.status(200).send(loadoutsArr)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+exports.AddUserLoadout = async (req, res) => {
+  try {
+    const loadoutObj = new Loadouts({
+      UserId: req.userId,
+      name: req.body.loadoutName,
+      class: req.body.loadoutClass,
+      AP: req.body.loadoutAP,
+      DP: req.body.loadoutDP
+    })
+    await loadoutObj.save()
+
+    await User.findByIdAndUpdate(req.userId, { $push: { UserLoadouts: loadoutObj._id } })
+
+    res.status(200).send({ id: loadoutObj._id, name: loadoutObj.name, class: loadoutObj.class, AP: loadoutObj.AP, DP: loadoutObj.DP })
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
+}
 
 exports.InsertSitesDataFromJson = async () => {
   /* await Site.deleteMany({}).then((result) => console.log('Deleted all sites from db => ' + result.deletedCount))

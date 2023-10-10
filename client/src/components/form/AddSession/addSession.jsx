@@ -10,7 +10,20 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
 
   useEffect(() => {
     fetchSites()
+    fetchLoadouts()
   }, [])
+
+  // This probably can be done more efficient
+  useEffect(() => {
+    const totalDropRate = Object.values(state.DropRate).reduce((acc, rate) => {
+      if (rate.active) acc += rate.dropRate
+      return acc
+    }, 0)
+
+    const parsedTotalDropRate = totalDropRate === '0.00' ? 0 : parseFloat(totalDropRate)
+
+    dispatch({ type: 'ADD_SESSION_DROP_RATE_TOTAL_CHANGE', payload: parsedTotalDropRate })
+  }, [state.DropRate])
 
   async function handleAddSessionSubmit (e) {
     e.preventDefault()
@@ -32,6 +45,20 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
       })
     } catch (error) {
       console.log('Failed to add session:', error)
+    }
+  }
+
+  const fetchLoadouts = async () => {
+    try {
+      const response = await authorizedFetch('/api/user/getloadouts')
+      const data = await response.json()
+      console.log(data)
+
+      if (data.message === 'No loadouts found!') return dispatch({ type: 'ADD_SESSION_LOADOUTS_FETCH', payload: [] })
+
+      dispatch({ type: 'ADD_SESSION_LOADOUTS_FETCH', payload: data })
+    } catch (err) {
+      console.error(err)
     }
   }
 
@@ -64,6 +91,30 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
 
   const handleSettingsDropRateItem = (itemName) => {
     dispatch({ type: 'ADD_SESSION_INPUT_DROPRATE_CHANGE', payload: itemName })
+  }
+
+  const handleAddLoadoutDataChange = (e) => {
+    console.log(e.target.name)
+    dispatch({ type: 'ADD_SESSION_ADDLOADOUT_ONCHANGE_INPUT', payload: { name: e.target.name, value: e.target.value } })
+  }
+
+  const handleAddLoadout = async () => {
+    const response = await authorizedFetch('/api/user/addloadout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        loadoutName: state.AddLoadoutData.name,
+        loadoutClass: state.AddLoadoutData.class,
+        loadoutAP: state.AddLoadoutData.AP,
+        loadoutDP: state.AddLoadoutData.DP
+      })
+    })
+    if (response.ok) {
+      const res = await response.json()
+      dispatch({ type: 'ADD_SESSION_SUCCESSFULL_ADD_LOADOUT', payload: res })
+    }
   }
 
   const handleClose = (e) => {
@@ -125,7 +176,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                 <div className='sessionMainContent-SetupContent-Items-Content'>
                     {Object.values(state.DropItems).map((item, index) => {
                       return (<div key={item.itemId ? item.itemId : index} className='sessionMainContent-SetupContent-Items-Content-Item'>
-                        <label>{item.itemName}</label>
+                        <label htmlFor={item.itemId ? item.itemId : index}>{item.itemName}</label>
                         <input type='text' name={item.itemId ? item.itemId : index} placeholder='0'/>
                         </div>)
                     })}
@@ -135,7 +186,55 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
             </div>
             <div className='sessionMainContent-SetupContent-Gear'>
               <h2>Gear</h2>
-              {state.activeSite ? null : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
+              {state.activeSite
+                ? (
+                <div className='sessionMainContent-SetupContent-Gear-Content'>
+                  <div className='sessionMainContent-SetupContent-Gear-Content-List'>
+                    {state.Loadouts.length > 0
+                      ? (
+                          state.Loadouts.map((loadout) => {
+                            return (<div key={loadout.id} className='sessionMainContent-SetupContent-Gear-Content-List-Item'>
+                            <h3>{loadout.name}</h3>
+                            <h4>
+                              Class: <span>{loadout.class}</span>
+                            </h4>
+
+                            <div className='sessionMainContent-SetupContent-Gear-Content-List-Item-Content'>
+                              <div className='sessionMainContent-SetupContent-Gear-Content-List-Item-Content-AP'>
+                                <span>AP</span><br/>
+                                <span>{loadout.AP}</span>
+                              </div>
+                              <div className='sessionMainContent-SetupContent-Gear-Content-List-Item-Content-DP'>
+                                <span>DP</span><br/>
+                                <span>{loadout.DP}</span>
+                              </div>
+                            </div>
+                          </div>)
+                          })
+                        )
+                      : null
+                      }
+                      <div className='sessionMainContent-SetupContent-Gear-Content-List-AddLoadout'>
+                        {state.AddLoadout
+                          ? (
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor='LoadoutName'>Loadout Name:</label>
+                            <input type='text' name='name' id='LoadoutName' placeholder='Loadout Name' onChange={(e) => handleAddLoadoutDataChange(e)} value={state.AddLoadoutData.name}/>
+                            <label htmlFor='Class'>Class:</label>
+                            <input type='text' name='class' id='Class'placeholder='Class Name (e.g. Striker)' onChange={(e) => handleAddLoadoutDataChange(e)} value={state.AddLoadoutData.class}/>
+                            <label htmlFor='AP'>AP:</label>
+                            <input type='text' name='AP' id='AP' placeholder='AP' onChange={(e) => handleAddLoadoutDataChange(e)} value={state.AddLoadoutData.AP}/>
+                            <label htmlFor='DP'>DP:</label>
+                            <input type='text' name='DP' id='DP' placeholder='DP' onChange={(e) => handleAddLoadoutDataChange(e)} value={state.AddLoadoutData.DP}/>
+                            <button type='button' onClick={() => handleAddLoadout()}>Add Loadout</button>
+                          </div>
+                            )
+                          : <button type='button' onClick={() => dispatch({ type: 'ADD_SESSION_ADD_LOADOUT' })}>Add Loadout</button>}
+                      </div>
+                  </div>
+                </div>
+                  )
+                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
             </div>
             <div className='sessionMainContent-SetupContent-Settings'>
               <h2>Settings</h2>
@@ -152,6 +251,10 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                         )
                       })
                     )}
+                  </div>
+                  <div className='sessionMainContent-SetupContent-Settings-Content-Total'>
+                    <h3>Total Drop Rate:</h3>
+                    <h3>{(state.DropRateTotal * 100).toFixed(0)}%</h3>
                   </div>
                 </div>
                   )
