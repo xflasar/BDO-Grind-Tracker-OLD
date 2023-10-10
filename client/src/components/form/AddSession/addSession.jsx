@@ -62,6 +62,10 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     fetchDropItems(siteId)
   }
 
+  const handleSettingsDropRateItem = (itemName) => {
+    dispatch({ type: 'ADD_SESSION_INPUT_DROPRATE_CHANGE', payload: itemName })
+  }
+
   const handleClose = (e) => {
     e.preventDefault()
     onCloseClick(false)
@@ -135,7 +139,23 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
             </div>
             <div className='sessionMainContent-SetupContent-Settings'>
               <h2>Settings</h2>
-              {state.activeSite ? null : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
+              {state.activeSite
+                ? (
+                <div className='sessionMainContent-SetupContent-Settings-Content'>
+                  <div className='sessionMainContent-SetupContent-Settings-Content-GridList'>
+                    {state.DropRate && (
+                      Object.keys(state.DropRate).map((itemName) => {
+                        return (
+                        <div key={itemName} className={state.DropRate[itemName].active ? 'sessionMainContent-SetupContent-Settings-Content-GridList-Item active' : 'sessionMainContent-SetupContent-Settings-Content-GridList-Item'} onClick={() => handleSettingsDropRateItem(itemName)}>
+                          <img src={state.DropRate[itemName].icon}/>
+                        </div>
+                        )
+                      })
+                    )}
+                  </div>
+                </div>
+                  )
+                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
             </div>
           </div>
         </div>
