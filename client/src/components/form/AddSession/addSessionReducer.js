@@ -109,7 +109,8 @@ export const INITIAL_STATE = {
       icon: '../assets/AddSession/morningLightTraditionalWine.webp'
     }
   },
-  AddLoadoutData: {
+  AddEditLoadoutData: {
+    id: '',
     name: '',
     class: '',
     AP: '',
@@ -125,7 +126,8 @@ export const INITIAL_STATE = {
   TimeSpent: '',
   TotalEarned: '',
   TotalSpent: '',
-  AddLoadout: false
+  AddLoadout: false,
+  EditLoadout: false
 }
 
 export const addSessionReducer = (state, action) => {
@@ -148,19 +150,41 @@ export const addSessionReducer = (state, action) => {
     case 'ADD_SESSION_ADD_LOADOUT':
       return {
         ...state,
+        AddEditLoadoutData: {
+          id: '',
+          name: '',
+          class: '',
+          AP: '',
+          DP: ''
+        },
+        EditLoadout: false,
         AddLoadout: true
+      }
+    case 'ADD_SESSION_EDIT_LOADOUT':
+      return {
+        ...state,
+        AddEditLoadoutData: action.payload,
+        AddLoadout: false,
+        EditLoadout: true
+      }
+    case 'ADD_SESSION_CANCEL_ADD_EDIT_LOADOUT':
+      return {
+        ...state,
+        AddLoadout: false,
+        EditLoadout: false
       }
     case 'ADD_SESSION_LOADOUTS_FETCH':
       return {
         ...state,
         Loadouts: action.payload,
-        AddLoadout: false
+        AddLoadout: false,
+        EditLoadout: false
       }
-    case 'ADD_SESSION_ADDLOADOUT_ONCHANGE_INPUT':
+    case 'ADD_SESSION_ADDEDITLOADOUT_ONCHANGE_INPUT':
       return {
         ...state,
-        AddLoadoutData: {
-          ...state.AddLoadoutData,
+        AddEditLoadoutData: {
+          ...state.AddEditLoadoutData,
           [action.payload.name]: action.payload.value
         }
       }
@@ -169,6 +193,17 @@ export const addSessionReducer = (state, action) => {
         ...state,
         Loadouts: [...state.Loadouts, action.payload],
         AddLoadout: false
+      }
+    case 'ADD_SESSION_SUCCESSFULL_EDIT_LOADOUT':
+      return {
+        ...state,
+        Loadouts: state.Loadouts.map((loadout) => {
+          if (loadout.id === action.payload.id) {
+            return Object.assign({}, loadout, action.payload)
+          }
+          return loadout
+        }),
+        EditLoadout: false
       }
     case 'ADD_SESSION_DROP_ITEMS_FETCH':
       return {

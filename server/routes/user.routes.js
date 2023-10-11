@@ -31,13 +31,15 @@ module.exports = function (app) {
   app.post('/api/user/addsession', [verifyToken], controller.AddSession)
   app.post('/api/user/addloadout', [verifyToken], controller.AddUserLoadout)
 
-  // Data Modify
+  // Data Modify :fix to patch
   app.post('/api/user/modifysession', [verifyToken], controller.ModifySession)
   app.post('/api/user/modifysite', [verifyToken], controller.ModifySite)
   app.post('/api/user/modifyuserdata', [verifyToken], controller.ModifyUserData)
+  app.patch('/api/user/updateloadout', [verifyToken], controller.UpdateUserLoadout)
 
-  // Data Delete
+  // Data Delete :fix to delete
   app.post('/api/user/deletesession', [verifyToken], controller.DeleteSession)
+  app.delete('/api/user/deleteloadout', [verifyToken], controller.DeleteUserLoadout)
 
   // Data Get routes
   // Homepage data

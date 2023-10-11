@@ -652,6 +652,49 @@ exports.AddUserLoadout = async (req, res) => {
   }
 }
 
+exports.DeleteUserLoadout = async (req, res) => {
+  try {
+    await Loadouts.findByIdAndDelete(req.body.loadoutId)
+
+    await User.findByIdAndUpdate(req.userId, { $pull: { UserLoadouts: req.body.loadoutId } })
+
+    let loadouts = await Loadouts.find({ UserId: req.userId })
+    if (!loadouts) loadouts = []
+
+    loadouts = loadouts.map((loadout) => ({
+      id: loadout._id,
+      name: loadout.name,
+      class: loadout.class,
+      AP: loadout.AP,
+      DP: loadout.DP
+    }))
+
+    res.status(200).send(loadouts)
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
+exports.UpdateUserLoadout = async (req, res) => {
+  try {
+    const loadout = await Loadouts.findByIdAndUpdate(req.body.loadoutId, {
+      $set: {
+        name: req.body.loadoutName,
+        class: req.body.loadoutClass,
+        AP: req.body.loadoutAP,
+        DP: req.body.loadoutDP
+      }
+    },
+    { new: true })
+
+    res.status(200).send({ id: loadout._id, name: loadout.name, class: loadout.class, AP: loadout.AP, DP: loadout.DP })
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
 exports.InsertSitesDataFromJson = async () => {
   /* await Site.deleteMany({}).then((result) => console.log('Deleted all sites from db => ' + result.deletedCount))
   return null */
