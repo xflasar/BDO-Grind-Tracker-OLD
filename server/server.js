@@ -9,7 +9,7 @@ const http = require('http')
 const fs = require('fs')
 const path = require('path')
 // const cron = require('cron')
-const UserController = require('./controllers/user.controller.js')
+// const UserController = require('./controllers/user.controller.js')
 
 // const BDOAPI = require('./services/bdo_api')
 
@@ -72,22 +72,29 @@ app.get('/api', (req, res) => {
 })
 // #endregion
 
-// Udate database item categories
-// BDOAPI.UpdateDatabaseItemCategories()
-
 // cron setup
 // const getBDOMarketplaceDBDump = new cron.CronJob('0 */1 * * * *', function () {
-// BDOAPI.GetDatabaseDump()
+//  BDOAPI.GetDatabaseDump()
 // })
+
+// Custom Do not touch Debug etc //
+
 // getBDOMarketplaceDBDump.start()
+
+// Udate database item categories
+// BDOAPI.UpdateDatabaseItemCategories()
 
 // tests
 // BDOAPI.GetDatabaseDump()
 // BDOAPI.UpdateMarketItemPrices()
 
-//UserController.InsertSitesDataFromJson()
+// UserController.InsertSitesDataFromJson()
+
+// UserController.ZeroItemsBasePrice()
 
 // UserController.InsertItemDataFromJson()
+
+// Custom End //
 
 http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))
 https.createServer({ key, cert }, app).listen(port, () => console.log('Https Server running on port ' + port))

@@ -27,8 +27,17 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
 
   async function handleAddSessionSubmit (e) {
     e.preventDefault()
-    const formData = new FormData(e.target)
-    const formValues = Object.fromEntries(formData.entries())
+
+    const sessionData = state.SessionData
+    sessionData.DropRate = state.DropRate
+    sessionData.DropItems = state.DropItems
+    sessionData.sessionTime = state.sessionTimeHours + '' + state.sessionTimeMinutes
+
+    sessionData.DropItems.map((item) => {
+      if (item.amount) return item
+      item.amount = 0
+      return item
+    })
 
     try {
       const res = await authorizedFetch('api/user/addsession', {
@@ -36,7 +45,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formValues)
+        body: JSON.stringify(sessionData)
       })
       const data = await res.json()
       onAddSessionSuccess({
@@ -71,7 +80,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     }
   }
 
-  // eslint-disable-next-line no-unused-vars
   const fetchSites = async () => {
     const response = await authorizedFetch('/api/user/getaddsessionsites')
     if (response.ok) {
@@ -156,12 +164,32 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     }
   }
 
+  const handleSelectLoadout = (loadoutId) => {
+    dispatch({ type: 'ADD_SESSION_SELECT_LOADOUT', payload: loadoutId })
+  }
+
   const handleShowEditLoadout = (loadout) => {
     dispatch({ type: 'ADD_SESSION_EDIT_LOADOUT', payload: loadout })
   }
 
   const handleHideAddEditLoadout = () => {
     dispatch({ type: 'ADD_SESSION_CANCEL_ADD_EDIT_LOADOUT' })
+  }
+
+  // handling DropItems
+
+  const handleDropItemsPriceChange = (e) => {
+    const itemName = e.target.name.replace('-item-price', '')
+    dispatch({ type: 'ADD_SESSION_DROP_ITEMS_PRICE_CHANGE', payload: { itemId: itemName, itemPrice: e.target.value } })
+  }
+
+  const handleDropItemsAmount = (e) => {
+    const itemName = e.target.name.replace('-item-price', '')
+    dispatch({ type: 'ADD_SESSION_DROP_ITEMS_PRICE_CHANGE', payload: { itemId: itemName, amount: e.target.value } })
+  }
+
+  const handleSessionTimeChange = (e) => {
+    dispatch({ type: 'ADD_SESSION_INPUT_SESSIONTIME_CHANGE', payload: { name: e.target.name, value: e.target.value } })
   }
 
   const handleClose = (e) => {
@@ -191,27 +219,27 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
             <div className='sessionMainContent-HeaderContent-SessionTime'>
               <h3>Session Time</h3>
               <div className='sessionMainContent-HeaderContent-SessionTime-Content'>
-                <h3>0h</h3>
+                <input type='text' name='sessionTimeHours' onChange={(e) => handleSessionTimeChange(e)} value={state.sessionTimeHours} placeholder='0h'/>
                 <h3>|</h3>
-                <h3>0m</h3>
+                <input type='text' name='sessionTimeMinutes' onChange={(e) => handleSessionTimeChange(e)} value={state.sessionTimeMinutes} placeholder='0m'/>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-TotalSilverAfterTaxes'>
               <h3>Total Silver After Taxes</h3>
               <div className='sessionMainContent-HeaderContent-TotalSilverAfterTaxes-Content'>
-                <h3>0</h3>
+                <h3>{state.totalSilverAfterTaxes}</h3>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes'>
-              <h3>Silver Pre Hour Before Taxes</h3>
+              <h3>Silver Per Hour Before Taxes</h3>
               <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes-Content'>
-                <h3>0</h3>
+                <h3>{state.silverPerHourBeforeTaxes}</h3>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-SilverPreHourAfterTaxes'>
-              <h3>Silver Pre Hour After Taxes</h3>
+              <h3>Silver Per Hour After Taxes</h3>
               <div className='sessionMainContent-HeaderContent-SilverPreHourAfterTaxes-Content'>
-                <h3>0</h3>
+                <h3>{state.silverPerHourAfterTaxes}</h3>
               </div>
             </div>
           </div>
@@ -222,9 +250,16 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                 ? (
                 <div className='sessionMainContent-SetupContent-Items-Content'>
                     {Object.values(state.DropItems).map((item, index) => {
-                      return (<div key={item.itemId ? item.itemId : index} className='sessionMainContent-SetupContent-Items-Content-Item'>
-                        <label htmlFor={item.itemId ? item.itemId : index}>{item.itemName}</label>
-                        <input type='text' name={item.itemId ? item.itemId : index} placeholder='0'/>
+                      return (<div key={item.itemId ? item.itemId : item.itemName} className='sessionMainContent-SetupContent-Items-Content-Item'>
+                        <div>
+                          <label htmlFor={item.itemId ? item.itemId : item.itemName}>{item.itemName}</label>
+                        </div>
+                        <div>
+                          <input type='text' name={item.itemId ? item.itemId + '-item-price' : item.itemName + '-item-price'} onChange={(e) => handleDropItemsPriceChange(e)} value={item.itemPrice} placeholder='0'/>
+                        </div>
+                        <div>
+                          <input type='text' name={item.itemId ? item.itemId : item.itemName} onChange={(e) => handleDropItemsAmount(e)} value={item.amount} placeholder='0'/>
+                        </div>
                         </div>)
                     })}
                 </div>
@@ -240,7 +275,9 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                     {state.Loadouts.length > 0
                       ? (
                           state.Loadouts.map((loadout) => {
-                            return (<div key={loadout.id} className='sessionMainContent-SetupContent-Gear-Content-List-Item'>
+                            return (<div key={loadout.id}
+                            onClick={() => handleSelectLoadout(loadout.id)}
+                            className={state.SessionData.loadoutId === loadout.id ? 'sessionMainContent-SetupContent-Gear-Content-List-Item active' : 'sessionMainContent-SetupContent-Gear-Content-List-Item'}>
                             <h3>{loadout.name}</h3>
                             <h4>
                               Class: <span>{loadout.class}</span>
@@ -313,6 +350,9 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                 </div>
                   )
                 : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
+            </div>
+            <div className='sessionMainContent-SetupContent-Submit'>
+              <button type='submit'>Add Session</button>
             </div>
           </div>
         </div>

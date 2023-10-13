@@ -116,6 +116,13 @@ export const INITIAL_STATE = {
     AP: '',
     DP: ''
   },
+  SessionData: {
+    siteId: '',
+    sessionTime: '',
+    loadoutId: ''
+  },
+  sessionTimeHours: 0,
+  sessionTimeMinutes: 0,
   ecologyDropRate: 0,
   nodeLevel: 0,
   DropRateTotal: 0,
@@ -123,9 +130,9 @@ export const INITIAL_STATE = {
   AgrisTotal: 0,
   activeSite: '',
   SiteName: '',
-  TimeSpent: '',
-  TotalEarned: '',
-  TotalSpent: '',
+  totalSilverAfterTaxes: 0,
+  silverPerHourBeforeTaxes: 0,
+  silverPerHourAfterTaxes: 0,
   AddLoadout: false,
   EditLoadout: false
 }
@@ -140,7 +147,11 @@ export const addSessionReducer = (state, action) => {
     case 'ADD_SESSION_ACTIVE_SITE':
       return {
         ...state,
-        activeSite: action.payload
+        activeSite: action.payload,
+        SessionData: {
+          ...state.SessionData,
+          siteId: action.payload
+        }
       }
     case 'ADD_SESSION_INPUT_CHANGE':
       return {
@@ -178,7 +189,11 @@ export const addSessionReducer = (state, action) => {
         ...state,
         Loadouts: action.payload,
         AddLoadout: false,
-        EditLoadout: false
+        EditLoadout: false,
+        SessionData: {
+          ...state.SessionData,
+          loadoutId: ''
+        }
       }
     case 'ADD_SESSION_ADDEDITLOADOUT_ONCHANGE_INPUT':
       return {
@@ -205,10 +220,44 @@ export const addSessionReducer = (state, action) => {
         }),
         EditLoadout: false
       }
+    case 'ADD_SESSION_SELECT_LOADOUT':
+      return {
+        ...state,
+        SessionData: {
+          ...state.SessionData,
+          loadoutId: action.payload
+        }
+      }
     case 'ADD_SESSION_DROP_ITEMS_FETCH':
       return {
         ...state,
         DropItems: action.payload
+      }
+    case 'ADD_SESSION_DROP_ITEMS_PRICE_CHANGE':
+      return {
+        ...state,
+        DropItems: state.DropItems.map((item) => {
+          if (item.itemId === action.payload.itemId) {
+            return Object.assign({}, item, action.payload)
+          } else if (item.itemName === action.payload.itemId) {
+            action.payload.itemId = item.itemId
+            return Object.assign({}, item, action.payload)
+          }
+          return item
+        })
+      }
+    case 'ADD_SESSION_DROP_ITEMS_AMOUNT_CHANGE':
+      return {
+        ...state,
+        DropItems: state.DropItems.map((item) => {
+          if (item.itemId === action.payload.itemId) {
+            return Object.assign({}, item, action.payload)
+          } else if (item.itemName === action.payload.itemId) {
+            action.payload.itemId = item.itemId
+            return Object.assign({}, item, action.payload)
+          }
+          return item
+        })
       }
     case 'ADD_SESSION_INPUT_DROPRATE_CHANGE':
       return {
@@ -225,6 +274,11 @@ export const addSessionReducer = (state, action) => {
       return {
         ...state,
         DropRateTotal: action.payload
+      }
+    case 'ADD_SESSION_INPUT_SESSIONTIME_CHANGE':
+      return {
+        ...state,
+        [action.payload.name]: action.payload.value
       }
     default:
       return state

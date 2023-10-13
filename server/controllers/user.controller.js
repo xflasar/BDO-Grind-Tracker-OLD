@@ -210,24 +210,52 @@ exports.GetAddSessionSites = (req, res) => {
   })
 }
 
-exports.GetAddSessionSitesItemData = (req, res) => {
-  Site.findById(req.params.siteId).populate('DropItems').then((site) => {
+exports.GetAddSessionSitesItemData = async (req, res) => {
+  Site.findById(req.params.siteId).populate('DropItems').then(async (site) => {
     if (!site) {
       return res.status(500).send({ message: 'No site found!' })
     } else {
-      site.DropItems.map((item) => {
-        if (item.itemName.includes('&#39;')) item.itemName = item.itemName.replace('&#39;', "'")
-        return item
-      })
-      res.status(200).send(site.DropItems)
+      const DropItems = []
+      for (const item of site.DropItems) {
+        const tempItem = {
+          itemId: item.itemId,
+          itemName: item.itemName
+        }
+        if (tempItem.itemId) {
+          tempItem.itemPrice = await Items.findById(item.itemId).then((itemDB) => {
+            if (itemDB.basePrice) {
+              return itemDB.basePrice
+            } else {
+              return 0
+            }
+          })
+        } else {
+          tempItem.itemPrice = 0
+        }
+
+        if (tempItem.itemName.includes('&#39;')) tempItem.itemName = tempItem.itemName.replace('&#39;', "'")
+        DropItems.push(tempItem)
+      }
+
+      res.status(200).send(DropItems)
     }
   })
 }
+
+// Remove this
+exports.ZeroItemsBasePrice = async () => {
+  await Items.updateMany({ basePrice: { $exists: false } }, { basePrice: 0 }).then((result) => { console.log('Edditing done: ' + result.modifiedCount) })
+}
+
 // #endregion
 
 // #region Data Add
 exports.AddSession = async (req, res) => {
-  const validation = validator.AddSessionValidator(req.body)
+  console.log('Testing Correct Data Submission!')
+  return null
+
+  // This will need big rewrite
+  /* const validation = validator.AddSessionValidator(req.body)
   if (!validation.result) {
     return res.status(500).send(validation.errors)
   }
@@ -262,7 +290,7 @@ exports.AddSession = async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).send({ message: error })
-  }
+  } */
 }
 
 exports.AddSite = async (req, res, newSite = false) => {
