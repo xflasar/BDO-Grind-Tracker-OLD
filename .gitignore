@@ -104,6 +104,7 @@ dist
 .tern-port
 
 # Custom
+temp_data
 
 # sensitive data
 .vscode
