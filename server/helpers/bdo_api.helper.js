@@ -333,6 +333,7 @@ function GetCategoryByIds (mainCategoryId, subCategoryId, reverse = false) {
 }
 
 async function fetchItemIcon (item) {
+  return '../assets/no-image.png'
   const resImg = await fetch(`https://${item.icon}`)
   return resImg.ok ? `https://${item.icon}` : '../assets/no-image.png'
 }
@@ -385,7 +386,10 @@ exports.GetCategoryDataFromDB = async (dbSchema, searchData, mainCategory = 'All
 // Create a function that gets the registration queue
 exports.GetRegistrationQueue = async (dbSchema) => {
   try {
-    const response = await fetch('https://api.arsha.io/v1/eu/GetWorldMarketWaitList')
+    const options = {
+      family: 4
+    }
+    const response = await fetch('https://api.arsha.io/v1/eu/GetWorldMarketWaitList', options)
 
     if (!response.ok) {
       console.log(response.status)
@@ -426,18 +430,20 @@ exports.GetRegistrationQueue = async (dbSchema) => {
       }
     }).filter(item => item !== null)
 
+    // If there are missing items, log them into file ( I GUESS )
     if (missingItems.length > 0) {
       console.log(`Missing items: ${missingItems}`)
     }
 
     // Use 'Promise.all' to parallelize fetching item images
     const fixItems = await Promise.all(unformattedItems.map(async (item) => {
-      const resImg = await fetch(`https://${item.icon}`)
+      // This needs to be rewriten most likely internal database for the icons/storage/external website server
+      /* const resImg = await fetch(`https://${item.icon}`)
       if (resImg.ok) {
         item.icon = `https://${item.icon}`
       } else {
         item.icon = '../assets/no-image.png'
-      }
+      } */
 
       if (item.name.includes('&#39;')) {
         item.name = item.name.toString().replace('&#39;', "'")
