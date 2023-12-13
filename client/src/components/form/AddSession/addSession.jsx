@@ -209,11 +209,12 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
           <div className='sessionSiteChoosing-SiteList'>
             {state.Sites && (
               Object.values(state.Sites).map((site) => {
-                return (<div key={site._id} className='sessionSiteChoosing-SiteList-Item'><label key={site._id} className={state.activeSite === site._id ? 'active' : ''} onClick={(e) => handleSiteChoosing(e, site._id)}>{site.SiteName}</label></div>)
+                return (<div key={site._id} className={state.activeSite === site._id ? 'sessionSiteChoosing-SiteList-Item active' : 'sessionSiteChoosing-SiteList-Item'} onClick={(e) => handleSiteChoosing(e, site._id)}><label>{site.SiteName}</label></div>)
               })
             )}
           </div>
         </div>
+
         <div className='sessionMainContent'>
         <div className='sessionMainContent-HeaderContent'>
             <div className='sessionMainContent-HeaderContent-SessionTime'>
@@ -264,7 +265,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                     })}
                 </div>
                   )
-                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
+                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Site List!</p></div>)}
             </div>
             <div className='sessionMainContent-SetupContent-Gear'>
               <h2>Gear</h2>
@@ -325,7 +326,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                   </div>
                 </div>
                   )
-                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
+                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Site List!</p></div>)}
             </div>
             <div className='sessionMainContent-SetupContent-Settings'>
               <h2>Settings</h2>
@@ -349,7 +350,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                   </div>
                 </div>
                   )
-                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Left List!</p></div>)}
+                : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Site List!</p></div>)}
             </div>
             <div className='sessionMainContent-SetupContent-Submit'>
               <button type='submit'>Add Session</button>
