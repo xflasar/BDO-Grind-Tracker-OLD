@@ -219,7 +219,8 @@ exports.GetAddSessionSitesItemData = async (req, res) => {
       for (const item of site.DropItems) {
         const tempItem = {
           itemId: item.itemId,
-          itemName: item.itemName
+          itemName: item.itemName,
+          validMarketplace: false
         }
         if (tempItem.itemId) {
           tempItem.itemPrice = await Items.findById(item.itemId).then((itemDB) => {
@@ -229,6 +230,7 @@ exports.GetAddSessionSitesItemData = async (req, res) => {
               return 0
             }
           })
+          if (tempItem.itemPrice !== 0) tempItem.validMarketplace = true
         } else {
           tempItem.itemPrice = 0
         }
@@ -635,6 +637,18 @@ exports.GetMarketplaceData = async (req, res) => {
   }
 }
 // #endregion
+
+exports.GetTax = async (req, res) => {
+  try {
+    const tax = await User.findById(req.userId).populate({ path: 'Settings', select: 'tax' }).select('Settings').then(data => data.Settings.tax)
+
+    if (!tax) return res.status(404).send({ message: 'Tax not found!' })
+
+    return res.status(200).send({ tax })
+  } catch (err) {
+    return res.status(500).send({ message: err.message })
+  }
+}
 
 exports.GetUserLoadouts = async (req, res) => {
   try {

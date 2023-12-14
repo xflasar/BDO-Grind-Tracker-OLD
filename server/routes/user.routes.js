@@ -27,6 +27,8 @@ module.exports = function (app) {
 
   app.get('/api/user/getloadouts', [verifyToken], controller.GetUserLoadouts)
 
+  app.get('/api/user/gettax', [verifyToken], controller.GetTax)
+
   // Data Add
   app.post('/api/user/addsession', [verifyToken], controller.AddSession)
   app.post('/api/user/addloadout', [verifyToken], controller.AddUserLoadout)

@@ -134,7 +134,54 @@ export const INITIAL_STATE = {
   silverPerHourBeforeTaxes: 0,
   silverPerHourAfterTaxes: 0,
   AddLoadout: false,
-  EditLoadout: false
+  EditLoadout: false,
+  tax: 0
+}
+
+const handleDropItemsChange = (state, action) => {
+  const updatedDropItems = state.DropItems.map((item) => {
+    if (item.itemId === action.payload.itemId || item.itemName === action.payload.itemId) {
+      return { ...item, ...action.payload }
+    }
+    return item
+  })
+
+  const newState = {
+    ...state,
+    DropItems: updatedDropItems
+  }
+
+  return recalculateSilverPerHour(newState, newState.DropItems)
+}
+
+const recalculateSilverPerHour = (state, DropItems) => {
+  if (DropItems.length === 0) DropItems = state.DropItems
+
+  const totalSilverBeforeTaxes = DropItems.reduce((acc, item) => {
+    const itemPrice = Number(item.itemPrice)
+    const amount = Number(item.amount)
+
+    if (isNaN(itemPrice) || isNaN(amount)) return acc
+
+    const product = item.validMarketplace ? (itemPrice * amount) - ((itemPrice * amount) * state.tax) : (itemPrice * amount)
+
+    return acc + product
+  }, 0)
+
+  const sessionTime = (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes)
+
+  const totalSilverAfterTaxes = totalSilverBeforeTaxes
+  const silverPerHourBeforeTaxes = Math.round(totalSilverBeforeTaxes / (sessionTime / 60))
+  const silverPerHourAfterTaxes = Math.round(totalSilverAfterTaxes / (sessionTime / 60))
+
+  const newState = {
+    ...state,
+    totalSilverAfterTaxes,
+    silverPerHourBeforeTaxes,
+    silverPerHourAfterTaxes
+  }
+
+  return newState
 }
 
 export const addSessionReducer = (state, action) => {
@@ -152,6 +199,28 @@ export const addSessionReducer = (state, action) => {
           ...state.SessionData,
           siteId: action.payload
         }
+      }
+    case 'ADD_SESSION_CLEAR_ACTIVE_SITE':
+      return {
+        ...state,
+        activeSite: '',
+        SessionData: {
+          siteId: '',
+          sessionTime: '',
+          loadoutId: ''
+        },
+        sessionTimeHours: 0,
+        sessionTimeMinutes: 0,
+        ecologyDropRate: 0,
+        nodeLevel: 0,
+        DropRateTotal: 0,
+        Agris: false,
+        AgrisTotal: 0,
+        silverPerHourBeforeTaxes: 0,
+        silverPerHourAfterTaxes: 0,
+        SiteName: '',
+        DropRate: INITIAL_STATE.DropRate,
+        DropItems: []
       }
     case 'ADD_SESSION_INPUT_CHANGE':
       return {
@@ -234,31 +303,11 @@ export const addSessionReducer = (state, action) => {
         DropItems: action.payload
       }
     case 'ADD_SESSION_DROP_ITEMS_PRICE_CHANGE':
-      return {
-        ...state,
-        DropItems: state.DropItems.map((item) => {
-          if (item.itemId === action.payload.itemId) {
-            return Object.assign({}, item, action.payload)
-          } else if (item.itemName === action.payload.itemId) {
-            action.payload.itemId = item.itemId
-            return Object.assign({}, item, action.payload)
-          }
-          return item
-        })
-      }
+      return handleDropItemsChange(state, action)
     case 'ADD_SESSION_DROP_ITEMS_AMOUNT_CHANGE':
-      return {
-        ...state,
-        DropItems: state.DropItems.map((item) => {
-          if (item.itemId === action.payload.itemId) {
-            return Object.assign({}, item, action.payload)
-          } else if (item.itemName === action.payload.itemId) {
-            action.payload.itemId = item.itemId
-            return Object.assign({}, item, action.payload)
-          }
-          return item
-        })
-      }
+      return handleDropItemsChange(state, action)
+    case 'ADD_SESSION_DROP_ITEMS_TAX_CHANGE':
+      return handleDropItemsChange(state, action)
     case 'ADD_SESSION_INPUT_DROPRATE_CHANGE':
       return {
         ...state,
@@ -276,9 +325,22 @@ export const addSessionReducer = (state, action) => {
         DropRateTotal: action.payload
       }
     case 'ADD_SESSION_INPUT_SESSIONTIME_CHANGE':
-      return {
+    {
+      const updatedState = {
         ...state,
         [action.payload.name]: action.payload.value
+      }
+
+      const newStateWithSilver = recalculateSilverPerHour(updatedState, updatedState.DropItems)
+
+      return newStateWithSilver
+    }
+    case 'ADD_SESSION_DROP_ITEM_TAX_CHANGE':
+      return handleDropItemsChange(state, action)
+    case 'ADD_SESSION_SET_TAX':
+      return {
+        ...state,
+        tax: action.payload
       }
     default:
       return state

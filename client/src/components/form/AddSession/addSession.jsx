@@ -9,8 +9,10 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   const [state, dispatch] = useReducer(addSessionReducer, INITIAL_STATE)
 
   useEffect(() => {
+    // Merge these fetches into one that calls 1 API endpoint
     fetchSites()
     fetchLoadouts()
+    getTax()
   }, [])
 
   // This probably can be done more efficient
@@ -24,6 +26,18 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
 
     dispatch({ type: 'ADD_SESSION_DROP_RATE_TOTAL_CHANGE', payload: parsedTotalDropRate })
   }, [state.DropRate])
+
+  const getTax = async () => {
+    const dataTax = await authorizedFetch('/api/user/gettax')
+    if (!dataTax.ok) {
+      console.log('Failed to fetch tax')
+      return
+    }
+    const data = await dataTax.json()
+
+    console.log('Tax fetched: ' + data.tax)
+    dispatch({ type: 'ADD_SESSION_SET_TAX', payload: data.tax })
+  }
 
   async function handleAddSessionSubmit (e) {
     e.preventDefault()
@@ -188,6 +202,11 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     dispatch({ type: 'ADD_SESSION_DROP_ITEMS_PRICE_CHANGE', payload: { itemId: itemName, amount: e.target.value } })
   }
 
+  const handleTaxCheckboxChange = (e) => {
+    const itemName = e.target.name.replace('-item-tax', '')
+    dispatch({ type: 'ADD_SESSION_DROP_ITEMS_TAX_CHANGE', payload: { itemId: itemName, validMarketplace: e.target.checked } })
+  }
+
   const handleSessionTimeChange = (e) => {
     dispatch({ type: 'ADD_SESSION_INPUT_SESSIONTIME_CHANGE', payload: { name: e.target.name, value: e.target.value } })
   }
@@ -197,16 +216,21 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     onCloseClick(false)
   }
 
+  // Helpers function
+  function formatNumberWithSpaces (number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  }
+
   return (
     <div className='sessionAddOverlay'>
-      <div className='sessionAddOverlay-Content'>
+      <div className={state.activeSite !== '' ? 'sessionAddOverlay-Content' : 'sessionAddOverlay-Content partial'}>
       <form aria-label='sessionAddForm' onSubmit={handleAddSessionSubmit}>
         <button type='button' className='sessionAddOverlay-Content-Close' onClick={handleClose}>X</button>
         <div className='sessionSiteChoosing'>
           <div className='sessionSiteChoosing-Header'>
             <h3>Sites</h3>
           </div>
-          <div className='sessionSiteChoosing-SiteList'>
+          <div className={state.activeSite !== '' ? 'sessionSiteChoosing-SiteList disabled' : 'sessionSiteChoosing-SiteList'}>
             {state.Sites && (
               Object.values(state.Sites).map((site) => {
                 return (<div key={site._id} className={state.activeSite === site._id ? 'sessionSiteChoosing-SiteList-Item active' : 'sessionSiteChoosing-SiteList-Item'} onClick={(e) => handleSiteChoosing(e, site._id)}><label>{site.SiteName}</label></div>)
@@ -228,19 +252,19 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
             <div className='sessionMainContent-HeaderContent-TotalSilverAfterTaxes'>
               <h3>Total Silver After Taxes</h3>
               <div className='sessionMainContent-HeaderContent-TotalSilverAfterTaxes-Content'>
-                <h3>{state.totalSilverAfterTaxes}</h3>
+                <h3>{formatNumberWithSpaces(state.totalSilverAfterTaxes)}</h3>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes'>
               <h3>Silver Per Hour Before Taxes</h3>
               <div className='sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes-Content'>
-                <h3>{state.silverPerHourBeforeTaxes}</h3>
+                <h3>{formatNumberWithSpaces(state.silverPerHourBeforeTaxes)}</h3>
               </div>
             </div>
             <div className='sessionMainContent-HeaderContent-SilverPreHourAfterTaxes'>
               <h3>Silver Per Hour After Taxes</h3>
               <div className='sessionMainContent-HeaderContent-SilverPreHourAfterTaxes-Content'>
-                <h3>{state.silverPerHourAfterTaxes}</h3>
+                <h3>{formatNumberWithSpaces(state.silverPerHourAfterTaxes)}</h3>
               </div>
             </div>
           </div>
@@ -257,6 +281,9 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                         </div>
                         <div>
                           <input type='text' name={item.itemId ? item.itemId + '-item-price' : item.itemName + '-item-price'} onChange={(e) => handleDropItemsPriceChange(e)} value={item.itemPrice} placeholder='0'/>
+                        </div>
+                        <div className='taxableCheckBox'>
+                          <input type="checkbox" name={item.itemId ? item.itemId + '-item-tax' : item.itemName + '-item-tax'} value={'validMarketplace=' + item.validMarketplace} onChange={(e) => handleTaxCheckboxChange(e)} defaultChecked={item.validMarketplace} />
                         </div>
                         <div>
                           <input type='text' name={item.itemId ? item.itemId : item.itemName} onChange={(e) => handleDropItemsAmount(e)} value={item.amount} placeholder='0'/>
@@ -352,7 +379,8 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                   )
                 : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Site List!</p></div>)}
             </div>
-            <div className='sessionMainContent-SetupContent-Submit'>
+            <div className='sessionMainContent-SetupContent-BackSubmit'>
+              <button type='button' onClick={() => dispatch({ type: 'ADD_SESSION_CLEAR_ACTIVE_SITE' })}>Change Site</button>
               <button type='submit'>Add Session</button>
             </div>
           </div>
