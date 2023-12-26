@@ -2,11 +2,14 @@ import React, { useContext, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 import '../../../assets/components/form/addSession.scss'
 import { SessionContext } from '../../../contexts/SessionContext'
-import { INITIAL_STATE, addSessionReducer } from './addSessionReducer'
+import { addSessionReducerINIT, addSessionReducer } from './addSessionReducer'
+import AddSessionSettings from './settings'
+import { settingsReducerINIT, settingsReducer } from './settings.reducer'
 
 const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   const { authorizedFetch } = useContext(SessionContext)
-  const [state, dispatch] = useReducer(addSessionReducer, INITIAL_STATE)
+  const [state, dispatch] = useReducer(addSessionReducer, addSessionReducerINIT)
+  const [settingsState, settingsDispatch] = useReducer(settingsReducer, settingsReducerINIT)
 
   useEffect(() => {
     // Merge these fetches into one that calls 1 API endpoint
@@ -14,18 +17,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     fetchLoadouts()
     getTax()
   }, [])
-
-  // This probably can be done more efficient
-  useEffect(() => {
-    const totalDropRate = Object.values(state.DropRate).reduce((acc, rate) => {
-      if (rate.active) acc += rate.dropRate
-      return acc
-    }, 0)
-
-    const parsedTotalDropRate = totalDropRate === '0.00' ? 0 : parseFloat(totalDropRate)
-
-    dispatch({ type: 'ADD_SESSION_DROP_RATE_TOTAL_CHANGE', payload: parsedTotalDropRate })
-  }, [state.DropRate])
 
   const getTax = async () => {
     const dataTax = await authorizedFetch('/api/user/gettax')
@@ -108,10 +99,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     e.preventDefault()
     dispatch({ type: 'ADD_SESSION_ACTIVE_SITE', payload: siteId })
     fetchDropItems(siteId)
-  }
-
-  const handleSettingsDropRateItem = (itemName) => {
-    dispatch({ type: 'ADD_SESSION_INPUT_DROPRATE_CHANGE', payload: itemName })
   }
 
   const handleAddEditLoadoutDataChange = (e) => {
@@ -276,16 +263,16 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
                 <div className='sessionMainContent-SetupContent-Items-Content'>
                     {Object.values(state.DropItems).map((item, index) => {
                       return (<div key={item.itemId ? item.itemId : item.itemName} className='sessionMainContent-SetupContent-Items-Content-Item'>
-                        <div>
+                        <div className='sessionMainContent-SetupContent-Items-Content-Item-Name'>
                           <label htmlFor={item.itemId ? item.itemId : item.itemName}>{item.itemName}</label>
                         </div>
-                        <div>
+                        <div className='sessionMainContent-SetupContent-Items-Content-Item-Price'>
                           <input type='text' name={item.itemId ? item.itemId + '-item-price' : item.itemName + '-item-price'} onChange={(e) => handleDropItemsPriceChange(e)} value={item.itemPrice} placeholder='0'/>
                         </div>
                         <div className='taxableCheckBox'>
                           <input type="checkbox" name={item.itemId ? item.itemId + '-item-tax' : item.itemName + '-item-tax'} value={'validMarketplace=' + item.validMarketplace} onChange={(e) => handleTaxCheckboxChange(e)} defaultChecked={item.validMarketplace} />
                         </div>
-                        <div>
+                        <div className='sessionMainContent-SetupContent-Items-Content-Item-Amount'>
                           <input type='text' name={item.itemId ? item.itemId : item.itemName} onChange={(e) => handleDropItemsAmount(e)} value={item.amount} placeholder='0'/>
                         </div>
                         </div>)
@@ -359,23 +346,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
               <h2>Settings</h2>
               {state.activeSite
                 ? (
-                <div className='sessionMainContent-SetupContent-Settings-Content'>
-                  <div className='sessionMainContent-SetupContent-Settings-Content-GridList'>
-                    {state.DropRate && (
-                      Object.keys(state.DropRate).map((itemName) => {
-                        return (
-                        <div key={itemName} className={state.DropRate[itemName].active ? 'sessionMainContent-SetupContent-Settings-Content-GridList-Item active' : 'sessionMainContent-SetupContent-Settings-Content-GridList-Item'} onClick={() => handleSettingsDropRateItem(itemName)}>
-                          <img src={state.DropRate[itemName].icon}/>
-                        </div>
-                        )
-                      })
-                    )}
-                  </div>
-                  <div className='sessionMainContent-SetupContent-Settings-Content-Total'>
-                    <h3>Total Drop Rate:</h3>
-                    <h3>{(state.DropRateTotal * 100).toFixed(0)}%</h3>
-                  </div>
-                </div>
+                    <AddSessionSettings state={settingsState} dispatch={settingsDispatch}/>
                   )
                 : (<div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Site List!</p></div>)}
             </div>
