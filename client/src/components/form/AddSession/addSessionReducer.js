@@ -1,14 +1,5 @@
 export const addSessionReducerINIT = {
   Sites: [],
-  DropItems: [],
-  Loadouts: [],
-  AddEditLoadoutData: {
-    id: '',
-    name: '',
-    class: '',
-    AP: '',
-    DP: ''
-  },
   SessionData: {
     siteId: '',
     sessionTime: '',
@@ -26,56 +17,7 @@ export const addSessionReducerINIT = {
   totalSilverAfterTaxes: 0,
   silverPerHourBeforeTaxes: 0,
   silverPerHourAfterTaxes: 0,
-  AddLoadout: false,
-  EditLoadout: false,
   tax: 0
-}
-
-const handleDropItemsChange = (state, action) => {
-  const updatedDropItems = state.DropItems.map((item) => {
-    if (item.itemId === action.payload.itemId || item.itemName === action.payload.itemId) {
-      return { ...item, ...action.payload }
-    }
-    return item
-  })
-
-  const newState = {
-    ...state,
-    DropItems: updatedDropItems
-  }
-
-  return recalculateSilverPerHour(newState, newState.DropItems)
-}
-
-const recalculateSilverPerHour = (state, DropItems) => {
-  if (DropItems.length === 0) DropItems = state.DropItems
-
-  const totalSilverBeforeTaxes = DropItems.reduce((acc, item) => {
-    const itemPrice = Number(item.itemPrice)
-    const amount = Number(item.amount)
-
-    if (isNaN(itemPrice) || isNaN(amount)) return acc
-
-    // fixme: Math.abs useless change api to return positive number
-    const product = item.validMarketplace ? ((itemPrice * amount) - ((itemPrice * amount) * Math.abs(state.tax))) : (itemPrice * amount)
-
-    return acc + product
-  }, 0)
-
-  const sessionTime = (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes)
-
-  const totalSilverAfterTaxes = totalSilverBeforeTaxes
-  const silverPerHourBeforeTaxes = Math.round(totalSilverBeforeTaxes / (sessionTime / 60))
-  const silverPerHourAfterTaxes = Math.round(totalSilverAfterTaxes / (sessionTime / 60))
-
-  const newState = {
-    ...state,
-    totalSilverAfterTaxes,
-    silverPerHourBeforeTaxes,
-    silverPerHourAfterTaxes
-  }
-
-  return newState
 }
 
 export const addSessionReducer = (state, action) => {
@@ -121,100 +63,14 @@ export const addSessionReducer = (state, action) => {
         ...state,
         [action.payload.name]: action.payload.value
       }
-    case 'ADD_SESSION_ADD_LOADOUT':
-      return {
-        ...state,
-        AddEditLoadoutData: {
-          id: '',
-          name: '',
-          class: '',
-          AP: '',
-          DP: ''
-        },
-        EditLoadout: false,
-        AddLoadout: true
-      }
-    case 'ADD_SESSION_EDIT_LOADOUT':
-      return {
-        ...state,
-        AddEditLoadoutData: action.payload,
-        AddLoadout: false,
-        EditLoadout: true
-      }
-    case 'ADD_SESSION_CANCEL_ADD_EDIT_LOADOUT':
-      return {
-        ...state,
-        AddLoadout: false,
-        EditLoadout: false
-      }
-    case 'ADD_SESSION_LOADOUTS_FETCH':
-      return {
-        ...state,
-        Loadouts: action.payload,
-        AddLoadout: false,
-        EditLoadout: false,
-        SessionData: {
-          ...state.SessionData,
-          loadoutId: ''
-        }
-      }
-    case 'ADD_SESSION_ADDEDITLOADOUT_ONCHANGE_INPUT':
-      return {
-        ...state,
-        AddEditLoadoutData: {
-          ...state.AddEditLoadoutData,
-          [action.payload.name]: action.payload.value
-        }
-      }
-    case 'ADD_SESSION_SUCCESSFULL_ADD_LOADOUT':
-      return {
-        ...state,
-        Loadouts: [...state.Loadouts, action.payload],
-        AddLoadout: false
-      }
-    case 'ADD_SESSION_SUCCESSFULL_EDIT_LOADOUT':
-      return {
-        ...state,
-        Loadouts: state.Loadouts.map((loadout) => {
-          if (loadout.id === action.payload.id) {
-            return Object.assign({}, loadout, action.payload)
-          }
-          return loadout
-        }),
-        EditLoadout: false
-      }
-    case 'ADD_SESSION_SELECT_LOADOUT':
-      return {
-        ...state,
-        SessionData: {
-          ...state.SessionData,
-          loadoutId: action.payload
-        }
-      }
-    case 'ADD_SESSION_DROP_ITEMS_FETCH':
-      return {
-        ...state,
-        DropItems: action.payload
-      }
-    case 'ADD_SESSION_DROP_ITEMS_PRICE_CHANGE':
-      return handleDropItemsChange(state, action)
-    case 'ADD_SESSION_DROP_ITEMS_AMOUNT_CHANGE':
-      return handleDropItemsChange(state, action)
-    case 'ADD_SESSION_DROP_ITEMS_TAX_CHANGE':
-      return handleDropItemsChange(state, action)
     case 'ADD_SESSION_INPUT_SESSIONTIME_CHANGE':
-    {
-      const updatedState = {
+      return {
         ...state,
         [action.payload.name]: action.payload.value
       }
-
-      const newStateWithSilver = recalculateSilverPerHour(updatedState, updatedState.DropItems)
-
-      return newStateWithSilver
-    }
-    case 'ADD_SESSION_DROP_ITEM_TAX_CHANGE':
-      return handleDropItemsChange(state, action)
+    case 'ADD_SESSION_RECALCULATE_SILVER_CHANGE':
+      state = action.payload
+      return state
     case 'ADD_SESSION_SET_TAX':
       return {
         ...state,

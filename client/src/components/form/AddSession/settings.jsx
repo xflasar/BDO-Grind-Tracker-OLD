@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
+
 const AddSessionSettings = ({ state, dispatch }) => {
   const handleSettingsDropRateItem = (itemName) => {
     dispatch({ type: 'ADD_SESSION_INPUT_DROPRATE_CHANGE', payload: itemName })
@@ -39,7 +40,6 @@ const AddSessionSettings = ({ state, dispatch }) => {
 
 AddSessionSettings.propTypes = {
   state: PropTypes.object.isRequired,
-  handleSettingsDropRateItem: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired
 }
 
