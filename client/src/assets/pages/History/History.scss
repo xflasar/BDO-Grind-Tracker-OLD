@@ -2,16 +2,20 @@
   min-height: calc(100vh - 60px - 70px); // fixme: problematic
   .history-table-container
   {
+    position: relative;
+    top: 1rem;
     width: 80%;
-    margin: 4% 10% 0 10%;
+    margin: 1rem 10% 10%;
     border-radius: 0.375rem;
     box-sizing: border-box;
     scroll-behavior: smooth;
-    overflow: auto;
+    overflow: hidden;
+    overflow-y: auto;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    height: auto;
+    min-height: calc(300px - 1rem);
+    max-height: calc(100vh - 60px - 70px - 1rem - 1rem - 2.5rem - 2rem);
   }
   
   .sessionAdd {
@@ -22,13 +26,17 @@
       width: 30%;
       margin: 0 35% 0 35%;
       background-color: rgb(51, 51, 51);
-      color: rgb(255, 94, 0);
+      color: rgb(255, 255, 255);
       border-radius: 0.375rem;
       text-align: center;
-      overflow: auto;
       display: block;
-      height: auto;
+      height: 2.5rem;
       font-size: 1.5rem;
+      transition: color 0.2s ease-in-out;
+
+      &:hover {
+        color: #ffa600;
+      }
     }
   } 
   

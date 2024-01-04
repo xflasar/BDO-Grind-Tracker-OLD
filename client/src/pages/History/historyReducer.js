@@ -1,6 +1,7 @@
 export const INITIAL_STATE = {
   data: [],
   editData: null,
+  sessionViewerData: null,
   showAddSession: false,
   showEditSession: false
 }
@@ -26,6 +27,18 @@ export const historyReducer = (state, action) => {
       return {
         ...state,
         showEditSession: false
+      }
+    case 'HIDE_SESSION_VIEWER':
+      return {
+        ...state,
+        showSessionViewer: false
+      }
+    case 'HANDLE_SHOW_SESSION_VIEWER':
+      console.log(action.payload)
+      return {
+        ...state,
+        showSessionViewer: true,
+        sessionViewerData: action.payload
       }
     case 'HANDLE_SHOW_EDIT_SESSION':
       return {

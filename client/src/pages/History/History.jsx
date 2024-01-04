@@ -5,6 +5,7 @@ import '../../assets/pages/History/History.scss'
 import AddSession from '../../components/form/AddSession/addSession'
 import { SessionContext } from '../../contexts/SessionContext'
 import { INITIAL_STATE, historyReducer } from './historyReducer'
+import SessionViewer from '../../components/ui/pages/History/HistorySessionViewer'
 
 function History () {
   const { isSignedIn, authorizedFetch } = useContext(SessionContext)
@@ -93,6 +94,17 @@ function History () {
     dispatch({ type: 'HANDLE_ADD_SESSION_SUCCESS', payload: data })
   }
 
+  const handleShowSessionViewer = (data) => {
+    if (state.showSessionViewer) {
+      dispatch({ type: 'HIDE_SESSION_VIEWER' })
+      setTimeout(() => {
+        dispatch({ type: 'HANDLE_SHOW_SESSION_VIEWER', payload: data })
+      }, 150)
+    } else {
+      dispatch({ type: 'HANDLE_SHOW_SESSION_VIEWER', payload: data })
+    }
+  }
+
   // TODO: [BDOGT-64] Rework styling and UX and UI
 
   return (
@@ -104,6 +116,9 @@ function History () {
               Add Session
             </button>
           </div>
+          {state.showSessionViewer && (
+            <SessionViewer session={state.sessionViewerData} onCloseClick={() => dispatch({ type: 'HIDE_SESSION_VIEWER' })} />
+          )}
           {state.showAddSession && (
             <AddSession
             onAddSessionSuccess={handleOnAddSessionSuccess}
@@ -125,6 +140,7 @@ function History () {
                 onEditTrigger={handleEditSession}
                 onDeleteTrigger={handleDeleteSession}
                 data={state.data}
+                onOpenSessionViewer={(item) => handleShowSessionViewer(item)}
               />
             )}
           </div>
