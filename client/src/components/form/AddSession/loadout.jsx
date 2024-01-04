@@ -90,6 +90,10 @@ const Loadout = ({ state, dispatch, authorizedFetch }) => {
     dispatch({ type: 'ADD_SESSION_SELECT_LOADOUT', payload: loadoutId })
   }
 
+  const handleClearSelectedLoadout = () => {
+    dispatch({ type: 'ADD_SESSION_CLEAR_SELECTED_LOADOUT' })
+  }
+
   const handleShowEditLoadout = (loadout) => {
     dispatch({ type: 'ADD_SESSION_EDIT_LOADOUT', payload: loadout })
   }
@@ -103,9 +107,9 @@ const Loadout = ({ state, dispatch, authorizedFetch }) => {
     return (
       <div
         key={loadout.id}
-        onClick={() => handleSelectLoadout(loadout.id)}
+        onClick={state.selectedLoadoutId ? () => handleClearSelectedLoadout() : () => handleSelectLoadout(loadout.id)}
         className={
-          state.SessionData.loadoutId === loadout.id
+          state.selectedLoadoutId === loadout.id
             ? 'sessionMainContent-SetupContent-Gear-Content-List-Item active'
             : 'sessionMainContent-SetupContent-Gear-Content-List-Item'
         }

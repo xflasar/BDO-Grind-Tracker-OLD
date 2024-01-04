@@ -7,6 +7,7 @@ export const loadoutReducerINIT = {
     AP: '',
     DP: ''
   },
+  selectedLoadoutId: '',
   AddLoadout: false,
   EditLoadout: false
 }
@@ -78,10 +79,12 @@ export const loadoutReducer = (state, action) => {
     case 'ADD_SESSION_SELECT_LOADOUT':
       return {
         ...state,
-        SessionData: {
-          ...state.SessionData,
-          loadoutId: action.payload
-        }
+        selectedLoadoutId: action.payload
+      }
+    case 'ADD_SESSION_CLEAR_SELECTED_LOADOUT':
+      return {
+        ...state,
+        selectedLoadoutId: loadoutReducerINIT.selectedLoadoutId
       }
   }
 }

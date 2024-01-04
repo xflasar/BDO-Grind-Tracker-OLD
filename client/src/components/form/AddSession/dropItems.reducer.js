@@ -34,6 +34,9 @@ export const dropItemReducer = (state, action) => {
       return handleDropItemsChange(state, action)
     case 'ADD_SESSION_DROP_ITEM_TAX_CHANGE':
       return handleDropItemsChange(state, action)
+    case 'ADD_SESSION_DROP_ITEM_CLEAR_DATA':
+      state = dropItemReducerINIT
+      return state
     default:
       return state
   }

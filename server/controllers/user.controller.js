@@ -5,13 +5,13 @@ const Session = require('../db/models/session.model.js')
 const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
 const Loadouts = require('../db/models/loadouts.model.js')
-// const UserSiteData = require('../db/models/userSiteData.model.js')
 const FreeImage = require('../services/freeImage.js')
 const Items = require('../db/models/item.model.js')
 const validator = require('../validators/user.validator.js')
 const UserControllerHelper = require('../helpers/user_controller.helper.js')
 const UserSettings = require('../db/models/settings.model.js')
 const BDO_API = require('../services/bdo_api.js')
+const Sessions = require('../db/models/session.model.js')
 
 // #region Sets
 exports.SetUserProfileData = (req, res) => {
@@ -253,48 +253,62 @@ exports.ZeroItemsBasePrice = async () => {
 
 // #region Data Add
 exports.AddSession = async (req, res) => {
-  console.log('Testing Correct Data Submission!')
-  return null
+  console.log('Testing Correct Data Submission!', req.body)
 
-  // This will need big rewrite
-  /* const validation = validator.AddSessionValidator(req.body)
-  if (!validation.result) {
-    return res.status(500).send(validation.errors)
-  }
+  const sessionDoc = new Sessions({
+    UserId: req.userId,
+    creationDate: new Date(),
+    SiteId: req.body.Site,
+    sessionTime: req.body.sessionTime,
+    Agris: req.body.Agris,
+    AgrisTotal: req.body.AgrisTotal,
+    totalSilverAfterTaxes: req.body.totalSilverAfterTaxes,
+    silverPerHourBeforeTaxes: req.body.silverPerHourBeforeTaxes,
+    silverPerHourAfterTaxes: req.body.silverPerHourAfterTaxes,
+    tax: req.body.tax,
+    SettingsDropRate: {
+      DropRate: req.body.SettingsDropRate.DropRate,
+      EcologyDropRate: req.body.SettingsDropRate.EcologyDropRate,
+      NodeLevel: req.body.SettingsDropRate.NodeLevel,
+      DropRateTotal: req.body.SettingsDropRate.DropRateTotal
+    },
+    DropItems: req.body.DropItems,
+    Loadout: req.body.Loadout
+  })
 
-  try {
-    const user = await User.findById(req.userId)
-    if (!user) return res.status(500).send({ message: 'User not found!' })
+  sessionDoc.save().then((doc) => {
+    User.findById(req.userId).then((user) => {
+      if (!user) {
+        sessionDoc.deleteOne().then(() => {
+          console.log('Session deleted!')
+        })
+        return res.status(500).send({ message: 'User not found!' })
+      }
 
-    let site = await Site.findOne({ SiteName: req.body.SiteName }).populate({ path: 'SiteData', match: { UserId: req.userId } }).SiteData
-    // Pre-update for add Session feature
-    // if(!site) return res.status(500).send({ message: 'Site not found!' })
-
-    if (!site) {
-      site = await this.AddSite(req, res, true)
-      user.Sites.push([site._id])
-    }
-
-    const sessionToAdd = await UserControllerHelper.CreateSession(Session, site.id, req.body, req.userId)
-
-    if (!sessionToAdd) {
-      return res.status(500).send({ message: 'Session not saved!' })
-    }
-
-    req.body.ModifySite = true
-    req.body.SiteId = site._id
-    await this.ModifySite(req, res)
-
-    await UserControllerHelper.UpdateUserAfterSessionSaved(user, sessionToAdd, Session)
-
-    // Here should be the site update later
-    res.status(200).send(UserControllerHelper.SessionAddFormatedResponse(sessionToAdd, site))
-  } catch (error) {
-    console.error(error)
-    res.status(500).send({ message: error })
-  } */
+      user.Sites.push(doc.SiteId)
+      user.Sessions.push(doc._id)
+      user.save().then(() => {
+        console.log('User Sites updated!')
+        Site.findById(doc.SiteId).then((site) => {
+          site.SiteData.push(doc._id)
+          site.save().then(() => {
+            console.log('Site Sites updated!')
+            res.status(200).send(doc)
+          })
+        })
+      })
+    })
+    console.log('Inserted:', doc)
+  }).catch((error) => {
+    console.log('Error:', error)
+    sessionDoc.deleteOne().then(() => {
+      console.log('Session deleted!')
+    })
+    return res.status(500).send(error)
+  })
 }
 
+// Remove
 exports.AddSite = async (req, res, newSite = false) => {
   const site = new Site({
     SiteName: req.body.SiteName,
@@ -367,6 +381,7 @@ exports.ModifySession = async (req, res) => {
   }
 }
 
+// Remove
 exports.ModifySite = async (req, res) => {
   const updateObject = {
     TotalTime: req.body.TimeSpent,
@@ -434,6 +449,8 @@ exports.ModifyUserData = async (req, res) => {
 // #endregion
 
 // Data Delete
+
+// fixme: rework this
 exports.DeleteSession = async (req, res) => {
   try {
     const session = await Session.findById(req.body.SessionId)
@@ -544,6 +561,7 @@ exports.GetHomepageData = async (req, res) => {
 }
 
 // Site data
+// Rework this
 exports.GetSiteData = async (req, res) => {
   try {
     const sites = await Site.find({ UserId: req.userId })
@@ -566,9 +584,10 @@ exports.GetSiteData = async (req, res) => {
 }
 
 // History data
+// Rework this
 exports.GetSessionsData = async (req, res) => {
   try {
-    const sessions = await Session.find({ UserId: req.userId }).populate('SiteId').populate('GearId')
+    const sessions = await Session.find({ UserId: req.userId }).populate('SiteId').populate('Loadout')
 
     if (!sessions || sessions.length === 0) {
       return res.status(200).send({ message: 'No sessions found!' })
@@ -576,13 +595,19 @@ exports.GetSessionsData = async (req, res) => {
 
     const data = sessions.map((session) => ({
       _id: session._id,
-      Date: UserControllerHelper.FormatSessionDate(session.TimeCreated),
-      SiteName: session.SiteId.SiteName,
-      TimeSpent: session.TimeSpent,
-      Earnings: session.Earnings,
-      AverageEarnings: session.AverageEarnings,
-      Expenses: session.Expenses,
-      Gear: { AP: session.GearId.AP, DP: session.GearId.DP }
+      Date: UserControllerHelper.FormatSessionDate(session.creationDate),
+      SiteId: session.SiteId._id,
+      sessionTime: session.sessionTime,
+      // add later SiteName: session.SiteId.SiteName,
+      Agris: session.Agris,
+      AgrisTotal: session.AgrisTotal,
+      totalSilverAfterTaxes: session.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: session.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: session.silverPerHourAfterTaxes,
+      tax: session.tax,
+      SettingsDropRate: session.SettingsDropRate,
+      DropItems: session.DropItems,
+      Loadout: session.Loadout
     }))
 
     res.status(200).send(data)

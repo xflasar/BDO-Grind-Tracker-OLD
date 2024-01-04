@@ -6,15 +6,53 @@ const AddSessionSettings = ({ state, dispatch }) => {
     dispatch({ type: 'ADD_SESSION_INPUT_DROPRATE_CHANGE', payload: itemName })
   }
 
+  /**
+
+  Calculates the total drop rate from state and dispatches an action
+
+  - useEffect hook that runs on state.DropRate change
+
+  calculateTotalDropRate function:
+  - Checks if DropRate exists in state
+  - Returns total drop rate by reducing over Object.values
+  - Sums dropRate if rate item is active
+  - Total drop rate value saved to totalDropRate variable
+
+  Conditional dispatch:
+  - If total is '0.00', dispatch 0
+  - Else parse to float and dispatch
+
+  Dispatched action type:
+  - ADD_SESSION_DROP_RATE_TOTAL_CHANGE
+
+  This calculates the total drop rate on state change
+  and dispatches the updated value to the store
+
+  **/
   useEffect(() => {
-    const totalDropRate = Object.values(state.DropRate).reduce((acc, rate) => {
-      if (rate.active) acc += rate.dropRate
-      return acc
-    }, 0)
+    const calculateTotalDropRate = () => {
+      if (!state.DropRate) return 0
 
-    const parsedTotalDropRate = totalDropRate === '0.00' ? 0 : parseFloat(totalDropRate)
+      return Object.values(state.DropRate)
+        .reduce((acc, rate) => {
+          if (rate.active) acc += rate.dropRate
+          return acc
+        }, 0)
+    }
 
-    dispatch({ type: 'ADD_SESSION_DROP_RATE_TOTAL_CHANGE', payload: parsedTotalDropRate })
+    const totalDropRate = calculateTotalDropRate()
+
+    if (totalDropRate === '0.00') {
+      dispatch({
+        type: 'ADD_SESSION_DROP_RATE_TOTAL_CHANGE',
+        payload: 0
+      })
+    } else {
+      dispatch({
+        type: 'ADD_SESSION_DROP_RATE_TOTAL_CHANGE',
+        payload: parseFloat(totalDropRate)
+      })
+    }
   }, [state.DropRate])
 
   return (

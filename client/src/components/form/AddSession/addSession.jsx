@@ -38,11 +38,26 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   async function handleAddSessionSubmit (e) {
     e.preventDefault()
 
-    const sessionData = state.SessionData
-    sessionData.DropRate = state.DropRate
-    sessionData.DropItems = state.DropItems
-    sessionData.sessionTime = state.sessionTimeHours + '' + state.sessionTimeMinutes
+    const sessionData = {
+      Site: state.activeSite,
+      sessionTime: (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes),
+      Agris: state.Agris,
+      AgrisTotal: state.AgrisTotal,
+      totalSilverAfterTaxes: state.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: state.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: state.silverPerHourAfterTaxes,
+      tax: state.tax,
+      SettingsDropRate: {
+        DropRate: settingsState.DropRate,
+        EcologyDropRate: settingsState.ecologyDropRate,
+        NodeLevel: settingsState.nodeLevel,
+        DropRateTotal: settingsState.DropRateTotal
+      },
+      DropItems: dropItemState.DropItems,
+      Loadout: loadoutState.selectedLoadoutId
+    }
 
+    // Used to check for empty drop items, this probably will be checked for unreasonable item amount
     sessionData.DropItems.map((item) => {
       if (item.amount) return item
       item.amount = 0
@@ -104,6 +119,13 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     e.preventDefault()
     dispatch({ type: 'ADD_SESSION_CLEAR_STATE' })
     onCloseClick(false)
+  }
+
+  const handleChangeSite = () => {
+    dispatch({ type: 'ADD_SESSION_CLEAR_ACTIVE_SITE' })
+    settingsDispatch({ type: 'ADD_SESSION_DROP_RATE_CLEAR_DATA' })
+    loadoutDispatch({ type: 'ADD_SESSION_CLEAR_SELECTED_LOADOUT' })
+    dropItemDispatch({ type: 'ADD_SESSION_DROP_ITEM_CLEAR_DATA' })
   }
 
   // Helpers functions
@@ -258,7 +280,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
               {renderSettings()}
             </div>
             <div className='sessionMainContent-SetupContent-BackSubmit'>
-              <button type='button' onClick={() => dispatch({ type: 'ADD_SESSION_CLEAR_ACTIVE_SITE' })}>Change Site</button>
+              <button type='button' onClick={() => handleChangeSite()}>Change Site</button>
               <button type='submit'>Add Session</button>
             </div>
           </div>

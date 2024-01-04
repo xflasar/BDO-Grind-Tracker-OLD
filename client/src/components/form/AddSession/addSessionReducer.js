@@ -7,9 +7,6 @@ export const addSessionReducerINIT = {
   },
   sessionTimeHours: 0,
   sessionTimeMinutes: 0,
-  ecologyDropRate: 0,
-  nodeLevel: 0,
-  DropRateTotal: 0,
   Agris: false,
   AgrisTotal: 0,
   activeSite: '',
@@ -47,16 +44,11 @@ export const addSessionReducer = (state, action) => {
         },
         sessionTimeHours: 0,
         sessionTimeMinutes: 0,
-        ecologyDropRate: 0,
-        nodeLevel: 0,
-        DropRateTotal: 0,
         Agris: false,
         AgrisTotal: 0,
         silverPerHourBeforeTaxes: 0,
         silverPerHourAfterTaxes: 0,
-        SiteName: '',
-        // DropRate: INITIAL_STATE.DropRate, transfer to settings.reducer.js
-        DropItems: []
+        SiteName: ''
       }
     case 'ADD_SESSION_INPUT_CHANGE':
       return {

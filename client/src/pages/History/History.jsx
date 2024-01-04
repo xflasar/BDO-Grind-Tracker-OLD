@@ -27,6 +27,7 @@ function History () {
       return
     }
 
+    // Refactor this for update in data structure
     fetchHistoryData()
       .then((data) => {
         if (data.message === 'No token provided!') {
@@ -91,6 +92,8 @@ function History () {
   const handleOnAddSessionSuccess = async (data) => {
     dispatch({ type: 'HANDLE_ADD_SESSION_SUCCESS', payload: data })
   }
+
+  // TODO: [BDOGT-64] Rework styling and UX and UI
 
   return (
     <>

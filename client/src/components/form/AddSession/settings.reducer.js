@@ -105,7 +105,10 @@ export const settingsReducerINIT = {
       dropRate: 0.3,
       icon: '../assets/AddSession/morningLightTraditionalWine.webp'
     }
-  }
+  },
+  ecologyDropRate: 0, // Reimplement
+  nodeLevel: 0, // Reimplement
+  DropRateTotal: 0
 }
 
 export const settingsReducer = (state, action) => {
@@ -126,5 +129,7 @@ export const settingsReducer = (state, action) => {
         ...state,
         DropRateTotal: action.payload
       }
+    case 'ADD_SESSION_DROP_RATE_CLEAR_DATA':
+      return { ...state, DropRate: settingsReducerINIT.DropRate }
   }
 }
