@@ -596,7 +596,7 @@ exports.GetSessionsData = async (req, res) => {
     const data = sessions.map((session) => ({
       _id: session._id,
       Date: UserControllerHelper.FormatSessionDate(session.creationDate),
-      SiteId: session.SiteId._id,
+      SiteId: session.SiteId.SiteName,
       sessionTime: session.sessionTime,
       // add later SiteName: session.SiteId.SiteName,
       Agris: session.Agris,

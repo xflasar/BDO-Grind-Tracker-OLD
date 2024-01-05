@@ -10,6 +10,10 @@ import { loadoutReducerINIT, loadoutReducer } from './loadout.reducer'
 import DropItems from './dropItems'
 import { dropItemReducerINIT, dropItemReducer } from './dropItems.reducer'
 
+export function formatNumberWithSpaces (number) {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
 const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   const { authorizedFetch } = useContext(SessionContext)
   const [state, dispatch] = useReducer(addSessionReducer, addSessionReducerINIT)
@@ -129,10 +133,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   }
 
   // Helpers functions
-  function formatNumberWithSpaces (number) {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  }
-
   const recalculateSilverPerHour = (state, DropItems) => {
     if (DropItems.length === 0) DropItems = state.DropItems
 
