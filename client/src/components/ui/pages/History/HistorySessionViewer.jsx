@@ -115,7 +115,6 @@ const SessionViewer = ({ session, onCloseClick }) => {
   }
 
   const renderLoadout = () => {
-    console.log(session.Loadout)
     return (
       <div className="sessionViewOverlay-Content-Holder-MainContent-SetupContent-Loadout-Item">
         <h4>{session.Loadout.name}</h4>
@@ -197,7 +196,7 @@ const SessionViewer = ({ session, onCloseClick }) => {
                 {renderLoadout()}
               </div>
               <div className="sessionViewOverlay-Content-Holder-MainContent-SetupContent-DropRate">
-                <h2>Settings</h2>
+                <h2>DropRate</h2>
                 {renderDropRate()}
               </div>
             </div>

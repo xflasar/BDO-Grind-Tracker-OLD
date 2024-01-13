@@ -98,6 +98,11 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
 
   const handleSiteChoosing = (e, siteId) => {
     e.preventDefault()
+
+    if (state.activeSite) {
+      handleChangeSite()
+    }
+
     dispatch({ type: 'ADD_SESSION_ACTIVE_SITE', payload: siteId })
   }
 
@@ -127,16 +132,26 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
 
   const handleChangeSite = () => {
     dispatch({ type: 'ADD_SESSION_CLEAR_ACTIVE_SITE' })
-    settingsDispatch({ type: 'ADD_SESSION_DROP_RATE_CLEAR_DATA' })
-    loadoutDispatch({ type: 'ADD_SESSION_CLEAR_SELECTED_LOADOUT' })
     dropItemDispatch({ type: 'ADD_SESSION_DROP_ITEM_CLEAR_DATA' })
   }
 
   // Helpers functions
   const recalculateSilverPerHour = (state, DropItems) => {
     if (DropItems.length === 0) DropItems = state.DropItems
+    if (!DropItems) return state
 
     const totalSilverBeforeTaxes = DropItems.reduce((acc, item) => {
+      const itemPrice = Number(item.itemPrice)
+      const amount = Number(item.amount)
+
+      if (isNaN(itemPrice) || isNaN(amount)) return acc
+
+      const product = itemPrice * amount
+
+      return acc + product
+    }, 0)
+
+    const totalSilverAfterTaxes = DropItems.reduce((acc, item) => {
       const itemPrice = Number(item.itemPrice)
       const amount = Number(item.amount)
 
@@ -150,12 +165,10 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
 
     const sessionTime = (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes)
 
-    let totalSilverAfterTaxes = 0
     let silverPerHourBeforeTaxes = 0
     let silverPerHourAfterTaxes = 0
 
     if (sessionTime !== 0) {
-      totalSilverAfterTaxes = totalSilverBeforeTaxes
       silverPerHourBeforeTaxes = Math.round(totalSilverBeforeTaxes / (sessionTime / 60))
       silverPerHourAfterTaxes = Math.round(totalSilverAfterTaxes / (sessionTime / 60))
     }
@@ -219,7 +232,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   function renderDropItems () {
     if (state.activeSite) {
       return (
-        <DropItems state={dropItemState} dispatch={dropItemDispatch} authorizedFetch={authorizedFetch} siteId={state.activeSite} handleDropItemsAmountChange={handleDropItemChange} />
+        <DropItems state={dropItemState} dispatch={dropItemDispatch} authorizedFetch={authorizedFetch} siteId={state.activeSite} handleDropItemsAmountChange={handleDropItemChange} reload={state.reload}/>
       )
     }
   }
@@ -253,7 +266,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
           <div className='sessionSiteChoosing-Header'>
             <h3>Sites</h3>
           </div>
-          <div className={state.activeSite !== '' ? 'sessionSiteChoosing-SiteList disabled' : 'sessionSiteChoosing-SiteList'}>
+          <div className={state.activeSite !== '' ? 'sessionSiteChoosing-SiteList selectedSite' : 'sessionSiteChoosing-SiteList'}>
             {state.Sites && (
               Object.values(state.Sites).map((site) => {
                 return (<div key={site._id} className={state.activeSite === site._id ? 'sessionSiteChoosing-SiteList-Item active' : 'sessionSiteChoosing-SiteList-Item'} onClick={(e) => handleSiteChoosing(e, site._id)}><label>{site.SiteName}</label></div>)
@@ -280,7 +293,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
               {renderSettings()}
             </div>
             <div className='sessionMainContent-SetupContent-BackSubmit'>
-              <button type='button' onClick={() => handleChangeSite()}>Change Site</button>
               <button type='submit'>Add Session</button>
             </div>
           </div>

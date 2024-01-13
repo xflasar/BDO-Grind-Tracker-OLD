@@ -5,6 +5,7 @@ export const addSessionReducerINIT = {
     sessionTime: '',
     loadoutId: ''
   },
+  reload: false,
   sessionTimeHours: 0,
   sessionTimeMinutes: 0,
   Agris: false,
@@ -42,13 +43,10 @@ export const addSessionReducer = (state, action) => {
           sessionTime: '',
           loadoutId: ''
         },
-        sessionTimeHours: 0,
-        sessionTimeMinutes: 0,
-        Agris: false,
-        AgrisTotal: 0,
         silverPerHourBeforeTaxes: 0,
         silverPerHourAfterTaxes: 0,
-        SiteName: ''
+        SiteName: '',
+        reload: !state.reload
       }
     case 'ADD_SESSION_INPUT_CHANGE':
       return {

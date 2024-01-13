@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-const DropItems = ({ state, dispatch, authorizedFetch, siteId, handleDropItemsAmountChange }) => {
+const DropItems = ({ state, dispatch, authorizedFetch, siteId, handleDropItemsAmountChange, reload }) => {
   // handling DropItems
   useEffect(() => {
     fetchDropItems(siteId)
-  }, [])
+  }, [reload])
 
   useEffect(() => {
     if (!state.DropItems || state.DropItems.length === 0) return
@@ -106,7 +106,7 @@ const DropItems = ({ state, dispatch, authorizedFetch, siteId, handleDropItemsAm
             color: '#ffa600'
           }}
         >
-          <p>Select Site From Site List!</p>
+          <p>Loading DropItems data!</p>
         </div>
           )}
     </>
@@ -118,7 +118,8 @@ DropItems.propTypes = {
   dispatch: PropTypes.func.isRequired,
   authorizedFetch: PropTypes.func.isRequired,
   siteId: PropTypes.string.isRequired,
-  handleDropItemsAmountChange: PropTypes.func.isRequired
+  handleDropItemsAmountChange: PropTypes.func.isRequired,
+  reload: PropTypes.bool.isRequired
 }
 
 export default DropItems
