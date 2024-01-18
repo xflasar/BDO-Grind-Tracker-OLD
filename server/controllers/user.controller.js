@@ -171,19 +171,19 @@ exports.GetUserSettingsData = async (req, res) => {
 
 exports.GetRecentActivity = async (req, res) => {
   try {
-    const user = await User.findById(req.userId, 'RecentActivity').populate('RecentActivity')
+    const recentActivityArr = await User.findById(req.userId).select({ _id: 1, RecentActivity: { $slice: -5 } }).lean()
 
-    if (!user) return res.status(500).send({ message: 'User not found!' })
-    const userRecentActivity = user.RecentActivity.sort((a, b) => (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0)).map((activity) => {
-      return {
-        date: `${activity.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ${activity.date.toLocaleDateString('en-US')}`,
-        activity: activity.activity
-      }
-    })
+    if (!recentActivityArr) return res.status(500).send({ message: 'User not found!' })
 
     const data = {
-      RecentActivity: userRecentActivity
+      RecentActivity: recentActivityArr.RecentActivity.map((activity) => {
+        return {
+          date: `${activity.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ${activity.date.toLocaleDateString('en-US')}`,
+          activity: activity.activity
+        }
+      })
     }
+
     res.status(200).send(data)
   } catch (error) {
     console.error(error.message)

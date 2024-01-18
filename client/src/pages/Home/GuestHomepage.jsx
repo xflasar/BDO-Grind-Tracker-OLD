@@ -50,43 +50,41 @@ const GuestHomepage = () => {
   useEffect(() => {
     const imagesE = document.querySelectorAll('.carousel-image')
     for (let i = 0; i < images.length; i++) {
-      if (currentIndex === 0 && i === currentIndex) {
-        imagesE[currentIndex].style.transform = 'translateX(0%)'
-        imagesE[currentIndex].style.filter = 'blur(0px)'
-        imagesE[currentIndex].style.transform = 'scale(1.2)'
-        imagesE[currentIndex].style.zIndex = '999'
-      } else if (currentIndex === images.length - 1 && i === currentIndex) {
-        imagesE[currentIndex].style.transform = 'translateX(0%)'
-        imagesE[currentIndex].style.filter = 'blur(0px)'
-        imagesE[currentIndex].style.transform = 'scale(1.2)'
-        imagesE[currentIndex].style.zIndex = '999'
-      } else if (i === currentIndex) {
-        imagesE[i].style.transform = 'translateX(0%)'
-        imagesE[i].style.filter = 'blur(0px)'
-        imagesE[i].style.transform = 'scale(1.2)'
-        imagesE[i].style.zIndex = '999'
-        if (currentIndex < imagesE.length - 1) imagesE[i + 1].style.display = 'block'
-        if (currentIndex > 0) imagesE[i - 1].style.display = 'block'
-      } else if (currentIndex > i) {
-        imagesE[i].style.transform = 'translateX(calc(-100% - 20px))'
+      if (currentIndex !== i) {
         imagesE[i].style.filter = 'blur(5px)'
-        imagesE[i].style.zIndex = '0'
       } else {
-        imagesE[i].style.transform = 'translateX(calc(100% + 20px))'
-        imagesE[i].style.filter = 'blur(5px)'
-        imagesE[i].style.zIndex = '1'
-        imagesE[i].style.display = 'none'
-        if (currentIndex + 1 === i) imagesE[i].style.display = 'block'
+        imagesE[i].style.filter = 'blur(0)'
       }
     }
+
+    const imageHolder = document.querySelector('.image-holder')
+    imageHolder.style.transform = `translateX(${-currentIndex * 100}%)`
   }, [currentIndex])
 
-  const handlePrevClick = () => {
+  const handlePrevClick = (e) => {
     setCurrentIndex(prevIndex => (prevIndex === 0 ? images.length - 1 : prevIndex - 1))
+
+    const prevClassName = e.target.className
+    e.target.className = prevClassName + ' clickedAnim'
+
+    // Fix this when user clicks fast it breaks
+
+    setTimeout(() => {
+      e.target.removeAttribute('class')
+    }, 200)
   }
 
-  const handleNextClick = () => {
+  const handleNextClick = (e) => {
     setCurrentIndex(prevIndex => (prevIndex === images.length - 1 ? 0 : prevIndex + 1))
+
+    const prevClassName = e.target.className
+    e.target.className = prevClassName + ' clickedAnim'
+
+    // Fix this when user clicks fast it breaks
+
+    setTimeout(() => {
+      e.target.removeAttribute('class')
+    }, 200)
   }
 
   return (
@@ -96,45 +94,91 @@ const GuestHomepage = () => {
         <h1>Welcome to the Grind Tracker</h1>
         <h2>Global Data</h2>
         <div className="data-values">
-          <div className="data-value val1"><HomepageBox data={{ Title: 'Total Sessions', Content: globalData?.TotalSessions }}/></div>
-          <div className="data-value val2"><HomepageBox data={{ Title: 'Total Time', Content: globalData?.TotalTime }}/></div>
-          <div className="data-value val3"><HomepageBox data={{ Title: 'Total Earnings', Content: globalData?.TotalEarnings }}/></div>
-          <div className="data-value val4"><HomepageBox data={{ Title: 'Top Site', Content: globalData?.TopSite }}/></div>
-          <div className="data-value val5"><HomepageBox data={{ Title: 'Total Sessions Today', Content: globalData?.TotalSessionsToday }}/></div>
-        </div>
-      </section>
-      <section className="about">
-        <h2>About the Website</h2>
-        <p>The Black Desert Online Grinding Tracker enables users to preserve session specifics, including mob interactions, item acquisitions, and session-specific earnings. This utility enhances the ease of monitoring session-based earnings, coupled with accessible functionalities like interactive marketplace visuals. Furthermore, users can efficiently oversee their logged sessions, facilitating the option to modify or remove entries for an all-encompassing and dynamic gaming involvement.</p>
-      </section>
-      <section className="carousel">
-        <button className="previous-button is-control" onClick={handlePrevClick}>
-          Previous
-        </button>
-        <div className="image-container">
-          <img
-          loading='lazy'
-          src={images[currentIndex]}
-          className='carousel-image-background'
-          alt='bckImage'
-          />
-          {images.map((image, index) => (
-            <img
-              loading='lazy'
-              style={{ '--currentIndex': index }}
-              key={index}
-              className={`carousel-image ${index === currentIndex ? 'active' : ''}`}
-              src={image}
-              alt={`Image ${index + 1}`}
+          <div className="data-value val1">
+            <HomepageBox
+              data={{
+                Title: 'Total Sessions',
+                Content: globalData?.TotalSessions
+              }}
             />
-          ))}
+          </div>
+          <div className="data-value val2">
+            <HomepageBox
+              data={{ Title: 'Total Time', Content: globalData?.TotalTime }}
+            />
+          </div>
+          <div className="data-value val3">
+            <HomepageBox
+              data={{
+                Title: 'Total Earnings',
+                Content: globalData?.TotalEarnings
+              }}
+            />
+          </div>
+          <div className="data-value val4">
+            <HomepageBox
+              data={{ Title: 'Top Site', Content: globalData?.TopSite }}
+            />
+          </div>
+          <div className="data-value val5">
+            <HomepageBox
+              data={{
+                Title: 'Total Sessions Today',
+                Content: globalData?.TotalSessionsToday
+              }}
+            />
+          </div>
         </div>
-        <button className="next-button is-control" onClick={handleNextClick}>
-        Next
-        </button>
       </section>
-      <section className='news'>
-        <NewsHistory />
+      <section className="bottom-part">
+        <div className="bottom-part-aboutSlide-holder">
+          <div className="about">
+            <h2>About the Website</h2>
+            <p>
+              The Black Desert Online Grinding Tracker enables users to preserve
+              session specifics, including mob interactions, item acquisitions,
+              and session-specific earnings. This utility enhances the ease of
+              monitoring session-based earnings, coupled with accessible
+              functionalities like interactive marketplace visuals. Furthermore,
+              users can efficiently oversee their logged sessions, facilitating
+              the option to modify or remove entries for an all-encompassing and
+              dynamic gaming involvement.
+            </p>
+          </div>
+          <div className="carousel">
+            <div className='image-holder'>
+              {images.map((image, index) => (
+                <img
+                loading="lazy"
+                style={{ '--currentIndex': index }}
+                key={index}
+                className={`carousel-image ${
+                  index === currentIndex ? 'active' : ''
+                }`}
+                src={image}
+                alt={`Image ${index + 1}`}
+                />
+              ))}
+            </div>
+            <div className="carousel-image-holder-controll">
+            <button
+              className="previous-button is-control"
+              onClick={(e) => handlePrevClick(e, 'previous-button')}
+              >
+                <img src="/assets/arrow-left.png" alt="arrow" />
+            </button>
+            <button
+              className="next-button is-control"
+              onClick={(e) => handleNextClick(e, 'next-button')}
+              >
+              <img src="/assets/arrow-right.png" alt="arrow" />
+            </button>
+            </div>
+          </div>
+        </div>
+        <section className="news">
+          <NewsHistory />
+        </section>
       </section>
     </div>
   )

@@ -3,6 +3,7 @@ import HomepageBox from '../../components/ui/pages/Homepage/HomepageBox'
 import '../../assets/pages/Homepage/UserHomepage.scss'
 import NewsHistory from '../../components/ui/pages/Homepage/NewsHistory'
 import RecentActivity from '../../components/ui/pages/Homepage/RecentActivity'
+import SessionSummaryGraph from '../../components/ui/pages/Homepage/SessionsSummaryGraph'
 const UserHomepage = () => {
   const [userData, setUserData] = useState([])
 
@@ -37,14 +38,17 @@ const UserHomepage = () => {
           <div className="data-value val5"><HomepageBox data={{ Title: 'Total Expenses', Content: userData?.TotalExpenses }}/></div>
         </div>
       </section>
-      <section className='recent-activity'>
-        <RecentActivity />
+      <section className='middle-part-container'>
+        <div className='middle-part-container-graph'>
+          <SessionSummaryGraph />
+        </div>
+        <div className='recent-activity'>
+          <RecentActivity />
+        </div>
       </section>
-
       <section className='news'>
         <NewsHistory/>
       </section>
-
     </div>
   )
 }
