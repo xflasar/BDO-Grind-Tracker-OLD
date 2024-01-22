@@ -105,6 +105,7 @@ dist
 
 # Custom
 temp_data
+.history
 
 # sensitive data
 .vscode

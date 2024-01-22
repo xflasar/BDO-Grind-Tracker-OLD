@@ -1,61 +1,64 @@
-// PieChart.jsx
-
-import React from 'react'
-import '../../../assets/components/helpers/PieChart.scss'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import '../../../assets/components/helpers/PieChart.scss'
 
 const PieChart = ({ data }) => {
+  const [hoveredSector, setHoveredSector] = useState(null)
+
+  const handleSectorHover = (index) => {
+    setHoveredSector(index)
+  }
+
   const total = data.reduce((acc, item) => acc + item.value, 0)
   let startAngle = 0
 
   return (
-    <div className="pie-chart">
+    <svg className="pie-chart" viewBox="-1 -1 2 2" xmlns="http://www.w3.org/2000/svg">
       {data.map((item, index) => {
-        const percentage = (item.value / total) * 100
-        const color = getRandomColor()
-
-        const clipPath = generateClipPath(startAngle, startAngle + percentage)
-
-        const style = {
-          clipPath,
-          backgroundColor: color
-        }
+        const percentage = (item.value / total) * 360
+        const path = createSectorPath(startAngle, startAngle + percentage)
 
         startAngle += percentage
 
         return (
-          <div key={index} className="segment" style={style}>
-            <span>{item.name}</span>
-            <span>{item.value}</span>
-          </div>
+          <path
+            key={index}
+            d={path}
+            fill={`${item.color}`}
+            onMouseOver={() => handleSectorHover(index)}
+            onMouseOut={() => handleSectorHover(null)}
+            className={`sector-path ${hoveredSector === index ? 'hovered' : ''}`}
+          />
         )
       })}
-    </div>
+    </svg>
   )
 }
 
-const getRandomColor = () => {
-  const letters = '0123456789ABCDEF'
-  let color = '#'
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)]
-  }
-  return color
+const createSectorPath = (startAngle, endAngle) => {
+  const radius = 1
+  const start = polarToCartesian(0, 0, radius, endAngle)
+  const end = polarToCartesian(0, 0, radius, startAngle)
+
+  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1'
+
+  const pathData = [
+    'M', 0, 0,
+    'L', start.x, start.y,
+    'A', radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+    'Z'
+  ]
+
+  return pathData.join(' ')
 }
 
-const generateClipPath = (startAngle, endAngle) => {
-  const numPoints = 50
-  const points = []
+const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+  const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180.0)
 
-  for (let i = 0; i <= numPoints; i++) {
-    const angle = ((endAngle - startAngle) * i) / numPoints + startAngle
-    const x = Math.cos((angle * Math.PI) / 180)
-    const y = Math.sin((angle * Math.PI) / 180)
-
-    points.push(`${50 + 50 * x}% ${50 + 50 * y}%`)
+  return {
+    x: centerX + (radius * Math.cos(angleInRadians)),
+    y: centerY + (radius * Math.sin(angleInRadians))
   }
-
-  return `polygon(${points.join(', ')})`
 }
 
 PieChart.propTypes = {

@@ -5,27 +5,36 @@ import PieChart from '../../../helpers/Graph/PieChart'
 const SessionSummaryGraph = () => {
   const sampleData = [
     {
-      name: 'Session 1',
-      value: 10
+      name: 'Site 1',
+      value: 10,
+      color: 'green'
     },
     {
-      name: 'Session 2',
-      value: 20
+      name: 'Site 2',
+      value: 20,
+      color: 'blue'
     },
     {
-      name: 'Session 3',
-      value: 30
+      name: 'Site 3',
+      value: 30,
+      color: 'orange'
     },
     {
-      name: 'Session 4',
-      value: 40
+      name: 'Site 4',
+      value: 40,
+      color: 'pink'
     }
   ]
 
   return (
-    <div className="SessionSummaryGraph">
-      <div>SessionSummaryGraph</div>
+    <div className="siteGraph">
+      <h1>Site Graph</h1>
       <PieChart data={sampleData} />
+      <div className='siteGraph-legend'>
+        {sampleData.map((item, index) => {
+          return <span key={index} style={{ color: item.color }}>{item.name}</span>
+        })}
+      </div>
     </div>
   )
 }
