@@ -131,5 +131,13 @@ export const settingsReducer = (state, action) => {
       }
     case 'ADD_SESSION_DROP_RATE_CLEAR_DATA':
       return { ...state, DropRate: settingsReducerINIT.DropRate }
+    case 'ADD_SESSION_DROP_RATE_SET':
+      return {
+        ...state,
+        DropRate: action.payload.DropRate,
+        DropRateTotal: action.payload.DropRateTotal,
+        nodeLevel: action.payload.NodeLevel,
+        ecologyDropRate: action.payload.EcologyDropRate
+      }
   }
 }

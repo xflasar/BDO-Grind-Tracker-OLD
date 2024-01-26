@@ -328,8 +328,9 @@ exports.AddSite = async (req, res, newSite = false) => {
 }
 
 // Data Modify
-exports.ModifySession = async (req, res) => {
-  try {
+exports.EditSession = async (req, res) => {
+  console.log('Testing Correct Data Submission!', req.body)
+  /* try {
     const sessionToUpdate = await Session.findById(req.body.SessionId)
 
     if (!sessionToUpdate) {
@@ -378,7 +379,7 @@ exports.ModifySession = async (req, res) => {
   } catch (err) {
     console.error('Error updating session:', err)
     res.status(500).send({ message: 'An error occured while updating the session.', err })
-  }
+  } */
 }
 
 // Remove

@@ -3,16 +3,13 @@ import PropTypes from 'prop-types'
 import '../../../assets/components/form/addSession.scss'
 import { SessionContext } from '../../../contexts/SessionContext'
 import { addSessionReducerINIT, addSessionReducer } from './addSessionReducer'
-import AddSessionSettings from './settings'
-import { settingsReducerINIT, settingsReducer } from './settings.reducer'
-import Loadout from './loadout'
-import { loadoutReducerINIT, loadoutReducer } from './loadout.reducer'
-import DropItems from './dropItems'
-import { dropItemReducerINIT, dropItemReducer } from './dropItems.reducer'
-
-export function formatNumberWithSpaces (number) {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-}
+import AddSessionSettings from '../Helpers/settings'
+import { settingsReducerINIT, settingsReducer } from '../Helpers/settings.reducer'
+import Loadout from '../Helpers/loadout'
+import { loadoutReducerINIT, loadoutReducer } from '../Helpers/loadout.reducer'
+import DropItems from '../Helpers/dropItems'
+import { dropItemReducerINIT, dropItemReducer } from '../Helpers/dropItems.reducer'
+import { recalculateSilverPerHour, handleDropItemChange, formatNumberWithSpaces, handleSessionTimeChange } from '../Helpers/sessionModify.helper'
 
 const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   const { authorizedFetch } = useContext(SessionContext)
@@ -106,10 +103,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     dispatch({ type: 'ADD_SESSION_ACTIVE_SITE', payload: siteId })
   }
 
-  const handleSessionTimeChange = (e) => {
-    dispatch({ type: 'ADD_SESSION_INPUT_SESSIONTIME_CHANGE', payload: { name: e.target.name, value: e.target.value } })
-  }
-
   // Recalculating silver after every change to sessionTime
   useEffect(() => {
     if (!state.activeSite || !dropItemState.DropItems) return
@@ -117,11 +110,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     const newState = recalculateSilverPerHour(state, dropItemState.DropItems)
     dispatch({ type: 'ADD_SESSION_RECALCULATE_SILVER_CHANGE', payload: newState })
   }, [state.sessionTimeHours, state.sessionTimeMinutes])
-
-  const handleDropItemChange = (dropItems) => {
-    const newState = recalculateSilverPerHour(state, dropItems)
-    dispatch({ type: 'ADD_SESSION_RECALCULATE_SILVER_CHANGE', payload: newState })
-  }
 
   // Closes the form and clears the state
   const handleClose = (e) => {
@@ -133,54 +121,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   const handleChangeSite = () => {
     dispatch({ type: 'ADD_SESSION_CLEAR_ACTIVE_SITE' })
     dropItemDispatch({ type: 'ADD_SESSION_DROP_ITEM_CLEAR_DATA' })
-  }
-
-  // Helpers functions
-  const recalculateSilverPerHour = (state, DropItems) => {
-    if (DropItems.length === 0) DropItems = state.DropItems
-    if (!DropItems) return state
-
-    const totalSilverBeforeTaxes = DropItems.reduce((acc, item) => {
-      const itemPrice = Number(item.itemPrice)
-      const amount = Number(item.amount)
-
-      if (isNaN(itemPrice) || isNaN(amount)) return acc
-
-      const product = itemPrice * amount
-
-      return acc + product
-    }, 0)
-
-    const totalSilverAfterTaxes = DropItems.reduce((acc, item) => {
-      const itemPrice = Number(item.itemPrice)
-      const amount = Number(item.amount)
-
-      if (isNaN(itemPrice) || isNaN(amount)) return acc
-
-      // fixme: Math.abs useless change api to return positive number
-      const product = item.validMarketplace ? ((itemPrice * amount) - ((itemPrice * amount) * Math.abs(state.tax))) : (itemPrice * amount)
-
-      return acc + product
-    }, 0)
-
-    const sessionTime = (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes)
-
-    let silverPerHourBeforeTaxes = 0
-    let silverPerHourAfterTaxes = 0
-
-    if (sessionTime !== 0) {
-      silverPerHourBeforeTaxes = Math.round(totalSilverBeforeTaxes / (sessionTime / 60))
-      silverPerHourAfterTaxes = Math.round(totalSilverAfterTaxes / (sessionTime / 60))
-    }
-
-    const newState = {
-      ...state,
-      totalSilverAfterTaxes,
-      silverPerHourBeforeTaxes,
-      silverPerHourAfterTaxes
-    }
-
-    return newState
   }
 
   // Render functions

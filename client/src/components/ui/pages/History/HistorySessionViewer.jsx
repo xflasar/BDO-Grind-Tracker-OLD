@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import '../../../../assets/components/ui/History/SessionViewer.scss'
-import { formatNumberWithSpaces } from '../../../form/AddSession/addSession.jsx'
+import { formatNumberWithSpaces } from '../../../form/Helpers/sessionModify.helper'
 
 const SessionViewer = ({ session, onCloseClick }) => {
   // Closes the form and clears the state

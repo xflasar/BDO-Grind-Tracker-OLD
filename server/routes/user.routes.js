@@ -34,7 +34,7 @@ module.exports = function (app) {
   app.post('/api/user/addloadout', [verifyToken], controller.AddUserLoadout)
 
   // Data Modify :fix to patch
-  app.post('/api/user/modifysession', [verifyToken], controller.ModifySession)
+  app.post('/api/user/editsession', [verifyToken], controller.EditSession)
   app.post('/api/user/modifysite', [verifyToken], controller.ModifySite)
   app.post('/api/user/modifyuserdata', [verifyToken], controller.ModifyUserData)
   app.patch('/api/user/updateloadout', [verifyToken], controller.UpdateUserLoadout)
