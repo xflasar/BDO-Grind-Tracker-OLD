@@ -94,7 +94,8 @@ const Loadout = ({ state, dispatch, authorizedFetch }) => {
     dispatch({ type: 'ADD_SESSION_CLEAR_SELECTED_LOADOUT' })
   }
 
-  const handleShowEditLoadout = (loadout) => {
+  const handleShowEditLoadout = (e, loadout) => {
+    e.preventDefault()
     dispatch({ type: 'ADD_SESSION_EDIT_LOADOUT', payload: loadout })
   }
 
@@ -107,13 +108,13 @@ const Loadout = ({ state, dispatch, authorizedFetch }) => {
     return (
       <div
         key={loadout.id}
-        onClick={state.selectedLoadoutId ? () => handleClearSelectedLoadout() : () => handleSelectLoadout(loadout.id)}
         className={
           state.selectedLoadoutId === loadout.id
             ? 'sessionMainContent-SetupContent-Gear-Content-List-Item active'
             : 'sessionMainContent-SetupContent-Gear-Content-List-Item'
         }
       >
+        <div className='sessionMainContent-SetupContent-Gear-Content-List-Item-ClickArea' onClick={(state.selectedLoadoutId && state.selectedLoadoutId === loadout.id) ? () => handleClearSelectedLoadout() : () => handleSelectLoadout(loadout.id)}></div>
         <h3>{loadout.name}</h3>
         <h4>
           Class: <span>{loadout.class}</span>
@@ -138,7 +139,7 @@ const Loadout = ({ state, dispatch, authorizedFetch }) => {
         </button>
         <button
           type="button"
-          onClick={() => handleShowEditLoadout(loadout)}
+          onClick={(e) => handleShowEditLoadout(e, loadout)}
         >
           Edit
         </button>
@@ -214,18 +215,15 @@ const Loadout = ({ state, dispatch, authorizedFetch }) => {
           })
           : null}
         <div className="sessionMainContent-SetupContent-Gear-Content-List-AddLoadout">
-          {state.AddLoadout || state.EditLoadout
-            ? (
-                { renderAddLoadout }
-              )
-            : (
-            <button
-              type="button"
-              onClick={() => dispatch({ type: 'ADD_SESSION_ADD_LOADOUT' })}
-            >
-              Add Loadout
-            </button>
-              )}
+          {(state.AddLoadout || state.EditLoadou) && renderAddLoadout()}
+            {!state.AddLoadout && (
+              <button
+                type="button"
+                onClick={() => dispatch({ type: 'ADD_SESSION_ADD_LOADOUT' })}
+              >
+                Add Loadout
+              </button>
+            )}
         </div>
       </div>
     </div>

@@ -74,10 +74,9 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
         body: JSON.stringify(sessionData)
       })
       const data = await res.json()
-      onAddSessionSuccess({
-        Data: data,
-        setAddSession: false
-      })
+      console.log(data)
+
+      onAddSessionSuccess(data)
     } catch (error) {
       console.log('Failed to add session:', error)
     }
@@ -133,7 +132,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
             <input
               type="text"
               name="sessionTimeHours"
-              onChange={(e) => handleSessionTimeChange(e)}
+              onChange={(e) => handleSessionTimeChange(e, dispatch)}
               value={state.sessionTimeHours}
               placeholder="0h"
             />
@@ -141,7 +140,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
             <input
               type="text"
               name="sessionTimeMinutes"
-              onChange={(e) => handleSessionTimeChange(e)}
+              onChange={(e) => handleSessionTimeChange(e, dispatch)}
               value={state.sessionTimeMinutes}
               placeholder="0m"
             />
@@ -170,11 +169,10 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   }
 
   function renderDropItems () {
-    if (state.activeSite) {
-      return (
-        <DropItems state={dropItemState} dispatch={dropItemDispatch} authorizedFetch={authorizedFetch} siteId={state.activeSite} handleDropItemsAmountChange={handleDropItemChange} reload={state.reload}/>
-      )
-    }
+    if (!state.activeSite) return
+    return (
+        <DropItems state={dropItemState} dispatch={dropItemDispatch} authorizedFetch={authorizedFetch} siteId={state.activeSite} handleDropItemsAmountChange={() => handleDropItemChange(dropItemState.DropItems, state, dispatch)} reload={state.reload}/>
+    )
   }
 
   function renderLoadout () {

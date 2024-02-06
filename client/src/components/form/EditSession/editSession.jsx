@@ -9,7 +9,7 @@ import Loadout from '../Helpers/loadout'
 import { dropItemReducer, dropItemReducerINIT } from '../Helpers/dropItems.reducer'
 import DropItems from '../Helpers/dropItems'
 import { INITIAL_STATE, editSessionReducer } from './editSessionReducer'
-import { handleDropItemChange, formatNumberWithSpaces, handleSessionTimeChange } from '../Helpers/sessionModify.helper'
+import { handleDropItemChange, formatNumberWithSpaces, handleSessionTimeChange, recalculateSilverPerHour } from '../Helpers/sessionModify.helper'
 
 const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => {
   const [state, dispatch] = useReducer(editSessionReducer, INITIAL_STATE)
@@ -35,7 +35,8 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
         console.log(dataRes.error)
         return false
       } else {
-        // onEditSuccess(dataRes)
+        // FIXME:After successful edit the data in history data array won't reflect (modify) the edited data
+        onEditSuccess(dataRes)
         return true
       }
     } catch (error) {
@@ -52,21 +53,38 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
     dropItemDispatch({ type: 'ADD_SESSION_DROP_ITEMS_FETCH', payload: data.DropItems })
   }, [])
 
+  useEffect(() => {
+    if (!state.activeSite || !dropItemState.DropItems) return
+
+    const newState = recalculateSilverPerHour(state, dropItemState.DropItems)
+    dispatch({ type: 'ADD_SESSION_RECALCULATE_SILVER_CHANGE', payload: newState })
+  }, [state.sessionTimeHours, state.sessionTimeMinutes])
+
   // Fix this
   const handleAddSessionSubmit = async (e) => {
     e.preventDefault()
 
     const newSession = {
-      SessionId: state.sessionId,
+      originalSessionTime: (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes),
       sessionTime: (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes),
-      Agris: state.Agris,
-      AgrisTotal: state.AgrisTotal,
-      totalSilverAfterTaxes: state.totalSilverAfterTaxes,
-      silverPerHourBeforeTaxes: state.silverPerHourBeforeTaxes,
-      SettingsDropRate: settingsState.DropRate,
+      Agris: Number(state.Agris),
+      AgrisTotal: Number(state.AgrisTotal),
+      totalSilverAfterTaxes: Number(state.totalSilverAfterTaxes),
+      silverPerHourBeforeTaxes: Number(state.silverPerHourBeforeTaxes),
+      silverPerHourAfterTaxes: Number(state.silverPerHourAfterTaxes),
+      originalTotalSilverAfterTaxes: Number(state.originalTotalSilverAfterTaxes),
+      originalSilverPerHourBeforeTaxes: Number(state.originalSilverPerHourBeforeTaxes),
+      originalSilverPerHourAfterTaxes: Number(state.originalSilverPerHourAfterTaxes),
+      SettingsDropRate: {
+        DropRate: settingsState.DropRate,
+        EcologyDropRate: settingsState.ecologyDropRate,
+        NodeLevel: settingsState.nodeLevel,
+        DropRateTotal: settingsState.DropRateTotal
+      },
       DropItems: dropItemState.DropItems,
       Loadout: loadoutState.selectedLoadoutId // change this to get whole loadout or actually we can do this in Backend
     }
+    console.log(newSession)
     const res = await handleEditSessionSubmit(newSession)
     if (res) {
       dispatch({ type: 'EDIT_SESSION_SET_SESSION_STATE', payload: { state: true, stateMsg: 'Session edited!' } })
@@ -86,6 +104,12 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
   function renderHeader () {
     return (
       <>
+        <div className="sessionMainContent-HeaderContent-SiteName">
+          <h3>Site Name</h3>
+          <div className="sessionMainContent-HeaderContent-SiteName-Content">
+            <h3>{state.siteName}</h3>
+          </div>
+        </div>
         <div className="sessionMainContent-HeaderContent-SessionTime">
           <h3>Session Time</h3>
           <div className="sessionMainContent-HeaderContent-SessionTime-Content">
@@ -129,7 +153,7 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
   }
 
   function renderDropItems () {
-    return (<DropItems state={dropItemState} dispatch={dropItemDispatch} authorizedFetch={authorizedFetch} siteId={state.activeSite} handleDropItemsAmountChange={() => handleDropItemChange(dropItemState.DropItems, state, dispatch)} reload={state.reload}/>)
+    return (<DropItems state={dropItemState} dispatch={dropItemDispatch} authorizedFetch={authorizedFetch} siteId={state.siteId} handleDropItemsAmountChange={() => handleDropItemChange(dropItemState.DropItems, state, dispatch)} reload={state.reload}/>)
   }
 
   function renderLoadout () {

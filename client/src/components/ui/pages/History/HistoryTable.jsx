@@ -1,9 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import '../../../../assets/components/ui/History/HistoryTable.scss'
+import { formatEarnings, formatSessionTime } from '../../../form/Helpers/HistoryHelpers'
 
 const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }) => {
-  const data1 = []
+  /* const data1 = []
   for (let i = 0; i < data.length; i++) {
     data1.push(data[i])
     data1.push(data[i])
@@ -13,7 +14,7 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
     data1.push(data[i])
   }
 
-  data = data1
+  data = data1 */
 
   const handleOpenSessionViewer = (e, item) => {
     if (e.target.className.includes('history-table-item-button')) return
@@ -25,9 +26,9 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
     return (
       <>
         <td className="history-table-item" role="historyTableItem">{item.Date}</td>
-        <td className="history-table-item" role="historyTableItem">{item.SiteId}</td>
-        <td className="history-table-item" role="historyTableItem">{item.sessionTime}</td>
-        <td className="history-table-item" role="historyTableItem">{item.totalSilverAfterTaxes}</td>
+        <td className="history-table-item" role="historyTableItem">{item.SiteName}</td>
+        <td className="history-table-item" role="historyTableItem">{formatSessionTime(item.sessionTime)}</td>
+        <td className="history-table-item" role="historyTableItem">{formatEarnings(item.totalSilverAfterTaxes)}</td>
         <td className="history-table-item" role="historyTableItem">{item.Expenses} Not Implemented!</td>
         <td className="history-table-item" role="historyTableItem">{item.Loadout.name}</td>
       </>

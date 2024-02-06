@@ -7,7 +7,7 @@ const Auth = require('../db/models/auth.model.js')
 const Loadouts = require('../db/models/loadouts.model.js')
 const FreeImage = require('../services/freeImage.js')
 const Items = require('../db/models/item.model.js')
-const validator = require('../validators/user.validator.js')
+// const validator = require('../validators/user.validator.js')
 const UserControllerHelper = require('../helpers/user_controller.helper.js')
 const UserSettings = require('../db/models/settings.model.js')
 const BDO_API = require('../services/bdo_api.js')
@@ -291,9 +291,29 @@ exports.AddSession = async (req, res) => {
         console.log('User Sites updated!')
         Site.findById(doc.SiteId).then((site) => {
           site.SiteData.push(doc._id)
-          site.save().then(() => {
+          site.save().then(async () => {
             console.log('Site Sites updated!')
-            res.status(200).send(doc)
+            const loadout = {
+              _id: req.body.Loadout,
+              name: await Loadouts.findById(req.body.Loadout).then((loadout) => loadout.name)
+            }
+            const data = {
+              _id: doc._id,
+              Date: UserControllerHelper.FormatSessionDate(doc.creationDate),
+              SiteId: doc.SiteId,
+              SiteName: site.SiteName,
+              sessionTime: doc.sessionTime,
+              Agris: doc.Agris,
+              AgrisTotal: doc.AgrisTotal,
+              totalSilverAfterTaxes: doc.totalSilverAfterTaxes,
+              silverPerHourBeforeTaxes: doc.silverPerHourBeforeTaxes,
+              silverPerHourAfterTaxes: doc.silverPerHourAfterTaxes,
+              tax: doc.tax,
+              SettingsDropRate: doc.SettingsDropRate,
+              DropItems: doc.DropItems,
+              Loadout: loadout
+            }
+            res.status(200).send(data)
           })
         })
       })
@@ -329,57 +349,75 @@ exports.AddSite = async (req, res, newSite = false) => {
 
 // Data Modify
 exports.EditSession = async (req, res) => {
-  console.log('Testing Correct Data Submission!', req.body)
-  /* try {
-    const sessionToUpdate = await Session.findById(req.body.SessionId)
-
-    if (!sessionToUpdate) {
-      return res.status(404).send({ message: 'Session not found!' })
+  try {
+    const updateSessionData = {
+      sessionTime: req.body.sessionTime,
+      Agris: req.body.Agris,
+      AgrisTotal: req.body.AgrisTotal,
+      totalSilverAfterTaxes: req.body.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: req.body.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: req.body.silverPerHourAfterTaxes,
+      SettingsDropRate: {
+        DropRate: req.body.SettingsDropRate.DropRate,
+        EcologyDropRate: req.body.SettingsDropRate.EcologyDropRate,
+        NodeLevel: req.body.SettingsDropRate.NodeLevel,
+        DropRateTotal: req.body.SettingsDropRate.DropRateTotal
+      },
+      DropItems: req.body.DropItems,
+      Loadout: req.body.Loadout
     }
 
-    const udateSessionData = {
-      TimeSpent: parseInt(req.body.TimeSpent),
-      Earnings: parseInt(req.body.TotalEarned),
-      Expenses: parseInt(req.body.TotalExpenses),
-      Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
-    }
+    // Used for purpose of restoring session of any edits
+    const sessionBackup = await Session.findById(req.body.SessionId)
 
-    const updatedSession = await Session.findByIdAndUpdate(
+    const updatedSession = await Session.findOneAndUpdate(
       req.body.SessionId,
-      { $set: { ...udateSessionData } },
+      { $set: { ...updateSessionData } },
       { new: true }
     )
 
-    const updateData = {
-      SiteId: updatedSession.SiteId,
-      TotalTime: updatedSession.TimeSpent,
-      TotalEarned: updatedSession.Earnings,
-      TotalExpenses: updatedSession.Expenses,
-      ModifySite: true,
-      ModifyUser: true
+    if (!updatedSession) {
+      return res.status(500).send({ message: 'Error updating session!' })
     }
 
-    await this.ModifySite({ ...req, body: updateData }, res)
+    const user = await User.findById(req.userId)
 
-    await this.ModifyUserData({ ...req, body: updateData }, res)
+    if (!user) {
+      // we need workaround for this so if in case we get error for this we can log this for futher processing ( we still have the total recalculation each day)
+      return res.status(200)
+      // return res.status(500).send({ message: 'User not found!' })
+    }
 
-    await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
-      activity: 'Session edited!',
-      date: new Date()
+    user.TotalTime += req.body.originalSessionTime - updateSessionData.sessionTime
+    user.TotalEarned += req.body.originalTotalSilverAfterTaxes - updateSessionData.totalSilverAfterTaxes
+    user.RecentActivity.push({ activity: 'Session edited!', date: new Date() })
+    // user.TotalExpenses += req.body.originalSessionTime - updateSessionData.sessionTime
+    await user.save().catch(async (err) => {
+      console.error('Error updating user:', err)
+      await Session.findByIdAndUpdate(sessionBackup._id,
+        { $set: { ...sessionBackup } }, { new: true })
+      res.status(500).send({ message: 'Error updating user!', err })
     })
 
+    const loadout = await Loadouts.findById(updatedSession.Loadout)
     res.status(200).send({
-      _id: updatedSession._id,
-      Date: updatedSession.Date,
-      TimeSpent: updatedSession.TimeSpent,
-      Earnings: updatedSession.Earnings,
-      Expenses: updatedSession.Expenses,
-      Gear: updatedSession.Gear
+      session: {
+        _id: updatedSession._id,
+        sessionTime: updatedSession.sessionTime,
+        Agris: updatedSession.Agris,
+        AgrisTotal: updatedSession.AgrisTotal,
+        totalSilverAfterTaxes: updatedSession.totalSilverAfterTaxes,
+        silverPerHourBeforeTaxes: updatedSession.silverPerHourBeforeTaxes,
+        silverPerHourAfterTaxes: updatedSession.silverPerHourAfterTaxes,
+        SettingsDropRate: updatedSession.SettingsDropRate,
+        DropItems: updatedSession.DropItems,
+        Loadout: loadout
+      }
     })
   } catch (err) {
     console.error('Error updating session:', err)
     res.status(500).send({ message: 'An error occured while updating the session.', err })
-  } */
+  }
 }
 
 // Remove
@@ -597,9 +635,9 @@ exports.GetSessionsData = async (req, res) => {
     const data = sessions.map((session) => ({
       _id: session._id,
       Date: UserControllerHelper.FormatSessionDate(session.creationDate),
-      SiteId: session.SiteId.SiteName,
+      SiteId: session.SiteId._id,
+      SiteName: session.SiteId.SiteName,
       sessionTime: session.sessionTime,
-      // add later SiteName: session.SiteId.SiteName,
       Agris: session.Agris,
       AgrisTotal: session.AgrisTotal,
       totalSilverAfterTaxes: session.totalSilverAfterTaxes,

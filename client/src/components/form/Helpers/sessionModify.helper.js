@@ -51,6 +51,7 @@ exports.handleDropItemChange = (dropItems, state, dispatch) => {
   dispatch({ type: 'ADD_SESSION_RECALCULATE_SILVER_CHANGE', payload: newState })
 }
 
+// move to HistoryHelper.js
 exports.formatNumberWithSpaces = (number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }

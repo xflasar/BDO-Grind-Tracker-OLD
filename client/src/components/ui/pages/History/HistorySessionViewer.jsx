@@ -75,7 +75,7 @@ const SessionViewer = ({ session, onCloseClick }) => {
         <div className="sessionViewOverlay-Content-Holder-MainContent-HeaderContent-Site">
           <h3>Site</h3>
           <div className="sessionViewOverlay-Content-Holder-MainContent-HeaderContent-Site-Content">
-            <h3>{session.SiteId}</h3>
+            <h3>{session.SiteName}</h3>
           </div>
         </div>
         <div className="sessionViewOverlay-Content-Holder-MainContent-HeaderContent-SessionTime">
