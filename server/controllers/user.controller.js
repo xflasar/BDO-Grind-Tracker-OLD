@@ -626,7 +626,15 @@ exports.GetSiteData = async (req, res) => {
 // Rework this
 exports.GetSessionsData = async (req, res) => {
   try {
-    const sessions = await Session.find({ UserId: req.userId }).populate('SiteId').populate('Loadout')
+    const query = {
+      UserId: req.userId
+    }
+
+    if (req.query.lastId) {
+      query.lastId = req.query.lastId
+    }
+
+    const sessions = await Session.find(query).limit(req.query.items).populate('SiteId').populate('Loadout')
 
     if (!sessions || sessions.length === 0) {
       return res.status(200).send({ message: 'No sessions found!' })

@@ -13,7 +13,7 @@ function History () {
 
   async function fetchHistoryData () {
     try {
-      const res = await authorizedFetch('api/user/historydata')
+      const res = await authorizedFetch('api/user/historydata' + '?items=' + state.paginationMaxElements)
       const data = await res.json()
       return data
     } catch (error) {
@@ -39,6 +39,8 @@ function History () {
           return
         }
         dispatch({ type: 'SET_HISTORY', payload: data })
+        console.log(data)
+        dispatch({ type: 'SET_PAGINATION_DATA', payload: data.length })
       })
       .catch(() => {
         dispatch({ type: 'SET_HISTORY', payload: [] })
@@ -143,6 +145,16 @@ function History () {
                 onOpenSessionViewer={(item) => handleShowSessionViewer(item)}
               />
             )}
+            <div className="history-table-container-pagination">
+              {state.paginationPages.map((page) => {
+                return (
+                  <button key={page} name="paginationButton" onClick={() => dispatch({ type: 'SET_CURRENT_PAGE', payload: page })}>
+                    {page}
+                  </button>
+                )
+              }
+              )}
+            </div>
           </div>
         </div>
       )}

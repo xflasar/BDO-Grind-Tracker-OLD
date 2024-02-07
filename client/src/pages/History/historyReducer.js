@@ -3,7 +3,11 @@ export const INITIAL_STATE = {
   editData: null,
   sessionViewerData: null,
   showAddSession: false,
-  showEditSession: false
+  showEditSession: false,
+  paginationMaxElements: 10,
+  paginationCurrentPage: 1,
+  paginationTotalPages: 1,
+  paginationPages: []
 }
 
 export const historyReducer = (state, action) => {
@@ -13,6 +17,24 @@ export const historyReducer = (state, action) => {
         ...state,
         data: action.payload
       }
+    case 'SET_CURRENT_PAGE':
+      return {
+        ...state,
+        paginationCurrentPage: action.payload
+      }
+    case 'SET_PAGINATION_DATA':
+    {
+      const pages = []
+      for (let i = 1; i < action.payload + 1; i++) {
+        pages.push(i)
+      }
+      console.log(pages)
+      return {
+        ...state,
+        paginationTotalPages: action.payload,
+        paginationPages: pages
+      }
+    }
     case 'SHOW_ADD_SESSION':
       return {
         ...state,
