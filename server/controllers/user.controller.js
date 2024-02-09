@@ -633,8 +633,9 @@ exports.GetSessionsData = async (req, res) => {
     if (req.query.lastId) {
       query.lastId = req.query.lastId
     }
+    req.query.page -= 1
 
-    const sessions = await Session.find(query).limit(req.query.items).populate('SiteId').populate('Loadout')
+    const sessions = await Session.find(query).skip(req.query.page * req.query.items).limit(req.query.items).populate('SiteId').populate('Loadout')
 
     if (!sessions || sessions.length === 0) {
       return res.status(200).send({ message: 'No sessions found!' })
@@ -657,7 +658,9 @@ exports.GetSessionsData = async (req, res) => {
       Loadout: session.Loadout
     }))
 
-    res.status(200).send(data)
+    const totalPages = Math.ceil(await Session.estimatedDocumentCount(query) / req.query.items)
+
+    res.status(200).send({ data, pages: totalPages })
   } catch (err) {
     console.error(err)
     res.status(500).send({ message: err.message })

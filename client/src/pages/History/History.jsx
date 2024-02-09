@@ -13,7 +13,7 @@ function History () {
 
   async function fetchHistoryData () {
     try {
-      const res = await authorizedFetch('api/user/historydata' + '?items=' + state.paginationMaxElements)
+      const res = await authorizedFetch('api/user/historydata' + '?items=' + state.paginationMaxElements + '&page=' + state.paginationCurrentPage)
       const data = await res.json()
       return data
     } catch (error) {
@@ -38,14 +38,14 @@ function History () {
           dispatch({ type: 'SET_HISTORY', payload: [] })
           return
         }
-        dispatch({ type: 'SET_HISTORY', payload: data })
+        dispatch({ type: 'SET_HISTORY', payload: data.data })
         console.log(data)
-        dispatch({ type: 'SET_PAGINATION_DATA', payload: data.length })
+        dispatch({ type: 'SET_PAGINATION_DATA', payload: data.pages })
       })
       .catch(() => {
         dispatch({ type: 'SET_HISTORY', payload: [] })
       })
-  }, [isSignedIn])
+  }, [isSignedIn, state.paginationCurrentPage])
 
   function handleAddSession () {
     dispatch({ type: 'SHOW_ADD_SESSION' })
