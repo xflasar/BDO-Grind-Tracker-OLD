@@ -276,56 +276,61 @@ exports.AddSession = async (req, res) => {
     Loadout: req.body.Loadout
   })
 
-  sessionDoc.save().then((doc) => {
-    User.findById(req.userId).then((user) => {
-      if (!user) {
-        sessionDoc.deleteOne().then(() => {
-          console.log('Session deleted!')
-        })
-        return res.status(500).send({ message: 'User not found!' })
-      }
-
-      user.Sites.push(doc.SiteId)
-      user.Sessions.push(doc._id)
-      user.save().then(() => {
-        console.log('User Sites updated!')
-        Site.findById(doc.SiteId).then((site) => {
-          site.SiteData.push(doc._id)
-          site.save().then(async () => {
-            console.log('Site Sites updated!')
-            const loadout = {
-              _id: req.body.Loadout,
-              name: await Loadouts.findById(req.body.Loadout).then((loadout) => loadout.name)
-            }
-            const data = {
-              _id: doc._id,
-              Date: UserControllerHelper.FormatSessionDate(doc.creationDate),
-              SiteId: doc.SiteId,
-              SiteName: site.SiteName,
-              sessionTime: doc.sessionTime,
-              Agris: doc.Agris,
-              AgrisTotal: doc.AgrisTotal,
-              totalSilverAfterTaxes: doc.totalSilverAfterTaxes,
-              silverPerHourBeforeTaxes: doc.silverPerHourBeforeTaxes,
-              silverPerHourAfterTaxes: doc.silverPerHourAfterTaxes,
-              tax: doc.tax,
-              SettingsDropRate: doc.SettingsDropRate,
-              DropItems: doc.DropItems,
-              Loadout: loadout
-            }
-            res.status(200).send(data)
+  try {
+    sessionDoc.save().then((doc) => {
+      User.findById(req.userId).then(async (user) => {
+        if (!user) {
+          sessionDoc.deleteOne().then(() => {
+            console.log('Session deleted!')
           })
-        })
+          return res.status(500).send({ message: 'User not found!' })
+        }
+
+        if (!user.Sites.find((site) => site.id === doc.SiteId)) {
+          user.Sites.push(doc.SiteId)
+        }
+
+        const userSavedStatus = await UserControllerHelper.UpdateUserAfterSessionSaved(user, doc, Session)
+
+        if (userSavedStatus) {
+          Site.findById(doc.SiteId).then((site) => {
+            site.SiteData.push(doc._id)
+            site.save().then(async () => {
+              console.log('Site Sites updated!')
+              const loadout = {
+                _id: req.body.Loadout,
+                name: await Loadouts.findById(req.body.Loadout).then((loadout) => loadout.name)
+              }
+              const data = {
+                _id: doc._id,
+                Date: UserControllerHelper.FormatSessionDate(doc.creationDate),
+                SiteId: doc.SiteId,
+                SiteName: site.SiteName,
+                sessionTime: doc.sessionTime,
+                Agris: doc.Agris,
+                AgrisTotal: doc.AgrisTotal,
+                totalSilverAfterTaxes: doc.totalSilverAfterTaxes,
+                silverPerHourBeforeTaxes: doc.silverPerHourBeforeTaxes,
+                silverPerHourAfterTaxes: doc.silverPerHourAfterTaxes,
+                tax: doc.tax,
+                SettingsDropRate: doc.SettingsDropRate,
+                DropItems: doc.DropItems,
+                Loadout: loadout
+              }
+              res.status(200).send(data)
+            })
+          })
+        }
       })
+      console.log('Inserted:', doc)
     })
-    console.log('Inserted:', doc)
-  }).catch((error) => {
-    console.log('Error:', error)
+  } catch (err) {
+    console.log('Error:', err)
     sessionDoc.deleteOne().then(() => {
       console.log('Session deleted!')
     })
-    return res.status(500).send(error)
-  })
+    return res.status(500).send(err)
+  }
 }
 
 // Remove
@@ -388,8 +393,8 @@ exports.EditSession = async (req, res) => {
       // return res.status(500).send({ message: 'User not found!' })
     }
 
-    user.TotalTime += req.body.originalSessionTime - updateSessionData.sessionTime
-    user.TotalEarned += req.body.originalTotalSilverAfterTaxes - updateSessionData.totalSilverAfterTaxes
+    user.TotalTime += updateSessionData.sessionTime - req.body.originalSessionTime
+    user.TotalEarned += updateSessionData.totalSilverAfterTaxes - req.body.originalTotalSilverAfterTaxes
     user.RecentActivity.push({ activity: 'Session edited!', date: new Date() })
     // user.TotalExpenses += req.body.originalSessionTime - updateSessionData.sessionTime
     await user.save().catch(async (err) => {

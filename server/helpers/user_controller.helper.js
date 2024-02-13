@@ -52,9 +52,9 @@ exports.GetWeightedAverage = async (dbSchema, siteId = null, userId = null, type
     {
       $group: {
         _id: null,
-        TotalEarned: { $sum: '$Earnings' },
-        TotalExpenses: { $sum: '$Expenses' },
-        TotalTime: { $sum: '$TimeSpent' },
+        TotalEarned: { $sum: '$totalSilverAfterTaxes' },
+        // TotalExpenses: { $sum: '$Expenses' },
+        TotalTime: { $sum: '$sessionTime' },
         TotalEntries: { $sum: 1 },
         sessions: { $push: '$$ROOT' }
       }
@@ -65,9 +65,9 @@ exports.GetWeightedAverage = async (dbSchema, siteId = null, userId = null, type
     {
       $project: {
         _id: '$sessions._id',
-        sessionEarnings: '$sessions.Earnings',
+        sessionEarnings: '$sessions.totalSilverAfterTaxes',
         TotalEarned: '$TotalEarned',
-        TotalExpenses: '$TotalExpenses',
+        // TotalExpenses: '$TotalExpenses',
         TotalTime: '$TotalTime',
         TotalEntries: '$TotalEntries'
       }
@@ -82,7 +82,7 @@ exports.GetWeightedAverage = async (dbSchema, siteId = null, userId = null, type
         _id: null,
         weightedAverage: { $sum: { $multiply: ['$sessionEarnings', '$contribution'] } },
         TotalEarned: { $first: '$TotalEarned' },
-        TotalExpenses: { $first: '$TotalExpenses' },
+        // TotalExpenses: { $first: '$TotalExpenses' },
         TotalTime: { $first: '$TotalTime' },
         TotalEntries: { $first: '$TotalEntries' }
       }
@@ -91,7 +91,7 @@ exports.GetWeightedAverage = async (dbSchema, siteId = null, userId = null, type
       $project: {
         _id: 0,
         TotalEarned: 1,
-        TotalExpenses: 1,
+        // TotalExpenses: 1,
         TotalTime: 1,
         TotalEntries: 1,
         weightedAverage: 1
@@ -129,11 +129,17 @@ exports.CreateSession = async (Session, siteId, sessionData, userId) => {
   return await sessionToAdd.save()
 }
 
+/*
+  Input:
+  - user -> found user document
+  - savedSession -> saved session document
+  - Session -> Session model
+*/
 exports.UpdateUserAfterSessionSaved = async (user, savedSession, Session) => {
   user.Sessions.push(savedSession._id)
-  user.TotalEarned += savedSession.Earnings
-  user.TotalExpenses += savedSession.Expenses
-  user.TotalTime += savedSession.TimeSpent
+  user.TotalEarned += savedSession.totalSilverAfterTaxes
+  // user.TotalExpenses += savedSession.Expenses
+  user.TotalTime += savedSession.sessionTime
   const data = await this.GetWeightedAverage(Session, savedSession.SiteId, user._id, 'SessionCreation')
   user.AverageEarnings = data[0].weightedAverage
   user.RecentActivity.push({ activity: 'Added new session.', date: new Date() })
