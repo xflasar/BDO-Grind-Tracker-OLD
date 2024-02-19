@@ -495,6 +495,16 @@ exports.ModifyUserData = async (req, res) => {
 // Data Delete
 
 // fixme: rework this
+/*
+  Inputs:
+    - SessionId
+    - SiteId
+    - UserId
+
+  Outputs:
+    - Session deleted
+    - Redirect to GetSessionData method
+*/
 exports.DeleteSession = async (req, res) => {
   try {
     const session = await Session.findById(req.body.SessionId)
@@ -506,13 +516,19 @@ exports.DeleteSession = async (req, res) => {
 
     const user = await User.findById(session.UserId)
     const site = await Site.findById(session.SiteId)
-    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, null, 'Site', session._id)
+
+    if (site) site.SiteData.filter((sessionData) => sessionData._id !== session._id)
+
+    site.save()
+
+    /*
+    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, null, 'Site', session._id) */
     const userUpdate = await UserControllerHelper.GetWeightedAverage(Session, null, session.UserId, 'User', session._id)
 
     const defaultUpdate = {
       TotalTime: 0,
       TotalEarned: 0,
-      TotalExpenses: 0,
+      // TotalExpenses: 0,
       AverageEarnings: 0,
       weightedAverage: 0
     }
@@ -520,29 +536,29 @@ exports.DeleteSession = async (req, res) => {
     if (userUpdate.length === 0 || userUpdate[0].TotalEntries === 0) {
       userUpdate.push(defaultUpdate)
     }
-
+    /*
     if (siteUpdate.length === 0 || siteUpdate[0].TotalEntries === 0) {
       siteUpdate.push(defaultUpdate)
-    }
+    } */
 
     if (user) {
       user.Sessions = user.Sessions.filter(sessionId => sessionId.toString() !== session._id.toString())
       user.TotalTime = userUpdate[0].TotalTime
       user.TotalEarned = userUpdate[0].TotalEarned
-      user.TotalExpenses = userUpdate[0].TotalExpenses
+      // user.TotalExpenses = userUpdate[0].TotalExpenses
       user.AverageEarnings = userUpdate[0].weightedAverage
 
       await user.save()
     }
 
-    if (site) {
+    /* if (site) {
       site.TotalTime = siteUpdate[0].TotalTime
       site.TotalEarned = siteUpdate[0].TotalEarned
-      site.TotalExpenses = siteUpdate[0].TotalExpenses
+      // site.TotalExpenses = siteUpdate[0].TotalExpenses
       site.AverageEarnings = siteUpdate[0].weightedAverage
 
       await site.save()
-    }
+    } */
 
     await Session.findByIdAndDelete(req.body.SessionId)
 
@@ -635,10 +651,19 @@ exports.GetSessionsData = async (req, res) => {
       UserId: req.userId
     }
 
+    if (!req.query.page) {
+      req.query.page = 0
+    } else if (req.query.page > 0) {
+      req.query.page -= 1
+    }
+
+    if (!req.query.items) {
+      req.query.items = 10
+    }
+
     if (req.query.lastId) {
       query.lastId = req.query.lastId
     }
-    req.query.page -= 1
 
     const sessions = await Session.find(query).skip(req.query.page * req.query.items).limit(req.query.items).populate('SiteId').populate('Loadout')
 

@@ -24,7 +24,7 @@ main {
   flex: 1;
   overflow: auto;
   overflow-x: hidden;
-  max-height: calc(100vh - 60px); // veiwport - header - main padding
+  max-height: calc(100vh - 60px - 70px); // veiwport - header - main padding
 }
 
 code {

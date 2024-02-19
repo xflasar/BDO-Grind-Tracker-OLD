@@ -22,3 +22,73 @@ exports.formatSessionTime = (sessionTime) => {
 
   return stringB
 }
+
+exports.sortData = (data, name, direction) => {
+  if (!data || data.length === 0) return []
+  if (!direction) return data
+
+  switch (name) {
+    case 'TimeSpent':
+      if (direction === 'desc') {
+        return data.sort((a, b) => {
+          return b.sessionTime - a.sessionTime
+        })
+      } else if (direction === 'asc') {
+        return data.sort((a, b) => {
+          return a.sessionTime - b.sessionTime
+        })
+      }
+      if (direction === 'desc') {
+        return data.sort((a, b) => {
+          return b.sessionTime - alert.sessionTime
+        })
+      } else if (direction === 'asc') {
+        return data.sort((a, b) => {
+          return a.sessionTime - b.sessionTime
+        })
+      }
+      break
+    case 'Date':
+      if (direction === 'desc') {
+        return data.sort((a, b) => new Date(b.Date) - new Date(a.Date))
+      } else if (direction === 'asc') {
+        return data.sort((a, b) => new Date(a.Date) - new Date(b.Date))
+      }
+      break
+    case 'SiteName':
+      if (direction === 'desc') {
+        return data.sort((a, b) => {
+          return b.SiteName.localeCompare(a.SiteName)
+        })
+      } else if (direction === 'asc') {
+        return data.sort((a, b) => {
+          return a.SiteName.localeCompare(b.SiteName)
+        })
+      }
+      break
+    case 'Earnings':
+      if (direction === 'desc') {
+        return data.sort((a, b) => {
+          return b.totalSilverAfterTaxes - a.totalSilverAfterTaxes
+        })
+      } else if (direction === 'asc') {
+        return data.sort((a, b) => {
+          return a.totalSilverAfterTaxes - b.totalSilverAfterTaxes
+        })
+      }
+      break
+    case 'Loadout':
+      if (direction === 'desc') {
+        return data.sort((a, b) => {
+          return b.Loadout.name.localeCompare(a.Loadout.name)
+        })
+      } else if (direction === 'asc') {
+        return data.sort((a, b) => {
+          return a.Loadout.name.localeCompare(b.Loadout.name)
+        })
+      }
+      break
+    default:
+      return data
+  }
+}

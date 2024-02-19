@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 import '../../../../assets/components/ui/History/HistoryTable.scss'
-import { formatEarnings, formatSessionTime } from '../../../form/Helpers/HistoryHelpers'
+import { formatEarnings, formatSessionTime, sortData } from '../../../form/Helpers/HistoryHelpers'
+import { INITIAL_STATE, sortReducer } from './HistoryTable.reducer'
 
 const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }) => {
+  const [state, dispatch] = useReducer(sortReducer, INITIAL_STATE)
   /* const data1 = []
   for (let i = 0; i < data.length; i++) {
     data1.push(data[i])
@@ -28,23 +30,68 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
         <td className="history-table-item" role="historyTableItem">{item.Date}</td>
         <td className="history-table-item" role="historyTableItem">{item.SiteName}</td>
         <td className="history-table-item" role="historyTableItem">{formatSessionTime(item.sessionTime)}</td>
-        <td className="history-table-item" role="historyTableItem">{formatEarnings(item.totalSilverAfterTaxes)}</td>
+        <td className="history-table-item" role="historyTableItem">{formatEarnings(Math.floor(item.totalSilverAfterTaxes))}</td>
         <td className="history-table-item" role="historyTableItem">{item.Expenses} Not Implemented!</td>
         <td className="history-table-item" role="historyTableItem">{item.Loadout.name}</td>
       </>
     )
   }
 
+  // Sorting
+  const handleSortingByDate = () => {
+    dispatch({ type: 'SORT', payload: { sortName: 'Date' } })
+    data = sortData(data, state.sortName, state.sortDirection)
+  }
+
+  const handleSortingBySiteName = () => {
+    dispatch({ type: 'SORT', payload: { sortName: 'SiteName' } })
+  }
+
+  const handleSortingByTimeSpent = () => {
+    dispatch({ type: 'SORT', payload: { sortName: 'TimeSpent' } })
+  }
+
+  const handleSortingByEarnings = () => {
+    dispatch({ type: 'SORT', payload: { sortName: 'Earnings' } })
+  }
+
+  const handleSortingByLoadout = () => {
+    dispatch({ type: 'SORT', payload: { sortName: 'Loadout' } })
+  }
+
+  useEffect(() => {
+    data = sortData(data, state.sortName, state.sortDirection)
+    dispatch({ type: 'SET_DATA', payload: { data } })
+  }, [data, state.sortName, state.sortDirection])
+
+  function buildTableHeader (name, fn = null) {
+    return (
+      <th onClick={fn != null ? () => fn() : null}>
+        <div className='history-table-header-holder'>
+          <span>{name}</span>
+          <div className={state.sortName === name.replace(' ', '') && (state.sortDirection === 'asc') ? 'ascending active' : 'ascending'} />
+          <div className={state.sortName === name.replace(' ', '') && (state.sortDirection === 'desc') ? 'descending active' : 'descending'} />
+        </div>
+      </th>
+    )
+  }
+
+  function renderTableHeader () {
+    return [
+      buildTableHeader('Date', handleSortingByDate),
+      buildTableHeader('Site Name', handleSortingBySiteName),
+      buildTableHeader('Time Spent', handleSortingByTimeSpent),
+      buildTableHeader('Earnings', handleSortingByEarnings),
+      buildTableHeader('Expenses', null),
+      buildTableHeader('Loadout', handleSortingByLoadout)
+    ]
+  }
+
   return (
   <table role="historyTable" className="history-table">
     <thead className="history-table-header">
       <tr>
-        <th>Date</th>
-        <th>Site Name</th>
-        <th>Time Spent</th>
-        <th>Earnings</th>
-        <th>Expenses</th>
-        <th>Loadout</th>
+        {renderTableHeader().map((item, index) => item)}
       </tr>
     </thead>
     <tbody className="history-table-content">

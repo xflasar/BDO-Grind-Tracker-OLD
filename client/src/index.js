@@ -48,8 +48,8 @@ const App = () => {
           <Route exact path='/access-denied' element={<AccessDenied/>} />
           <Route path='*' element={<NotFound/>} />
         </Routes>
-        <Footer/>
       </main>
+      <Footer/>
     </BrowserRouter>
   )
 }

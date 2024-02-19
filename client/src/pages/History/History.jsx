@@ -79,7 +79,10 @@ function History () {
         if (response.message === 'No sessions found!') {
           dispatch({ type: 'SET_HISTORY', payload: [] })
         } else {
-          dispatch({ type: 'SET_HISTORY', payload: response })
+          dispatch({ type: 'SET_HISTORY', payload: response.data })
+          console.log(response)
+          dispatch({ type: 'SET_PAGINATION_DATA', payload: response.pages })
+          dispatch({ type: 'SET_CURRENT_PAGE', payload: 1 })
         }
       }
     } catch (error) {
@@ -145,7 +148,8 @@ function History () {
                 onOpenSessionViewer={(item) => handleShowSessionViewer(item)}
               />
             )}
-            <div className="history-table-container-pagination">
+          </div>
+          <div className="pagination">
               {state.paginationPages.map((page) => {
                 return (
                   <button key={page} name="paginationButton" onClick={() => dispatch({ type: 'SET_CURRENT_PAGE', payload: page })}>
@@ -155,7 +159,6 @@ function History () {
               }
               )}
             </div>
-          </div>
         </div>
       )}
     </>

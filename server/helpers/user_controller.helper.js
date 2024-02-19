@@ -134,6 +134,9 @@ exports.CreateSession = async (Session, siteId, sessionData, userId) => {
   - user -> found user document
   - savedSession -> saved session document
   - Session -> Session model
+
+  Output:
+  - saved user // this is probably not neededq
 */
 exports.UpdateUserAfterSessionSaved = async (user, savedSession, Session) => {
   user.Sessions.push(savedSession._id)
