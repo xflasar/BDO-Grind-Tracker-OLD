@@ -6,6 +6,26 @@ import { INITIAL_STATE, sortReducer } from './HistoryTable.reducer'
 
 const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }) => {
   const [state, dispatch] = useReducer(sortReducer, INITIAL_STATE)
+
+  function handleGetSessionSites () {
+    const Sites = []
+
+    data.map((session) => {
+      if (!Sites.includes(session.SiteName)) {
+        Sites.push(session.SiteName)
+      }
+      return session
+    })
+
+    if (Sites.length > 0) {
+      dispatch({ type: 'SET_SITES', payload: Sites })
+    }
+  }
+  useEffect(() => {
+    handleGetSessionSites()
+    console.log('Sites: ' + state.sites)
+  }, [data])
+
   /* const data1 = []
   for (let i = 0; i < data.length; i++) {
     data1.push(data[i])
@@ -87,29 +107,48 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
     ]
   }
 
+  const handleSorterSearchBarChange = (e) => {
+    dispatch({ type: 'SORTER_INPUT_CHANGE', payload: e.target.name })
+    console.log(state.sorterSearchBarValue)
+  }
+
   return (
-  <table role="historyTable" className="history-table">
-    <thead className="history-table-header">
-      <tr>
-        {renderTableHeader().map((item, index) => item)}
-      </tr>
-    </thead>
-    <tbody className="history-table-content">
-    {data?.map((item, index) => (
-      <tr key={item._id} className="history-table-row" role="historyTableRow" onClick={(e) => handleOpenSessionViewer(e, item)}>
-        {renderTableRow(item)}
-        <td className="history-table-control" role="historyTableItem" key={`${item._id}_controls`}>
-          <button className="history-table-item-button edit" role="historyTableItemButton" onClick={() => onEditTrigger(item)}>
-              Edit
-          </button>
-          <button className="history-table-item-button delete" role="historyTableItemButton" onClick={() => onDeleteTrigger(item._id)}>
-              Delete
-          </button>
-        </td>
-      </tr>
-    ))}
-    </tbody>
-  </table>
+    <>
+      <section className='history-sorter'>
+        <div className='history-sorter-holder'>
+          {/* change this to a dictionary??? */}
+          {state.sites && state.sites.map((site, index) => {
+            return (
+              <div key={index} className='history-sorter-holder-item' name={site} onClick={(e) => handleSorterSearchBarChange(e)}>
+                <span>{site}</span>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+      <table role="historyTable" className="history-table">
+        <thead className="history-table-header">
+          <tr>
+            {renderTableHeader().map((item, index) => item)}
+          </tr>
+        </thead>
+        <tbody className="history-table-content">
+        {data?.map((item, index) => (
+          <tr key={item._id} className="history-table-row" role="historyTableRow" onClick={(e) => handleOpenSessionViewer(e, item)}>
+            {renderTableRow(item)}
+            <td className="history-table-control" role="historyTableItem" key={`${item._id}_controls`}>
+              <button className="history-table-item-button edit" role="historyTableItemButton" onClick={() => onEditTrigger(item)}>
+                  Edit
+              </button>
+              <button className="history-table-item-button delete" role="historyTableItemButton" onClick={() => onDeleteTrigger(item._id)}>
+                  Delete
+              </button>
+            </td>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+    </>
   )
 }
 

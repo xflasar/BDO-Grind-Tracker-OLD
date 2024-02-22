@@ -10,6 +10,39 @@
     caret-color: transparent;
 }
 
+.history-sorter {
+  position: relative;
+  margin-top: 0.1rem;
+  margin-bottom: 1rem;
+  width: 90%;
+
+  &-holder {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    &-item {
+      position: relative;
+      width: fit-content;
+      white-space: nowrap;
+      outline: 1px solid rgba(0, 0, 0, 0.5);
+      background-color:rgba(80, 80, 80, 0.3);
+      border-radius: 15px;
+      padding: 0.2rem;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.2)
+      }
+    }
+  }
+}
+
+
+
+
 .history-table-header{
     background-color: rgba(0, 0, 0, 0.5);
     color: $text;

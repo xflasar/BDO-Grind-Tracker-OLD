@@ -1,7 +1,9 @@
 exports.INITIAL_STATE = {
   data: [],
   sortName: '',
-  sortDirection: ''
+  sortDirection: '',
+  sorterSelectedValue: '',
+  sites: []
 }
 
 exports.sortReducer = (state, action) => {
@@ -10,6 +12,16 @@ exports.sortReducer = (state, action) => {
       return {
         ...state,
         data: action.payload.data
+      }
+    case 'SET_SITES':
+      return {
+        ...state,
+        sites: action.payload
+      }
+    case 'SORTER_SELECTION_CHANGE':
+      return {
+        ...state,
+        sorterSearchBarValue: action.payload
       }
     case 'SORT':
       return {
