@@ -24,73 +24,23 @@ exports.formatSessionTime = (sessionTime) => {
 }
 
 exports.sortData = (data, name, direction) => {
-  if (!data || data.length === 0) return []
-  if (!direction) return data
+  if (!data || data.length === 0 || !direction) return data
 
-  switch (name) {
-    case 'TimeSpent':
-      if (direction === 'desc') {
-        return data.sort((a, b) => {
-          return b.sessionTime - a.sessionTime
-        })
-      } else if (direction === 'asc') {
-        return data.sort((a, b) => {
-          return a.sessionTime - b.sessionTime
-        })
-      }
-      if (direction === 'desc') {
-        return data.sort((a, b) => {
-          return b.sessionTime - alert.sessionTime
-        })
-      } else if (direction === 'asc') {
-        return data.sort((a, b) => {
-          return a.sessionTime - b.sessionTime
-        })
-      }
-      break
-    case 'Date':
-      if (direction === 'desc') {
-        return data.sort((a, b) => new Date(b.Date) - new Date(a.Date))
-      } else if (direction === 'asc') {
-        return data.sort((a, b) => new Date(a.Date) - new Date(b.Date))
-      }
-      break
-    case 'SiteName':
-      if (direction === 'desc') {
-        return data.sort((a, b) => {
-          return b.SiteName.localeCompare(a.SiteName)
-        })
-      } else if (direction === 'asc') {
-        return data.sort((a, b) => {
-          return a.SiteName.localeCompare(b.SiteName)
-        })
-      }
-      break
-    case 'Earnings':
-      if (direction === 'desc') {
-        return data.sort((a, b) => {
-          return b.totalSilverAfterTaxes - a.totalSilverAfterTaxes
-        })
-      } else if (direction === 'asc') {
-        return data.sort((a, b) => {
-          return a.totalSilverAfterTaxes - b.totalSilverAfterTaxes
-        })
-      }
-      break
-    case 'Loadout':
-      if (direction === 'desc') {
-        return data.sort((a, b) => {
-          return b.Loadout.name.localeCompare(a.Loadout.name)
-        })
-      } else if (direction === 'asc') {
-        return data.sort((a, b) => {
-          return a.Loadout.name.localeCompare(b.Loadout.name)
-        })
-      }
-      break
-    default:
-      return data
+  const sortFunctions = {
+    TimeSpent: (a, b) => (direction === 'desc' ? b.sessionTime - a.sessionTime : a.sessionTime - b.sessionTime),
+    Date: (a, b) => (direction === 'desc' ? new Date(b.Date) - new Date(a.Date) : new Date(a.Date) - new Date(b.Date)),
+    SiteName: (a, b) => (direction === 'desc' ? b.SiteName.localeCompare(a.SiteName) : a.SiteName.localeCompare(b.SiteName)),
+    Earnings: (a, b) => (direction === 'desc' ? b.totalSilverAfterTaxes - a.totalSilverAfterTaxes : a.totalSilverAfterTaxes - b.totalSilverAfterTaxes),
+    Loadout: (a, b) => (direction === 'desc' ? b.Loadout.name.localeCompare(a.Loadout.name) : a.Loadout.name.localeCompare(b.Loadout.name))
   }
+
+  const sortFunction = sortFunctions[name]
+
+  if (sortFunction) {
+    return data.sort(sortFunction)
+  }
+
+  return data
 }
 
 exports.filterData = (data, selection) => {

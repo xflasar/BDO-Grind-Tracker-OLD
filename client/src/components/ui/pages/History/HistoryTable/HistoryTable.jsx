@@ -83,6 +83,13 @@ const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenS
     dispatch({ type: 'SORT', payload: { sortName: 'Loadout' } })
   }
 
+  useEffect(() => {
+    if (state.sortName === '') return
+    console.log(state.sortDirection, state.sortName)
+    const sortedData = HistoryHelper.sortData(state.data, state.sortName, state.sortDirection)
+    dispatch({ type: 'SET_DATA', payload: sortedData })
+  }, [state.sortName, state.sortDirection])
+
   function buildTableHeader (name, fn = null) {
     return (
       <th key={name} onClick={fn != null ? () => fn() : null}>
