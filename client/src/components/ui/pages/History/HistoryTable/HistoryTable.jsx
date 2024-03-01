@@ -15,7 +15,7 @@ const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenS
     const fetchData = async () => {
       try {
         const data = await HistoryHelper.fetchData(
-          { paginationMaxElements: state.paginationMaxElements, paginationCurrentPage: state.paginationCurrentPage, filteringValue: state.filteringValue },
+          { paginationMaxElements: Number(state.paginationMaxElements), paginationCurrentPage: Number(state.paginationCurrentPage), filteringValue: state.filteringValue },
           authorizedFetch
         )
 
