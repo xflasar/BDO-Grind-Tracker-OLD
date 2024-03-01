@@ -24,14 +24,13 @@ const HistorySorting = ({ data, dispatch }) => {
   }
 
   const handleSorterValueChange = (e, key) => {
-    console.log('Key:' + key)
-    let selectedValue = e.target.getAttribute('name')
-    const isSameFilterSelected = selectedValue === sorterSelectedValue
+    const selectedValue = e.target.getAttribute('name')
+    setSorterSelectedValue(selectedValue === sorterSelectedValue ? undefined : selectedValue)
 
-    if (isSameFilterSelected) selectedValue = undefined
-
-    dispatch({ type: 'SORTER_SELECTION_CHANGE', payload: key })
-    setSorterSelectedValue(selectedValue)
+    dispatch({
+      type: 'SORTER_SELECTION_CHANGE',
+      payload: selectedValue === sorterSelectedValue ? undefined : key
+    })
   }
 
   // move stuff from HistroyTable to here
