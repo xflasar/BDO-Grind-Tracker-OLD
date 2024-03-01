@@ -30,7 +30,8 @@ exports.sortReducer = (state, action) => {
     case 'SORTER_SELECTION_CHANGE':
       return {
         ...state,
-        filteringValue: action.payload
+        filteringValue: action.payload,
+        paginationCurrentPage: 0
       }
     case 'SORT':
       return {
@@ -49,7 +50,7 @@ exports.sortReducer = (state, action) => {
       for (let i = 1; i < action.payload + 1; i++) {
         pages.push(i)
       }
-      console.log(pages)
+
       return {
         ...state,
         paginationTotalPages: action.payload,

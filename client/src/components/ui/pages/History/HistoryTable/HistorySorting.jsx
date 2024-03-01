@@ -48,7 +48,7 @@ const HistorySorting = ({ data, dispatch }) => {
         <div className='history-sorter-holder'>
           {sites && sites.map((site) => {
             return (
-              <div key={site.SiteId} className={sorterSelectedValue === site ? 'history-sorter-holder-item active' : 'history-sorter-holder-item'} name={site.SiteName} onClick={(e) => handleSorterValueChange(e, site.SiteId)}>
+              <div key={site.SiteId} className={sorterSelectedValue === site.SiteName ? 'history-sorter-holder-item active' : 'history-sorter-holder-item'} name={site.SiteName} onClick={(e) => handleSorterValueChange(e, site.SiteId)}>
                 <span>{site.SiteName}</span>
               </div>
             )
