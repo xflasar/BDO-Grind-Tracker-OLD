@@ -651,6 +651,10 @@ exports.GetSessionsData = async (req, res) => {
       UserId: req.userId
     }
 
+    if (req.query.filteringValue) {
+      query.SiteId = req.query.filteringValue
+    }
+
     if (!req.query.page) {
       req.query.page = 0
     } else if (req.query.page > 0) {
@@ -688,7 +692,7 @@ exports.GetSessionsData = async (req, res) => {
       Loadout: session.Loadout
     }))
 
-    const totalPages = Math.ceil(await Session.estimatedDocumentCount(query) / req.query.items)
+    const totalPages = Math.ceil(await Session.countDocuments(query) / req.query.items)
 
     res.status(200).send({ data, pages: totalPages })
   } catch (err) {

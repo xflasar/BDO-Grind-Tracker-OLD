@@ -1,5 +1,5 @@
-import React, { useEffect, useContext, useReducer } from 'react'
-import HistoryTable from '../../components/ui/pages/History/HistoryTable'
+import React, { useContext, useReducer } from 'react'
+import HistoryTable from '../../components/ui/pages/History/HistoryTable/HistoryTable'
 import EditSession from '../../components/form/EditSession/editSession'
 import '../../assets/pages/History/History.scss'
 import AddSession from '../../components/form/AddSession/addSession'
@@ -8,44 +8,8 @@ import { INITIAL_STATE, historyReducer } from './historyReducer'
 import SessionViewer from '../../components/ui/pages/History/HistorySessionViewer'
 
 function History () {
-  const { isSignedIn, authorizedFetch } = useContext(SessionContext)
+  const { authorizedFetch } = useContext(SessionContext)
   const [state, dispatch] = useReducer(historyReducer, INITIAL_STATE)
-
-  async function fetchHistoryData () {
-    try {
-      const res = await authorizedFetch('api/user/historydata' + '?items=' + state.paginationMaxElements + '&page=' + state.paginationCurrentPage)
-      const data = await res.json()
-      return data
-    } catch (error) {
-      console.log('Failed to fetch history data:', error)
-      return []
-    }
-  }
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      dispatch({ type: 'SET_HISTORY', payload: [] })
-      return
-    }
-
-    // Refactor this for update in data structure
-    fetchHistoryData()
-      .then((data) => {
-        if (data.message === 'No token provided!') {
-          dispatch({ type: 'SET_HISTORY', payload: [] })
-          return
-        } else if (data.message === 'No sessions found!') {
-          dispatch({ type: 'SET_HISTORY', payload: [] })
-          return
-        }
-        dispatch({ type: 'SET_HISTORY', payload: data.data })
-        console.log(data)
-        dispatch({ type: 'SET_PAGINATION_DATA', payload: data.pages })
-      })
-      .catch(() => {
-        dispatch({ type: 'SET_HISTORY', payload: [] })
-      })
-  }, [isSignedIn, state.paginationCurrentPage])
 
   function handleAddSession () {
     dispatch({ type: 'SHOW_ADD_SESSION' })
@@ -114,53 +78,39 @@ function History () {
 
   return (
     <>
-      {isSignedIn && (
-        <div role="historyContainer" className='historyContainer'>
-          <div className="sessionAdd">
-            <button name="sessionAdd button" onClick={handleAddSession}>
-              Add Session
-            </button>
-          </div>
-          {state.showSessionViewer && (
-            <SessionViewer session={state.sessionViewerData} onCloseClick={() => dispatch({ type: 'HIDE_SESSION_VIEWER' })} />
-          )}
-          {state.showAddSession && (
-            <AddSession
-            onAddSessionSuccess={handleOnAddSessionSuccess}
-            authorizedFetch={authorizedFetch}
-            onCloseClick={() => dispatch({ type: 'HIDE_ADD_SESSION' })}
-            />
-          )}
-          {state.showEditSession && (
-            <EditSession
-              data={state.editData}
-              onEditSuccess={handleEditSessionSuccess}
-              authorizedFetch={authorizedFetch}
-              onCloseClick={() => dispatch({ type: 'HIDE_EDIT_SESSION' })}
-            />
-          )}
-          <div className="history-table-container">
-            {state.data.length > 0 && (
-              <HistoryTable
-                onEditTrigger={handleEditSession}
-                onDeleteTrigger={handleDeleteSession}
-                data={state.data}
-                onOpenSessionViewer={(item) => handleShowSessionViewer(item)}
-              />
-            )}
-          </div>
-          <div className="pagination">
-              {state.paginationPages.map((page) => {
-                return (
-                  <button key={page} name="paginationButton" onClick={() => dispatch({ type: 'SET_CURRENT_PAGE', payload: page })}>
-                    {page}
-                  </button>
-                )
-              }
-              )}
-            </div>
+      <div role="historyContainer" className='historyContainer'>
+        <div className="sessionAdd">
+          <button name="sessionAdd button" onClick={handleAddSession}>
+            Add Session
+          </button>
         </div>
-      )}
+        {state.showSessionViewer && (
+          <SessionViewer session={state.sessionViewerData} onCloseClick={() => dispatch({ type: 'HIDE_SESSION_VIEWER' })} />
+        )}
+        {state.showAddSession && (
+          <AddSession
+          onAddSessionSuccess={handleOnAddSessionSuccess}
+          authorizedFetch={authorizedFetch}
+          onCloseClick={() => dispatch({ type: 'HIDE_ADD_SESSION' })}
+          />
+        )}
+        {state.showEditSession && (
+          <EditSession
+            data={state.editData}
+            onEditSuccess={handleEditSessionSuccess}
+            authorizedFetch={authorizedFetch}
+            onCloseClick={() => dispatch({ type: 'HIDE_EDIT_SESSION' })}
+          />
+        )}
+        <div className="history-table-container">
+          <HistoryTable
+              authorizedFetch={authorizedFetch}
+              onEditTrigger={handleEditSession}
+              onDeleteTrigger={handleDeleteSession}
+              onOpenSessionViewer={(item) => handleShowSessionViewer(item)}
+            />
+        </div>
+      </div>
     </>
   )
 }

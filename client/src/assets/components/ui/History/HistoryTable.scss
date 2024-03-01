@@ -8,13 +8,24 @@
     box-shadow: $box-shadow;
     color: $text;
     caret-color: transparent;
+    overflow: hidden;
 }
 
 .history-sorter {
   position: relative;
-  margin-top: 0.1rem;
   margin-bottom: 1rem;
   width: 90%;
+
+  h2 {
+    margin: 0;
+    margin-bottom: 1rem;
+
+    img {
+      object-fit: contain;
+      width: 1rem;
+      margin-bottom: 1rem;
+    }
+  }
 
   &-holder {
     position: relative;
@@ -33,10 +44,33 @@
       padding: 0.2rem;
       cursor: pointer;
 
+      span {
+        pointer-events: none;
+      }
+
       &:hover {
-        background-color: rgba(0, 0, 0, 0.2)
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+
+      &.active {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #ffa600;
       }
     }
+  }
+}
+
+.pagination {
+  position: relative;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  height: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+
+  button {
+    cursor: pointer;
   }
 }
 

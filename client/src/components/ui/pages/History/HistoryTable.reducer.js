@@ -2,8 +2,12 @@ exports.INITIAL_STATE = {
   data: [],
   sortName: '',
   sortDirection: '',
-  sorterSelectedValue: '',
-  sites: []
+  sites: [],
+  filteringValue: undefined,
+  paginationMaxElements: 10,
+  paginationCurrentPage: 1,
+  paginationTotalPages: 1,
+  paginationPages: []
 }
 
 exports.sortReducer = (state, action) => {
@@ -11,7 +15,12 @@ exports.sortReducer = (state, action) => {
     case 'SET_DATA':
       return {
         ...state,
-        data: action.payload.data
+        data: action.payload
+      }
+    case 'CHANGE_STATE_SHOW_HOVER_INFO':
+      return {
+        ...state,
+        showHoverInfo: action.payload
       }
     case 'SET_SITES':
       return {
@@ -21,7 +30,7 @@ exports.sortReducer = (state, action) => {
     case 'SORTER_SELECTION_CHANGE':
       return {
         ...state,
-        sorterSearchBarValue: action.payload
+        filteringValue: action.payload
       }
     case 'SORT':
       return {
@@ -29,6 +38,24 @@ exports.sortReducer = (state, action) => {
         sortName: action.payload.sortName,
         sortDirection: state.sortDirection === 'asc' ? 'desc' : 'asc'
       }
+    case 'SET_CURRENT_PAGE':
+      return {
+        ...state,
+        paginationCurrentPage: action.payload
+      }
+    case 'SET_PAGINATION_DATA':
+    {
+      const pages = []
+      for (let i = 1; i < action.payload + 1; i++) {
+        pages.push(i)
+      }
+      console.log(pages)
+      return {
+        ...state,
+        paginationTotalPages: action.payload,
+        paginationPages: pages
+      }
+    }
     default:
       return state
   }

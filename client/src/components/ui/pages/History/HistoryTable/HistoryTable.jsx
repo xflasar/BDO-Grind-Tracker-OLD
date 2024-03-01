@@ -1,30 +1,35 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
-import '../../../../assets/components/ui/History/HistoryTable.scss'
-import { formatEarnings, formatSessionTime, sortData } from '../../../form/Helpers/HistoryHelpers'
-import { INITIAL_STATE, sortReducer } from './HistoryTable.reducer'
+import '../../../../../assets/components/ui/History/HistoryTable.scss'
+import HistoryHelper from '../../../../form/Helpers/HistoryHelpers'
+import { INITIAL_STATE, sortReducer } from '../HistoryTable.reducer'
+import HistorySorting from './HistorySorting'
+import HistoryPagination from './HistoryPagination'
 
-const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }) => {
+const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }) => {
   const [state, dispatch] = useReducer(sortReducer, INITIAL_STATE)
 
-  function handleGetSessionSites () {
-    const Sites = []
-
-    data.map((session) => {
-      if (!Sites.includes(session.SiteName)) {
-        Sites.push(session.SiteName)
-      }
-      return session
-    })
-
-    if (Sites.length > 0) {
-      dispatch({ type: 'SET_SITES', payload: Sites })
-    }
-  }
   useEffect(() => {
-    handleGetSessionSites()
-    console.log('Sites: ' + state.sites)
-  }, [data])
+    // Add ratelimiting with callback to prevent spam
+    const fetchData = async () => {
+      try {
+        const data = await HistoryHelper.fetchData(
+          { paginationMaxElements: state.paginationMaxElements, paginationCurrentPage: state.paginationCurrentPage, filteringValue: state.filteringValue },
+          authorizedFetch
+        )
+
+        dispatch({ type: 'SET_DATA', payload: data.data })
+        dispatch({ type: 'SET_PAGINATION_DATA', payload: data.pages })
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        dispatch({ type: 'SET_DATA', payload: [] })
+      }
+    }
+    fetchData()
+  }, [state.paginationMaxElements, state.paginationCurrentPage, state.filteringValue, authorizedFetch])
+
+  // This is mostly wrong way of doing this
 
   /* const data1 = []
   for (let i = 0; i < data.length; i++) {
@@ -49,8 +54,8 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
       <>
         <td className="history-table-item" role="historyTableItem">{item.Date}</td>
         <td className="history-table-item" role="historyTableItem">{item.SiteName}</td>
-        <td className="history-table-item" role="historyTableItem">{formatSessionTime(item.sessionTime)}</td>
-        <td className="history-table-item" role="historyTableItem">{formatEarnings(Math.floor(item.totalSilverAfterTaxes))}</td>
+        <td className="history-table-item" role="historyTableItem">{HistoryHelper.formatSessionTime(item.sessionTime)}</td>
+        <td className="history-table-item" role="historyTableItem">{HistoryHelper.formatEarnings(Math.floor(item.totalSilverAfterTaxes))}</td>
         <td className="history-table-item" role="historyTableItem">{item.Expenses} Not Implemented!</td>
         <td className="history-table-item" role="historyTableItem">{item.Loadout.name}</td>
       </>
@@ -60,7 +65,6 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
   // Sorting
   const handleSortingByDate = () => {
     dispatch({ type: 'SORT', payload: { sortName: 'Date' } })
-    data = sortData(data, state.sortName, state.sortDirection)
   }
 
   const handleSortingBySiteName = () => {
@@ -79,14 +83,9 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
     dispatch({ type: 'SORT', payload: { sortName: 'Loadout' } })
   }
 
-  useEffect(() => {
-    data = sortData(data, state.sortName, state.sortDirection)
-    dispatch({ type: 'SET_DATA', payload: { data } })
-  }, [data, state.sortName, state.sortDirection])
-
   function buildTableHeader (name, fn = null) {
     return (
-      <th onClick={fn != null ? () => fn() : null}>
+      <th key={name} onClick={fn != null ? () => fn() : null}>
         <div className='history-table-header-holder'>
           <span>{name}</span>
           <div className={state.sortName === name.replace(' ', '') && (state.sortDirection === 'asc') ? 'ascending active' : 'ascending'} />
@@ -107,25 +106,9 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
     ]
   }
 
-  const handleSorterSearchBarChange = (e) => {
-    dispatch({ type: 'SORTER_INPUT_CHANGE', payload: e.target.name })
-    console.log(state.sorterSearchBarValue)
-  }
-
   return (
     <>
-      <section className='history-sorter'>
-        <div className='history-sorter-holder'>
-          {/* change this to a dictionary??? */}
-          {state.sites && state.sites.map((site, index) => {
-            return (
-              <div key={index} className='history-sorter-holder-item' name={site} onClick={(e) => handleSorterSearchBarChange(e)}>
-                <span>{site}</span>
-              </div>
-            )
-          })}
-        </div>
-      </section>
+      <HistorySorting data={state.data} dispatch={dispatch}/>
       <table role="historyTable" className="history-table">
         <thead className="history-table-header">
           <tr>
@@ -133,7 +116,7 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
           </tr>
         </thead>
         <tbody className="history-table-content">
-        {data?.map((item, index) => (
+        {state.data && state.data.map((item, index) => (
           <tr key={item._id} className="history-table-row" role="historyTableRow" onClick={(e) => handleOpenSessionViewer(e, item)}>
             {renderTableRow(item)}
             <td className="history-table-control" role="historyTableItem" key={`${item._id}_controls`}>
@@ -148,12 +131,17 @@ const HistoryTable = ({ data, onEditTrigger, onDeleteTrigger, onOpenSessionViewe
         ))}
         </tbody>
       </table>
+      {state.paginationPages && (
+      <>
+        <HistoryPagination paginationPages={state.paginationPages} dispatch={dispatch} />
+      </>
+      )}
     </>
   )
 }
 
 HistoryTable.propTypes = {
-  data: PropTypes.array,
+  authorizedFetch: PropTypes.func,
   onEditTrigger: PropTypes.func,
   onDeleteTrigger: PropTypes.func,
   onOpenSessionViewer: PropTypes.func.isRequired

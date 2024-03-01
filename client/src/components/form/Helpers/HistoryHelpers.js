@@ -92,3 +92,26 @@ exports.sortData = (data, name, direction) => {
       return data
   }
 }
+
+exports.filterData = (data, selection) => {
+  return data.filter((a) => a.SiteName === selection)
+}
+
+exports.fetchData = async (pagination, authorizedFetch) => {
+  try {
+    // Build the query string dynamically
+    const queryString = Object.entries(pagination)
+      .filter(([key, value]) => value !== undefined)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&')
+
+    const url = 'api/user/historydata' + (queryString ? `?${queryString}` : '')
+
+    const res = await authorizedFetch(url)
+    const data = await res.json()
+    return data
+  } catch (error) {
+    console.log('Failed to fetch history data:', error)
+    return []
+  }
+}

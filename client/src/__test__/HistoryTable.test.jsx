@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import HistoryTable from '../components/ui/pages/History/HistoryTable'
+import HistoryTable from '../components/ui/pages/History/HistoryTable/HistoryTable'
 
 describe('HistoryTable component', () => {
   const testData = [
