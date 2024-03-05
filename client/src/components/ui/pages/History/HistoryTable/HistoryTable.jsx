@@ -6,6 +6,7 @@ import HistoryHelper from '../../../../form/Helpers/HistoryHelpers'
 import { INITIAL_STATE, sortReducer } from '../HistoryTable.reducer'
 import HistorySorting from './HistorySorting'
 import HistoryPagination from './HistoryPagination'
+import DropDownTableElements from './DropDown'
 
 const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }) => {
   const [state, dispatch] = useReducer(sortReducer, INITIAL_STATE)
@@ -109,7 +110,12 @@ const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenS
       buildTableHeader('Time Spent', handleSortingByTimeSpent),
       buildTableHeader('Earnings', handleSortingByEarnings),
       buildTableHeader('Expenses', null),
-      buildTableHeader('Loadout', handleSortingByLoadout)
+      buildTableHeader('Loadout', handleSortingByLoadout),
+      (
+        <th key={'dropDown'}>
+          <DropDownTableElements dispatch={dispatch} />
+        </th>
+      )
     ]
   }
 

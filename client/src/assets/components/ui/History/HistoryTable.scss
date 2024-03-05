@@ -74,9 +74,6 @@
   }
 }
 
-
-
-
 .history-table-header{
     background-color: rgba(0, 0, 0, 0.5);
     color: $text;
@@ -84,6 +81,24 @@
     user-select: none;
 
     th {
+      .history-table-dropdown-menu {
+        background-color: blue;
+        overflow: hidden;
+        overflow-y: auto;
+
+        &-holder {
+          position: relative;
+          width: 80%;
+          height: 80%;
+          left: 10%;
+          top: 50%;
+          background-color:grey;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+        }
+      }
+      
       .history-table-header-holder {
         position: relative;
         display: flex;
