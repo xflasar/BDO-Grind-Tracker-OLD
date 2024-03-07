@@ -19,6 +19,7 @@
   h2 {
     margin: 0;
     margin-bottom: 1rem;
+    color: white;
 
     img {
       object-fit: contain;
@@ -41,8 +42,9 @@
       outline: 1px solid rgba(0, 0, 0, 0.5);
       background-color:rgba(80, 80, 80, 0.3);
       border-radius: 15px;
-      padding: 0.2rem;
+      padding: 0.35rem;
       cursor: pointer;
+      color: white;
 
       span {
         pointer-events: none;
@@ -50,6 +52,7 @@
 
       &:hover {
         background-color: rgba(0, 0, 0, 0.2);
+        color: #ffa600;
       }
 
       &.active {
