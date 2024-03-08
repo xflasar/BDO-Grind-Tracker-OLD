@@ -11,6 +11,8 @@ function History () {
   const { authorizedFetch } = useContext(SessionContext)
   const [state, dispatch] = useReducer(historyReducer, INITIAL_STATE)
 
+  const historyTableRef = React.createRef()
+
   function handleAddSession () {
     dispatch({ type: 'SHOW_ADD_SESSION' })
   }
@@ -60,7 +62,8 @@ function History () {
   }
 
   const handleOnAddSessionSuccess = async (data) => {
-    dispatch({ type: 'HANDLE_ADD_SESSION_SUCCESS', payload: data })
+    historyTableRef.current.handleAddSessionDataUpdate(data)
+    dispatch({ type: 'HIDE_ADD_SESSION' })
   }
 
   const handleShowSessionViewer = (data) => {
@@ -108,6 +111,7 @@ function History () {
               onEditTrigger={handleEditSession}
               onDeleteTrigger={handleDeleteSession}
               onOpenSessionViewer={(item) => handleShowSessionViewer(item)}
+              ref={historyTableRef}
             />
         </div>
       </div>

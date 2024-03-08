@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useReducer } from 'react'
+import React, { useEffect, useReducer, useRef, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types'
 import '../../../../../assets/components/ui/History/HistoryTable.scss'
 import HistoryHelper from '../../../../form/Helpers/HistoryHelpers'
@@ -8,8 +8,17 @@ import HistorySorting from './HistorySorting'
 import HistoryPagination from './HistoryPagination'
 import DropDownTableElements from './DropDown'
 
-const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }) => {
+const HistoryTable = React.forwardRef(({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenSessionViewer }, ref) => {
   const [state, dispatch] = useReducer(sortReducer, INITIAL_STATE)
+
+  useImperativeHandle(ref, () => ({
+    handleAddSessionDataUpdate (data) {
+      if (state.data.length + 1 > state.paginationMaxElements) {
+        return
+      }
+      dispatch({ type: 'ADD_SESSION', payload: data })
+    }
+  }))
 
   useEffect(() => {
     // Add ratelimiting with callback to prevent spam
@@ -159,7 +168,9 @@ const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenS
       </section>
     </>
   )
-}
+})
+
+HistoryTable.displayName = 'HistoryTable'
 
 HistoryTable.propTypes = {
   authorizedFetch: PropTypes.func,

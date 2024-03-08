@@ -18,6 +18,11 @@ exports.sortReducer = (state, action) => {
         ...state,
         data: action.payload
       }
+    case 'ADD_SESSION':
+      return {
+        ...state,
+        data: [action.payload, ...state.data]
+      }
     case 'CHANGE_STATE_SHOW_HOVER_INFO':
       return {
         ...state,
@@ -63,6 +68,11 @@ exports.sortReducer = (state, action) => {
         paginationPages: pages
       }
     }
+    case 'SET_PAGINATION_MAX_ELEMENTS':
+      return {
+        ...state,
+        paginationMaxElements: action.payload
+      }
     default:
       return state
   }

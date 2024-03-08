@@ -9,7 +9,7 @@ const DropDownTableElements = ({ dispatch }) => {
   const handleElementClick = (element) => {
     setSelectedElement(element)
     setShowDropDown(false)
-    dispatch({ type: 'ADD_ELEMENT', payload: element })
+    dispatch({ type: 'SET_PAGINATION_MAX_ELEMENTS', payload: element })
   }
 
   const handleShowDropDown = () => {
@@ -22,8 +22,8 @@ const DropDownTableElements = ({ dispatch }) => {
       <div className='dropMenu-container-value'>
         <span>{selectedElement}</span>
         <div className='dropMenu-container-items-container' style={{ display: showDropDown ? 'block' : 'none' }}>
-          <div onClick={() => handleElementClick(15)}>
-            15
+          <div onClick={() => handleElementClick(10)}>
+            10
           </div>
           <div onClick={() => handleElementClick(25)}>
             25
