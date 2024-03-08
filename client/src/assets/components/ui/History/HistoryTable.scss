@@ -9,12 +9,49 @@
     color: $text;
     caret-color: transparent;
     overflow: hidden;
+
+    
+}
+
+.history-table-undertable {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.25rem;
+
+}
+
+.history-table-undertable-loading {
+  position: relative;
+  white-space: nowrap;
+  outline: 1px solid rgba(0, 0, 0, 0.5);
+  background-color: rgba(80, 80, 80, 0.3);
+  border-radius: 15px;
+  padding: 0.35rem;
+  display: flex;
+  align-items:center;
+  color: white;
+  cursor: default;
 }
 
 .history-sorter {
   position: relative;
   margin-bottom: 1rem;
   width: 90%;
+
+  .tooltip {
+    position: absolute;
+    background-color: rgba(30, 30, 30, 0.6);
+    color: white;
+    outline: 2px solid black;
+    padding: 0.25rem;
+    z-index: 1;
+    top: 2%;
+    left: 12.5%;
+    max-width: 20%;
+    text-align: center;
+    font-size: 12px;
+    border-radius: 12px;
+  }
 
   h2 {
     margin: 0;
@@ -34,6 +71,19 @@
     flex-direction: row;
     flex-wrap: wrap;
     gap: 1rem;
+
+    &.loading {
+      justify-content: center;
+      cursor:default;
+
+      .history-sorter-holder-item {
+        &:hover {   
+          background-color:rgba(80, 80, 80, 0.3);
+          color: white;
+          cursor: default;
+        }
+      }
+    }
 
     &-item {
       position: relative;
@@ -65,15 +115,31 @@
 
 .pagination {
   position: relative;
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
   height: 1.5rem;
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
+  justify-content: center;
 
   button {
+    width: 1.5rem;
+    border-color: initial;
+    background-color:rgba(60, 65, 68, 1);
+    color: white;
     cursor: pointer;
+    border-radius: 0.375rem;
+    display: block;
+    transition: color 0.2s ease-in-out;
+    border: none;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    cursor: pointer;
+
+    &:hover, &.pagination-button.selected {
+      background-color: rgba(60, 65, 68, 0.8);
+      color: #ffa600;
+    }
   }
 }
 
@@ -84,6 +150,7 @@
     user-select: none;
 
     th {
+      width: 10%;
       .history-table-dropdown-menu {
         background-color: blue;
         overflow: hidden;
@@ -148,7 +215,6 @@
 }
 
 .history-table-row{
-    margin-top: 5rem;
     border-top: 1px solid rgba(0, 0, 0, 1);
     border-bottom: 1px solid rgba(0, 0, 0, 1);
     font-size: 0.8rem;

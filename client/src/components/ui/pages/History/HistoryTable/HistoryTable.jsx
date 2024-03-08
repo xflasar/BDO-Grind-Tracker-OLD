@@ -22,6 +22,7 @@ const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenS
 
         dispatch({ type: 'SET_DATA', payload: data.data })
         dispatch({ type: 'SET_PAGINATION_DATA', payload: data.pages })
+        dispatch({ type: 'SET_LOADING', payload: false })
       } catch (error) {
         console.error('Error fetching data:', error)
         dispatch({ type: 'SET_DATA', payload: [] })
@@ -125,11 +126,11 @@ const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenS
       <table role="historyTable" className="history-table">
         <thead className="history-table-header">
           <tr>
-            {renderTableHeader().map((item, index) => item)}
+            {renderTableHeader().map((item) => item)}
           </tr>
         </thead>
-        <tbody className="history-table-content">
-        {state.data && state.data.map((item, index) => (
+        <tbody className='history-table-content'>
+        {state.data && !state.loading && state.data.map((item) => (
           <tr key={item._id} className="history-table-row" role="historyTableRow" onClick={(e) => handleOpenSessionViewer(e, item)}>
             {renderTableRow(item)}
             <td className="history-table-control" role="historyTableItem" key={`${item._id}_controls`}>
@@ -144,11 +145,18 @@ const HistoryTable = ({ authorizedFetch, onEditTrigger, onDeleteTrigger, onOpenS
         ))}
         </tbody>
       </table>
-      {state.paginationPages && (
-      <>
-        <HistoryPagination paginationPages={state.paginationPages} dispatch={dispatch} />
-      </>
-      )}
+      <section className='history-table-undertable'>
+        {state.loading && <div className='history-table-undertable-loading'>
+          <span>
+            Loading...
+          </span>
+        </div>}
+        {state.paginationPages && (
+          <>
+            <HistoryPagination paginationPages={state.paginationPages} currentPage={state.paginationCurrentPage} dispatch={dispatch} />
+          </>
+        )}
+      </section>
     </>
   )
 }

@@ -7,7 +7,8 @@ exports.INITIAL_STATE = {
   paginationMaxElements: 10,
   paginationCurrentPage: 1,
   paginationTotalPages: 1,
-  paginationPages: []
+  paginationPages: [],
+  loading: true
 }
 
 exports.sortReducer = (state, action) => {
@@ -26,6 +27,11 @@ exports.sortReducer = (state, action) => {
       return {
         ...state,
         sites: action.payload
+      }
+    case 'SET_LOADING':
+      return {
+        ...state,
+        loading: action.payload
       }
     case 'SORTER_SELECTION_CHANGE':
       return {

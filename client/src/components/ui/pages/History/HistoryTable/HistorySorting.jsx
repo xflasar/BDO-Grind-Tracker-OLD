@@ -5,6 +5,8 @@ const HistorySorting = ({ data, dispatch }) => {
   const [sorterSelectedValue, setSorterSelectedValue] = useState('')
   const [unfilteredData, setUnfilteredData] = useState([])
   const [sites, setSites] = useState([])
+  const [tooltip, setTooltip] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   // useEffects
   useEffect(() => {
@@ -33,20 +35,33 @@ const HistorySorting = ({ data, dispatch }) => {
     })
   }
 
-  // move stuff from HistroyTable to here
   const handleShowFilterInfo = (show) => {
-    const message = show ? 'Showing Filter Info!' : 'Hiding Filter Info!'
-    console.log(message)
-    setTimeout(() => {
-      console.log(message)
-    }, 1000)
+    if (show) {
+      setTooltip(true)
+    } else {
+      setTimeout(() => {
+        setTooltip(false)
+      }, 200)
+    }
   }
+
+  useEffect(() => {
+    if (data.length) {
+      setLoading(false)
+    }
+  }, [data])
 
   return (
     <section className='history-sorter'>
         <h2>Filter<img src='/assets/infoHover.png' onMouseEnter={() => handleShowFilterInfo(true)} onMouseLeave={() => handleShowFilterInfo(false)}/>:</h2>
-        <div className='history-sorter-holder'>
-          {sites && sites.map((site) => {
+        {tooltip && (
+          <div className='tooltip'>
+            <p>Filter sessions by clicking on site name.</p>
+          </div>
+        )}
+        <div className={loading ? 'history-sorter-holder loading' : 'history-sorter-holder'}>
+          {loading && <div className='history-sorter-holder-item loading'>Loading...</div>}
+          {sites && !loading && sites.map((site) => {
             return (
               <div key={site.SiteId} className={sorterSelectedValue === site.SiteName ? 'history-sorter-holder-item active' : 'history-sorter-holder-item'} name={site.SiteName} onClick={(e) => handleSorterValueChange(e, site.SiteId)}>
                 <span>{site.SiteName}</span>
