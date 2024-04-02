@@ -46,7 +46,6 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
   }
 
   useEffect(() => {
-    console.log(data)
     dispatch({ type: 'EDIT_SESSION_SET_DATA', payload: data })
     settingsDispatch({ type: 'ADD_SESSION_DROP_RATE_SET', payload: data.SettingsDropRate })
     loadoutDispatch({ type: 'ADD_SESSION_SELECT_LOADOUT', payload: data.Loadout._id })
@@ -84,8 +83,9 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
       DropItems: dropItemState.DropItems,
       Loadout: loadoutState.selectedLoadoutId // change this to get whole loadout or actually we can do this in Backend
     }
-    console.log(newSession)
+
     const res = await handleEditSessionSubmit(newSession)
+
     if (res) {
       dispatch({ type: 'EDIT_SESSION_SET_SESSION_STATE', payload: { state: true, stateMsg: 'Session edited!' } })
     } else {

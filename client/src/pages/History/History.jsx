@@ -59,7 +59,6 @@ function History () {
 
   // Isn't it better to just return the data from API at the success of the edit post?
   const handleEditSessionSuccess = (data) => {
-    console.log(data)
     historyTableRef.current.handleEditSessionDataUpdate(data)
   }
 

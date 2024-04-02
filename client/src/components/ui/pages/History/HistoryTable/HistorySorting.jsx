@@ -10,7 +10,7 @@ const HistorySorting = ({ data, dispatch }) => {
 
   // useEffects
   useEffect(() => {
-    if (!unfilteredData.length) {
+    if (!unfilteredData) {
       setUnfilteredData(data)
     }
     handleGetSessionSites()
@@ -46,7 +46,7 @@ const HistorySorting = ({ data, dispatch }) => {
   }
 
   useEffect(() => {
-    if (data.length) {
+    if (data) {
       setLoading(false)
     }
   }, [data])

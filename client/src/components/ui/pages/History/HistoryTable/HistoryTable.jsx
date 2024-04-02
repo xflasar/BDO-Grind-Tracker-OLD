@@ -13,10 +13,15 @@ const HistoryTable = React.forwardRef(({ authorizedFetch, onEditTrigger, onDelet
 
   useImperativeHandle(ref, () => ({
     handleAddSessionDataUpdate (data) {
-      if (state.data.length + 1 > state.paginationMaxElements) {
-        return
+      if (state.data) {
+        if (state.data.length + 1 > state.paginationMaxElements) {
+          return
+        }
+        dispatch({ type: 'ADD_SESSION', payload: data })
+      } else {
+        dispatch({ type: 'SET_DATA', payload: [data] })
+        dispatch({ type: 'SET_PAGINATION_DATA', payload: 1 })
       }
-      dispatch({ type: 'ADD_SESSION', payload: data })
     },
     handleSetData (data) {
       dispatch({ type: 'SET_DATA', payload: data })
@@ -28,7 +33,6 @@ const HistoryTable = React.forwardRef(({ authorizedFetch, onEditTrigger, onDelet
       dispatch({ type: 'SET_PAGINATION_CURRENT_PAGE', payload: currPage })
     },
     handleEditSessionDataUpdate (data) {
-      console.log('handleEditSessionDataUpdate ' + data)
       dispatch({ type: 'HANDLE_EDIT_SESSION_SUCCESS', payload: data })
     }
   }))

@@ -50,11 +50,6 @@ exports.sortReducer = (state, action) => {
         sortName: action.payload.sortName,
         sortDirection: state.sortDirection === 'asc' ? 'desc' : 'asc'
       }
-    case 'SET_CURRENT_PAGE':
-      return {
-        ...state,
-        paginationCurrentPage: action.payload
-      }
     case 'SET_PAGINATION_DATA':
     {
       const pages = []
