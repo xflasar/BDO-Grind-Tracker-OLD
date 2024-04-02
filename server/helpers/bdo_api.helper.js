@@ -334,8 +334,8 @@ function GetCategoryByIds (mainCategoryId, subCategoryId, reverse = false) {
 
 async function fetchItemIcon (item) {
   return '../assets/no-image.png'
-  const resImg = await fetch(`https://${item.icon}`)
-  return resImg.ok ? `https://${item.icon}` : '../assets/no-image.png'
+  // const resImg = await fetch(`https://${item.icon}`)
+  // return resImg.ok ? `https://${item.icon}` : '../assets/no-image.png'
 }
 
 async function formatItem (item) {
