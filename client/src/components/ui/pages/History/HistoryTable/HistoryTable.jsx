@@ -17,6 +17,19 @@ const HistoryTable = React.forwardRef(({ authorizedFetch, onEditTrigger, onDelet
         return
       }
       dispatch({ type: 'ADD_SESSION', payload: data })
+    },
+    handleSetData (data) {
+      dispatch({ type: 'SET_DATA', payload: data })
+    },
+    handleSetPaginationData (data) {
+      dispatch({ type: 'SET_PAGINATION_DATA', payload: data })
+    },
+    hanldeSetPaginationCurrentPage (currPage) {
+      dispatch({ type: 'SET_PAGINATION_CURRENT_PAGE', payload: currPage })
+    },
+    handleEditSessionDataUpdate (data) {
+      console.log('handleEditSessionDataUpdate ' + data)
+      dispatch({ type: 'HANDLE_EDIT_SESSION_SUCCESS', payload: data })
     }
   }))
 

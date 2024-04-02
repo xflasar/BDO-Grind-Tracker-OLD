@@ -73,6 +73,22 @@ exports.sortReducer = (state, action) => {
         ...state,
         paginationMaxElements: action.payload
       }
+    case 'SET_PAGINATION_CURRENT_PAGE':
+      return {
+        ...state,
+        paginationCurrentPage: action.payload
+      }
+    case 'HANDLE_EDIT_SESSION_SUCCESS':
+      return {
+        ...state,
+        data: state.data.map((session) => {
+          if (session._id === action.payload._id) {
+            return Object.assign({}, session, action.payload)
+          }
+          return session
+        }),
+        showEditSession: false
+      }
     default:
       return state
   }

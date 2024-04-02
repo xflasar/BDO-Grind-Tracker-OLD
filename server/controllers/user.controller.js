@@ -406,18 +406,16 @@ exports.EditSession = async (req, res) => {
 
     const loadout = await Loadouts.findById(updatedSession.Loadout)
     res.status(200).send({
-      session: {
-        _id: updatedSession._id,
-        sessionTime: updatedSession.sessionTime,
-        Agris: updatedSession.Agris,
-        AgrisTotal: updatedSession.AgrisTotal,
-        totalSilverAfterTaxes: updatedSession.totalSilverAfterTaxes,
-        silverPerHourBeforeTaxes: updatedSession.silverPerHourBeforeTaxes,
-        silverPerHourAfterTaxes: updatedSession.silverPerHourAfterTaxes,
-        SettingsDropRate: updatedSession.SettingsDropRate,
-        DropItems: updatedSession.DropItems,
-        Loadout: loadout
-      }
+      _id: updatedSession._id,
+      sessionTime: updatedSession.sessionTime,
+      Agris: updatedSession.Agris,
+      AgrisTotal: updatedSession.AgrisTotal,
+      totalSilverAfterTaxes: updatedSession.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: updatedSession.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: updatedSession.silverPerHourAfterTaxes,
+      SettingsDropRate: updatedSession.SettingsDropRate,
+      DropItems: updatedSession.DropItems,
+      Loadout: loadout
     })
   } catch (err) {
     console.error('Error updating session:', err)

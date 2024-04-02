@@ -43,12 +43,13 @@ function History () {
       if (res.ok) {
         const response = await res.json()
         if (response.message === 'No sessions found!') {
-          dispatch({ type: 'SET_HISTORY', payload: [] })
+          historyTableRef.current.handleSetData([])
+          historyTableRef.current.handleSetPaginationData([])
+          historyTableRef.current.hanldeSetPaginationCurrentPage(1)
         } else {
-          dispatch({ type: 'SET_HISTORY', payload: response.data })
-          console.log(response)
-          dispatch({ type: 'SET_PAGINATION_DATA', payload: response.pages })
-          dispatch({ type: 'SET_CURRENT_PAGE', payload: 1 })
+          historyTableRef.current.handleSetData(response.data)
+          historyTableRef.current.handleSetPaginationData(response.paginationData)
+          historyTableRef.current.hanldeSetPaginationCurrentPage(1)
         }
       }
     } catch (error) {
@@ -58,7 +59,8 @@ function History () {
 
   // Isn't it better to just return the data from API at the success of the edit post?
   const handleEditSessionSuccess = (data) => {
-    dispatch({ type: 'HANDLE_EDIT_SESSION_SUCCESS', payload: data })
+    console.log(data)
+    historyTableRef.current.handleEditSessionDataUpdate(data)
   }
 
   const handleOnAddSessionSuccess = async (data) => {
