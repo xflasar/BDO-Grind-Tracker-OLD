@@ -1,34 +1,45 @@
 .historyContainer {
-  min-height: calc(100vh - 70px - 72px); // fixme: problematic
+  min-height: calc(100vh - 60px - 70px); // fixme: problematic
   .history-table-container
   {
+    position: relative;
+    top: 1rem;
     width: 80%;
-    margin: 4% 10% 0 10%;
+    margin: 1rem 10% 1rem;
     border-radius: 0.375rem;
     box-sizing: border-box;
     scroll-behavior: smooth;
-    overflow: auto;
+    overflow: hidden;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    height: auto;
   }
   
-  .sessionAdd  button{
-    width: 30%;
-    margin: 1% 35% 0 35%;
-    background-color: rgb(51, 51, 51);
-    color: rgb(255, 94, 0);
-    border-radius: 0.375rem;
-    text-align: center;
-    overflow: auto;
-    display: block;
-    height: auto;
-    font-size: 1.5rem;
-  }
-  
-  
-  
+  .sessionAdd {
+    position: relative;
+    top: 1rem;
+
+    button{
+      width: 30%;
+      margin: 0 35% 0 35%;
+      background-color: rgba(75, 82, 85, 0.3);
+      border-radius: 0.375rem;
+      display: block;
+      height: 2.5rem;
+      font-size: 1.5rem;
+      transition: color 0.2s ease-in-out;
+      border: none;
+      color: rgba(255, 255, 255, 1);
+      text-align: center;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(51, 51, 51, 0.8);
+        color: #ffa600;
+      }
+    }
+  } 
+
   @media (max-width: 768px) {
     .button {
       font-size: 0.9rem;
@@ -41,4 +52,17 @@
       padding: 0.3rem 0.8rem;
     }
   }
+}
+
+#portal-root .tooltip {
+  position: absolute;
+  background-color: rgba(30, 30, 30, 0.6);
+  color: white;
+  outline: 2px solid black;
+  padding: 0.25rem;
+  z-index: 1;
+  max-width: 20%;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 12px;
 }

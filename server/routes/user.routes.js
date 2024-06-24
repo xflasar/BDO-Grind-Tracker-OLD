@@ -19,19 +19,29 @@ module.exports = function (app) {
   // Gets
   app.get('/api/user/userprofiledata', [verifyToken], controller.GetUserProfileData)
   app.get('/api/user/usersettingsdata', [verifyToken], controller.GetUserSettingsData)
+
   app.get('/api/user/recentactivity', [verifyToken], controller.GetRecentActivity)
+
+  app.get('/api/user/getaddsessionsites', [verifyToken], controller.GetAddSessionSites)
+  app.get('/api/user/getaddsessionsitesitemdata/:siteId', [verifyToken], controller.GetAddSessionSitesItemData)
+
+  app.get('/api/user/getloadouts', [verifyToken], controller.GetUserLoadouts)
+
+  app.get('/api/user/gettax', [verifyToken], controller.GetTax)
 
   // Data Add
   app.post('/api/user/addsession', [verifyToken], controller.AddSession)
-  app.post('/api/user/addsite', [verifyToken], controller.AddSite)
+  app.post('/api/user/addloadout', [verifyToken], controller.AddUserLoadout)
 
-  // Data Modify
-  app.post('/api/user/modifysession', [verifyToken], controller.ModifySession)
+  // Data Modify :fix to patch
+  app.post('/api/user/editsession', [verifyToken], controller.EditSession)
   app.post('/api/user/modifysite', [verifyToken], controller.ModifySite)
   app.post('/api/user/modifyuserdata', [verifyToken], controller.ModifyUserData)
+  app.patch('/api/user/updateloadout', [verifyToken], controller.UpdateUserLoadout)
 
-  // Data Delete
+  // Data Delete :fix to delete
   app.post('/api/user/deletesession', [verifyToken], controller.DeleteSession)
+  app.delete('/api/user/deleteloadout', [verifyToken], controller.DeleteUserLoadout)
 
   // Data Get routes
   // Homepage data
@@ -41,7 +51,8 @@ module.exports = function (app) {
   app.get('/api/user/sitedata', [verifyToken], controller.GetSiteData)
 
   // Sessions/history data
-  app.get('/api/user/historydata', [verifyToken], controller.GetSessionsData)
+  app.get('/api/user/sessions', [verifyToken], controller.GetSessionsData)
+  app.get('/api/user/sessions/sites', [verifyToken], controller.GetSessionSites)
 
   // Marketplace data
   app.post('/api/user/marketplace', [verifyToken], controller.GetMarketplaceData)

@@ -1,0 +1,89 @@
+.sessionMainContent-SetupContent-Gear {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1;
+  grid-row: 2;
+  width: calc(100% - 1rem);
+  border-radius: 0.9375rem;
+  background-color: #1E1E1E;
+  overflow: hidden;
+  overflow-y: auto;
+
+  &-Content {
+    &-List {
+      display: flex;
+      flex-direction: column;
+
+      &-Item {
+        position: relative;
+        border-radius: 15px;
+        background-color: #282828;
+        color: white;
+        margin: 0 1rem 1rem 1rem;
+        padding-bottom: 1rem;
+
+        h3 {
+          text-align: center;
+          margin: 0.5rem 0 0 0;
+        }
+
+        h4 {
+          text-align: center;
+          margin: 0.5rem 0 0.5rem 0;
+        }
+
+        &-ClickArea {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border-radius: 15px;
+          z-index: 1;
+        }
+
+        button {
+          position: relative;
+          z-index: 2;
+        }
+
+        &-Content {
+          display: flex;
+          flex-direction: row;
+          
+          &-AP {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+          }
+          
+          &-DP {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+          }
+        }
+
+        &.active {
+          outline: 1px solid #FFA600;
+        }
+      }
+
+      &-AddLoadout {
+        align-self: center;
+        button {
+          padding: 0.3rem 1rem 0.3rem 1rem;
+          border-radius: 15px;
+          background-color: rgb(51, 51, 51);
+          color: #FFA600;
+
+          &:hover {
+            background-color: rgba(51, 51, 51, 0.3);
+          }
+        }
+      }
+    }
+  }
+}

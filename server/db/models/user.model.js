@@ -27,8 +27,11 @@ const userSchema = new mongoose.Schema({
   RecentActivity: [{
     activity: String,
     date: Date
-  }
-  ]
+  }],
+  UserLoadouts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Loadouts'
+  }]
 })
 
 const User = mongoose.model('Users', userSchema, 'Users')

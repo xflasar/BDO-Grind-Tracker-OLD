@@ -1,20 +1,69 @@
-import React, { useReducer } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
-import '../../../assets/components/form/addNewSession.scss'
-import { INITIAL_STATE, addSessionReducer } from './addSessionReducer'
+import '../../../assets/components/form/addSession.scss'
+import { SessionContext } from '../../../contexts/SessionContext'
+import { addSessionReducerINIT, addSessionReducer } from './addSessionReducer'
+import AddSessionSettings from '../Helpers/settings'
+import { settingsReducerINIT, settingsReducer } from '../Helpers/settings.reducer'
+import Loadout from '../Helpers/loadout'
+import { loadoutReducerINIT, loadoutReducer } from '../Helpers/loadout.reducer'
+import DropItems from '../Helpers/dropItems'
+import { dropItemReducerINIT, dropItemReducer } from '../Helpers/dropItems.reducer'
+import { recalculateSilverPerHour, handleDropItemChange, formatNumberWithSpaces, handleSessionTimeChange } from '../Helpers/sessionModify.helper'
 
-const AddSession = ({ onAddSessionSuccess, authorizedFetch, onCloseClick }) => {
-  const [state, dispatch] = useReducer(addSessionReducer, INITIAL_STATE)
+const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
+  const { authorizedFetch } = useContext(SessionContext)
+  const [state, dispatch] = useReducer(addSessionReducer, addSessionReducerINIT)
+  const [settingsState, settingsDispatch] = useReducer(settingsReducer, settingsReducerINIT)
+  const [loadoutState, loadoutDispatch] = useReducer(loadoutReducer, loadoutReducerINIT)
+  const [dropItemState, dropItemDispatch] = useReducer(dropItemReducer, dropItemReducerINIT)
+
+  useEffect(() => {
+    // Merge these fetches into one that calls 1 API endpoint
+    fetchSites()
+    getTax()
+  }, [])
+
+  const getTax = async () => {
+    const dataTax = await authorizedFetch('/api/user/gettax')
+    if (!dataTax.ok) {
+      console.log('Failed to fetch tax')
+      return
+    }
+    const data = await dataTax.json()
+
+    console.log('Tax fetched: ' + data.tax)
+    dispatch({ type: 'ADD_SESSION_SET_TAX', payload: data.tax })
+  }
+
   async function handleAddSessionSubmit (e) {
     e.preventDefault()
+
     const sessionData = {
-      SiteName: state.SiteName,
-      TimeSpent: parseInt(state.TimeSpent),
-      TotalEarned: parseInt(state.TotalEarned),
-      TotalExpenses: parseInt(state.TotalSpent),
-      AP: parseInt(state.AP),
-      DP: parseInt(state.DP)
+      Site: state.activeSite,
+      sessionTime: (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes),
+      Agris: state.Agris,
+      AgrisTotal: state.AgrisTotal,
+      totalSilverAfterTaxes: state.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: state.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: state.silverPerHourAfterTaxes,
+      tax: state.tax,
+      SettingsDropRate: {
+        DropRate: settingsState.DropRate,
+        EcologyDropRate: settingsState.ecologyDropRate,
+        NodeLevel: settingsState.nodeLevel,
+        DropRateTotal: settingsState.DropRateTotal
+      },
+      DropItems: dropItemState.DropItems,
+      Loadout: loadoutState.selectedLoadoutId
     }
+
+    // Used to check for empty drop items, this probably will be checked for unreasonable item amount
+    sessionData.DropItems.map((item) => {
+      if (item.amount) return item
+      item.amount = 0
+      return item
+    })
 
     try {
       const res = await authorizedFetch('api/user/addsession', {
@@ -25,78 +74,173 @@ const AddSession = ({ onAddSessionSuccess, authorizedFetch, onCloseClick }) => {
         body: JSON.stringify(sessionData)
       })
       const data = await res.json()
+
       onAddSessionSuccess(data)
     } catch (error) {
       console.log('Failed to add session:', error)
     }
   }
 
-  const handleSiteNameChange = (e) => {
-    dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
+  const fetchSites = async () => {
+    const response = await authorizedFetch('/api/user/getaddsessionsites')
+    if (response.ok) {
+      const res = await response.json()
+      dispatch({ type: 'ADD_SESSION_SITES_FETCH', payload: res })
+    } else {
+      console.log('No data. ' + response.message)
+    }
   }
 
-  const handleTimeSpentChange = (e) => {
-    const pattern = new RegExp(e.target.pattern)
-    const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
-    if (validity) dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
+  const handleSiteChoosing = (e, siteId) => {
+    e.preventDefault()
+
+    if (state.activeSite) {
+      handleChangeSite()
+    }
+
+    dispatch({ type: 'ADD_SESSION_ACTIVE_SITE', payload: siteId })
   }
 
-  const handleTotalEarnedChange = (e) => {
-    const pattern = new RegExp(e.target.pattern)
-    const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
-    if (validity) dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
-  }
+  // Recalculating silver after every change to sessionTime
+  useEffect(() => {
+    if (!state.activeSite || !dropItemState.DropItems) return
 
-  const handleTotalSpentChange = (e) => {
-    const pattern = new RegExp(e.target.pattern)
-    const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
-    if (validity) dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
-  }
+    const newState = recalculateSilverPerHour(state, dropItemState.DropItems)
+    dispatch({ type: 'ADD_SESSION_RECALCULATE_SILVER_CHANGE', payload: newState })
+  }, [state.sessionTimeHours, state.sessionTimeMinutes])
 
-  const handleAPChange = (e) => {
-    const pattern = new RegExp(e.target.pattern)
-    const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
-    if (validity) dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
-  }
-
-  const handleDPChange = (e) => {
-    const pattern = new RegExp(e.target.pattern)
-    const validity = pattern.test(e.target.value) && pattern.test(e.target.value)
-    if (validity) dispatch({ type: 'ADD_SESSION_INPUT_CHANGE', payload: { name: e.target.name, value: e.target.value } })
-  }
-
+  // Closes the form and clears the state
   const handleClose = (e) => {
     e.preventDefault()
-    onCloseClick()
+    dispatch({ type: 'ADD_SESSION_CLEAR_STATE' })
+    onCloseClick(false)
   }
 
-  // This can be probably made into custom input and then map the INITIAL_STATE OF REDUCER to show inputs
-  return (
-        <div className='sessionAddForm'>
-              <form aria-label='sessionAddForm' onSubmit={handleAddSessionSubmit}>
-              <button type='button' aria-label='addSessionExitButton' className='close' onClick={handleClose}>X</button>
-                <label htmlFor='SiteName'>Site Name</label>
-                <input type='text' aria-label='Site Name' name='SiteName' id='SiteName' value={state.SiteName} onChange={handleSiteNameChange}/>
-                <label htmlFor='TimeSpent'>Time Spent</label>
-                <input type='text' aria-label='Time Spent' name='TimeSpent' id='TimeSpent' pattern='^\d*$' value={state.TimeSpent} onChange={handleTimeSpentChange}/>
-                <label htmlFor='TotalEarned'>Earnings</label>
-                <input type='text' aria-label='Earnings' name='TotalEarned' id='TotalEarned' pattern='^\d*$' value={state.TotalEarned} onChange={handleTotalEarnedChange}/>
-                <label htmlFor='TotalSpent'>Expenses</label>
-                <input type='text' aria-label='Expenses' name='TotalSpent' id='TotalSpent' pattern='^\d*$' value={state.TotalSpent} onChange={handleTotalSpentChange}/>
-                <label htmlFor='gear'>Gear</label>
-                <input type='text' aria-label='TotalAP' name='AP' id='AP' pattern='^\d*$' value={state.AP} onChange={handleAPChange}/>
-                <input type='text' aria-label='TotalDP' name='DP' id='DP' pattern='^\d*$' value={state.DP} onChange={handleDPChange}/>
-                <button type='submit' aria-label='addSessionSubmitButton' name='sessionAddSubmit'>
-                  Submit
-                </button>
-            </form>
+  const handleChangeSite = () => {
+    dispatch({ type: 'ADD_SESSION_CLEAR_ACTIVE_SITE' })
+    dropItemDispatch({ type: 'ADD_SESSION_DROP_ITEM_CLEAR_DATA' })
+  }
+
+  // Render functions
+  function renderHeader () {
+    return (
+      <>
+        <div className="sessionMainContent-HeaderContent-SessionTime">
+          <h3>Session Time</h3>
+          <div className="sessionMainContent-HeaderContent-SessionTime-Content">
+            <input
+              type="text"
+              name="sessionTimeHours"
+              onChange={(e) => handleSessionTimeChange(e, dispatch)}
+              value={state.sessionTimeHours}
+              placeholder="0h"
+            />
+            <span>|</span>
+            <input
+              type="text"
+              name="sessionTimeMinutes"
+              onChange={(e) => handleSessionTimeChange(e, dispatch)}
+              value={state.sessionTimeMinutes}
+              placeholder="0m"
+            />
+          </div>
         </div>
+        <div className="sessionMainContent-HeaderContent-TotalSilverAfterTaxes">
+          <h3>Total Silver After Taxes</h3>
+          <div className="sessionMainContent-HeaderContent-TotalSilverAfterTaxes-Content">
+            <span>{formatNumberWithSpaces(state.totalSilverAfterTaxes)}</span>
+          </div>
+        </div>
+        <div className="sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes">
+          <h3>Silver Per Hour Before Taxes</h3>
+          <div className="sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes-Content">
+            <span>{formatNumberWithSpaces(state.silverPerHourBeforeTaxes)}</span>
+          </div>
+        </div>
+        <div className="sessionMainContent-HeaderContent-SilverPreHourAfterTaxes">
+          <h3>Silver Per Hour After Taxes</h3>
+          <div className="sessionMainContent-HeaderContent-SilverPreHourAfterTaxes-Content">
+            <span>{formatNumberWithSpaces(state.silverPerHourAfterTaxes)}</span>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  function renderDropItems () {
+    if (!state.activeSite) return
+    return (
+        <DropItems state={dropItemState} dispatch={dropItemDispatch} authorizedFetch={authorizedFetch} siteId={state.activeSite} handleDropItemsAmountChange={() => handleDropItemChange(dropItemState.DropItems, state, dispatch)} reload={state.reload}/>
+    )
+  }
+
+  function renderLoadout () {
+    if (state.activeSite) {
+      return (
+        <Loadout state={loadoutState} dispatch={loadoutDispatch} authorizedFetch={authorizedFetch} />
+      )
+    } else {
+      return <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Site List!</p></div>
+    }
+  }
+
+  function renderSettings () {
+    if (state.activeSite) {
+      return (
+        <AddSessionSettings state={settingsState} dispatch={settingsDispatch} handleDropItemsAmountChange={(dropItems) => handleDropItemChange(dropItems)} />
+      )
+    } else {
+      return <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '2rem', color: '#ffa600' }}><p>Select Site From Site List!</p></div>
+    }
+  }
+
+  return (
+    <div className='sessionAddOverlay'>
+      <div className={state.activeSite !== '' ? 'sessionAddOverlay-Content' : 'sessionAddOverlay-Content partial'}>
+      <form aria-label='sessionAddForm' onSubmit={handleAddSessionSubmit}>
+        <button type='button' className='sessionAddOverlay-Content-Close' onClick={handleClose}>X</button>
+        <div className='sessionSiteChoosing'>
+          <div className='sessionSiteChoosing-Header'>
+            <h3>Sites</h3>
+          </div>
+          <div className={state.activeSite !== '' ? 'sessionSiteChoosing-SiteList selectedSite' : 'sessionSiteChoosing-SiteList'}>
+            {state.Sites && (
+              Object.values(state.Sites).map((site) => {
+                return (<div key={site._id} className={state.activeSite === site._id ? 'sessionSiteChoosing-SiteList-Item active' : 'sessionSiteChoosing-SiteList-Item'} onClick={(e) => handleSiteChoosing(e, site._id)}><label>{site.SiteName}</label></div>)
+              })
+            )}
+          </div>
+        </div>
+
+        <div className='sessionMainContent'>
+          <div className='sessionMainContent-HeaderContent'>
+          {renderHeader()}
+          </div>
+          <div className='sessionMainContent-SetupContent'>
+            <div className='sessionMainContent-SetupContent-Items'>
+              <h2>Items</h2>
+              {renderDropItems()}
+            </div>
+            <div className='sessionMainContent-SetupContent-Gear'>
+              <h2>Gear</h2>
+              {renderLoadout()}
+            </div>
+            <div className='sessionMainContent-SetupContent-Settings'>
+              {renderSettings()}
+            </div>
+            <div className='sessionMainContent-SetupContent-BackSubmit'>
+              <button type='submit'>Add Session</button>
+            </div>
+          </div>
+        </div>
+      </form>
+      </div>
+    </div>
   )
 }
 
 AddSession.propTypes = {
   onAddSessionSuccess: PropTypes.func.isRequired,
-  authorizedFetch: PropTypes.func.isRequired,
   onCloseClick: PropTypes.func.isRequired
 }
 

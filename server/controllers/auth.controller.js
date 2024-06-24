@@ -31,9 +31,8 @@ exports.SignUp = async (req, res) => {
     })
 
     user.save()
-    user.Settings = new UserSettings({ userId: user._id })
+    user.Settings = new UserSettings()
     user.Settings.save()
-    auth.UserId = user._id
     auth.save().then(async (userAuth) => {
       const token = await jwt.sign({ id: userAuth.id }, config.secret, {
         expiresIn: 86400 // 24 hours

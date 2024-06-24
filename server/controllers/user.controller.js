@@ -1,17 +1,21 @@
+const fs = require('fs')
 const bcrypt = require('bcryptjs')
 const User = require('../db/models/user.model.js')
 const Session = require('../db/models/session.model.js')
 const Site = require('../db/models/site.model.js')
 const Auth = require('../db/models/auth.model.js')
-/* const UserSettings = require('../db/models/settings.model.js') */
+const Loadouts = require('../db/models/loadouts.model.js')
 const FreeImage = require('../services/freeImage.js')
-// const Items = require('../db/models/item.model.js')
-const validator = require('../validators/user.validator.js')
+const Items = require('../db/models/item.model.js')
+// const validator = require('../validators/user.validator.js')
 const UserControllerHelper = require('../helpers/user_controller.helper.js')
 const UserSettings = require('../db/models/settings.model.js')
 const BDO_API = require('../services/bdo_api.js')
+const Sessions = require('../db/models/session.model.js')
 
-// Sets
+const { ObjectId } = require('mongodb');
+
+// #region Sets
 exports.SetUserProfileData = (req, res) => {
   const profileData = {}
 
@@ -127,8 +131,9 @@ exports.UploadProfilePicture = async (req, res) => {
     res.sendStatus(200)
   }
 }
+// #endregion
 
-// Gets
+// #region Gets
 exports.GetUserProfileData = async (req, res) => {
   try {
     const user = await User.findById(req.userId, 'DisplayName FamilyName').populate('authenticationId', 'username')
@@ -191,46 +196,146 @@ exports.GetRecentActivity = async (req, res) => {
   }
 }
 
-// Data Add
+exports.GetAddSessionSites = (req, res) => {
+  Site.find({}, '_id SiteName').then((sites) => {
+    if (!sites) {
+      return res.status(500).send({ message: 'No sites found!' })
+    }
+
+    const dataSites = []
+
+    sites.forEach((site) => {
+      dataSites.push({ _id: site._id, SiteName: site.SiteName })
+    })
+
+    res.status(200).send(dataSites)
+  })
+}
+
+exports.GetAddSessionSitesItemData = async (req, res) => {
+  Site.findById(req.params.siteId).populate('DropItems').then(async (site) => {
+    if (!site) {
+      return res.status(500).send({ message: 'No site found!' })
+    } else {
+      const DropItems = []
+      for (const item of site.DropItems) {
+        const tempItem = {
+          itemId: item.itemId,
+          itemName: item.itemName,
+          validMarketplace: false
+        }
+        if (tempItem.itemId) {
+          tempItem.itemPrice = await Items.findById(item.itemId).then((itemDB) => {
+            if (itemDB.basePrice) {
+              return itemDB.basePrice
+            } else {
+              return 0
+            }
+          })
+          if (tempItem.itemPrice !== 0) tempItem.validMarketplace = true
+        } else {
+          tempItem.itemPrice = 0
+        }
+
+        if (tempItem.itemName.includes('&#39;')) tempItem.itemName = tempItem.itemName.replace('&#39;', "'")
+        DropItems.push(tempItem)
+      }
+
+      res.status(200).send(DropItems)
+    }
+  })
+}
+
+// Remove this
+exports.ZeroItemsBasePrice = async () => {
+  await Items.updateMany({ basePrice: { $exists: false } }, { basePrice: 0 }).then((result) => { console.log('Edditing done: ' + result.modifiedCount) })
+}
+
+// #endregion
+
+// #region Data Add
 exports.AddSession = async (req, res) => {
-  const validation = validator.AddSessionValidator(req.body)
-  if (!validation.result) {
-    return res.status(500).send(validation.errors)
-  }
+  console.log('Testing Correct Data Submission!', req.body)
+
+  const sessionDoc = new Sessions({
+    UserId: req.userId,
+    creationDate: new Date(),
+    SiteId: req.body.Site,
+    sessionTime: req.body.sessionTime,
+    Agris: req.body.Agris,
+    AgrisTotal: req.body.AgrisTotal,
+    totalSilverAfterTaxes: req.body.totalSilverAfterTaxes,
+    silverPerHourBeforeTaxes: req.body.silverPerHourBeforeTaxes,
+    silverPerHourAfterTaxes: req.body.silverPerHourAfterTaxes,
+    tax: req.body.tax,
+    SettingsDropRate: {
+      DropRate: req.body.SettingsDropRate.DropRate,
+      EcologyDropRate: req.body.SettingsDropRate.EcologyDropRate,
+      NodeLevel: req.body.SettingsDropRate.NodeLevel,
+      DropRateTotal: req.body.SettingsDropRate.DropRateTotal
+    },
+    DropItems: req.body.DropItems,
+    Loadout: req.body.Loadout
+  })
 
   try {
-    const user = await User.findById(req.userId)
-    if (!user) return res.status(500).send({ message: 'User not found!' })
+    sessionDoc.save().then((doc) => {
+      User.findById(req.userId).then(async (user) => {
+        if (!user) {
+          sessionDoc.deleteOne().then(() => {
+            console.log('Session deleted!')
+          })
+          return res.status(500).send({ message: 'User not found!' })
+        }
 
-    let site = await Site.findOne({ SiteName: req.body.SiteName, UserId: req.userId })
-    // Pre-update for add Session feature
-    // if(!site) return res.status(500).send({ message: 'Site not found!' })
+        if (!user.Sites.find((site) => site.id === doc.SiteId)) {
+          user.Sites.push(doc.SiteId)
+        }
 
-    if (!site) {
-      site = await this.AddSite(req, res, true)
-      user.Sites.push([site._id])
-    }
+        const userSavedStatus = await UserControllerHelper.UpdateUserAfterSessionSaved(user, doc, Session)
 
-    const sessionToAdd = await UserControllerHelper.CreateSession(Session, site.id, req.body, req.userId)
-
-    if (!sessionToAdd) {
-      return res.status(500).send({ message: 'Session not saved!' })
-    }
-
-    req.body.ModifySite = true
-    req.body.SiteId = site._id
-    await this.ModifySite(req, res)
-
-    await UserControllerHelper.UpdateUserAfterSessionSaved(user, sessionToAdd, Session)
-
-    // Here should be the site update later
-    res.status(200).send(UserControllerHelper.SessionAddFormatedResponse(sessionToAdd, site))
-  } catch (error) {
-    console.error(error)
-    res.status(500).send({ message: error })
+        if (userSavedStatus) {
+          Site.findById(doc.SiteId).then((site) => {
+            site.SiteData.push(doc._id)
+            site.save().then(async () => {
+              console.log('Site Sites updated!')
+              const loadout = {
+                _id: req.body.Loadout,
+                name: await Loadouts.findById(req.body.Loadout).then((loadout) => loadout.name)
+              }
+              const data = {
+                _id: doc._id,
+                Date: UserControllerHelper.FormatSessionDate(doc.creationDate),
+                SiteId: doc.SiteId,
+                SiteName: site.SiteName,
+                sessionTime: doc.sessionTime,
+                Agris: doc.Agris,
+                AgrisTotal: doc.AgrisTotal,
+                totalSilverAfterTaxes: doc.totalSilverAfterTaxes,
+                silverPerHourBeforeTaxes: doc.silverPerHourBeforeTaxes,
+                silverPerHourAfterTaxes: doc.silverPerHourAfterTaxes,
+                tax: doc.tax,
+                SettingsDropRate: doc.SettingsDropRate,
+                DropItems: doc.DropItems,
+                Loadout: loadout
+              }
+              res.status(200).send(data)
+            })
+          })
+        }
+      })
+      console.log('Inserted:', doc)
+    })
+  } catch (err) {
+    console.log('Error:', err)
+    sessionDoc.deleteOne().then(() => {
+      console.log('Session deleted!')
+    })
+    return res.status(500).send(err)
   }
 }
 
+// Remove
 exports.AddSite = async (req, res, newSite = false) => {
   const site = new Site({
     SiteName: req.body.SiteName,
@@ -250,52 +355,71 @@ exports.AddSite = async (req, res, newSite = false) => {
 }
 
 // Data Modify
-exports.ModifySession = async (req, res) => {
+exports.EditSession = async (req, res) => {
   try {
-    const sessionToUpdate = await Session.findById(req.body.SessionId)
-
-    if (!sessionToUpdate) {
-      return res.status(404).send({ message: 'Session not found!' })
+    const updateSessionData = {
+      sessionTime: req.body.sessionTime,
+      Agris: req.body.Agris,
+      AgrisTotal: req.body.AgrisTotal,
+      totalSilverAfterTaxes: req.body.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: req.body.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: req.body.silverPerHourAfterTaxes,
+      SettingsDropRate: {
+        DropRate: req.body.SettingsDropRate.DropRate,
+        EcologyDropRate: req.body.SettingsDropRate.EcologyDropRate,
+        NodeLevel: req.body.SettingsDropRate.NodeLevel,
+        DropRateTotal: req.body.SettingsDropRate.DropRateTotal
+      },
+      DropItems: req.body.DropItems,
+      Loadout: req.body.Loadout
     }
 
-    const udateSessionData = {
-      TimeSpent: parseInt(req.body.TimeSpent),
-      Earnings: parseInt(req.body.TotalEarned),
-      Expenses: parseInt(req.body.TotalExpenses),
-      Gear: { TotalAP: parseInt(req.body.Gear.TotalAP), TotalDP: parseInt(req.body.Gear.TotalDP) }
-    }
+    const SessionId = new ObjectId(req.body._id)
 
-    const updatedSession = await Session.findByIdAndUpdate(
-      req.body.SessionId,
-      { $set: { ...udateSessionData } },
+    // Used for purpose of restoring session of any edits
+    const sessionBackup = await Session.findById(SessionId)
+
+    const updatedSession = await Session.findOneAndUpdate(
+      SessionId,
+      { $set: { ...updateSessionData } },
       { new: true }
     )
 
-    const updateData = {
-      SiteId: updatedSession.SiteId,
-      TotalTime: updatedSession.TimeSpent,
-      TotalEarned: updatedSession.Earnings,
-      TotalExpenses: updatedSession.Expenses,
-      ModifySite: true,
-      ModifyUser: true
+    if (!updatedSession) {
+      return res.status(500).send({ message: 'Error updating session!' })
     }
 
-    await this.ModifySite({ ...req, body: updateData }, res)
+    const user = await User.findById(req.userId)
 
-    await this.ModifyUserData({ ...req, body: updateData }, res)
+    if (!user) {
+      // we need workaround for this so if in case we get error for this we can log this for futher processing ( we still have the total recalculation each day)
+      return res.status(200)
+      // return res.status(500).send({ message: 'User not found!' })
+    }
 
-    await UserControllerHelper.AddUserRecentActivity(User, req.userId, {
-      activity: 'Session edited!',
-      date: new Date()
+    user.TotalTime += updateSessionData.sessionTime - req.body.originalSessionTime
+    user.TotalEarned += updateSessionData.totalSilverAfterTaxes - req.body.originalTotalSilverAfterTaxes
+    user.RecentActivity.push({ activity: 'Session edited!', date: new Date() })
+    // user.TotalExpenses += req.body.originalSessionTime - updateSessionData.sessionTime
+    await user.save().catch(async (err) => {
+      console.error('Error updating user:', err)
+      await Session.findByIdAndUpdate(sessionBackup._id,
+        { $set: { ...sessionBackup } }, { new: true })
+      res.status(500).send({ message: 'Error updating user!', err })
     })
 
+    const loadout = await Loadouts.findById(updatedSession.Loadout)
     res.status(200).send({
       _id: updatedSession._id,
-      Date: updatedSession.Date,
-      TimeSpent: updatedSession.TimeSpent,
-      Earnings: updatedSession.Earnings,
-      Expenses: updatedSession.Expenses,
-      Gear: updatedSession.Gear
+      sessionTime: updatedSession.sessionTime,
+      Agris: updatedSession.Agris,
+      AgrisTotal: updatedSession.AgrisTotal,
+      totalSilverAfterTaxes: updatedSession.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: updatedSession.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: updatedSession.silverPerHourAfterTaxes,
+      SettingsDropRate: updatedSession.SettingsDropRate,
+      DropItems: updatedSession.DropItems,
+      Loadout: loadout
     })
   } catch (err) {
     console.error('Error updating session:', err)
@@ -303,6 +427,7 @@ exports.ModifySession = async (req, res) => {
   }
 }
 
+// Remove
 exports.ModifySite = async (req, res) => {
   const updateObject = {
     TotalTime: req.body.TimeSpent,
@@ -367,8 +492,21 @@ exports.ModifyUserData = async (req, res) => {
     res.status(200).send({ message: 'UserData modified!' })
   }
 }
+// #endregion
 
 // Data Delete
+
+// fixme: rework this
+/*
+  Inputs:
+    - SessionId
+    - SiteId
+    - UserId
+
+  Outputs:
+    - Session deleted
+    - Redirect to GetSessionData method
+*/
 exports.DeleteSession = async (req, res) => {
   try {
     const session = await Session.findById(req.body.SessionId)
@@ -380,13 +518,19 @@ exports.DeleteSession = async (req, res) => {
 
     const user = await User.findById(session.UserId)
     const site = await Site.findById(session.SiteId)
-    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, null, 'Site', session._id)
+
+    if (site) site.SiteData.filter((sessionData) => sessionData._id !== session._id)
+
+    site.save()
+
+    /*
+    const siteUpdate = await UserControllerHelper.GetWeightedAverage(Session, session.SiteId, null, 'Site', session._id) */
     const userUpdate = await UserControllerHelper.GetWeightedAverage(Session, null, session.UserId, 'User', session._id)
 
     const defaultUpdate = {
       TotalTime: 0,
       TotalEarned: 0,
-      TotalExpenses: 0,
+      // TotalExpenses: 0,
       AverageEarnings: 0,
       weightedAverage: 0
     }
@@ -394,29 +538,29 @@ exports.DeleteSession = async (req, res) => {
     if (userUpdate.length === 0 || userUpdate[0].TotalEntries === 0) {
       userUpdate.push(defaultUpdate)
     }
-
+    /*
     if (siteUpdate.length === 0 || siteUpdate[0].TotalEntries === 0) {
       siteUpdate.push(defaultUpdate)
-    }
+    } */
 
     if (user) {
       user.Sessions = user.Sessions.filter(sessionId => sessionId.toString() !== session._id.toString())
       user.TotalTime = userUpdate[0].TotalTime
       user.TotalEarned = userUpdate[0].TotalEarned
-      user.TotalExpenses = userUpdate[0].TotalExpenses
+      // user.TotalExpenses = userUpdate[0].TotalExpenses
       user.AverageEarnings = userUpdate[0].weightedAverage
 
       await user.save()
     }
 
-    if (site) {
+    /* if (site) {
       site.TotalTime = siteUpdate[0].TotalTime
       site.TotalEarned = siteUpdate[0].TotalEarned
-      site.TotalExpenses = siteUpdate[0].TotalExpenses
+      // site.TotalExpenses = siteUpdate[0].TotalExpenses
       site.AverageEarnings = siteUpdate[0].weightedAverage
 
       await site.save()
-    }
+    } */
 
     await Session.findByIdAndDelete(req.body.SessionId)
 
@@ -448,8 +592,9 @@ exports.DeleteUserData = async (req, res) => {
     res.status(500).send({ message: 'An error occurred while deleting user data!' })
   }
 }
+// #endregion
 
-// Data Get routes
+// #region Data Get routes
 // Homepage data
 exports.GetHomepageData = async (req, res) => {
   try {
@@ -478,6 +623,7 @@ exports.GetHomepageData = async (req, res) => {
 }
 
 // Site data
+// Rework this
 exports.GetSiteData = async (req, res) => {
   try {
     const sites = await Site.find({ UserId: req.userId })
@@ -500,9 +646,38 @@ exports.GetSiteData = async (req, res) => {
 }
 
 // History data
+// Rework this
 exports.GetSessionsData = async (req, res) => {
   try {
-    const sessions = await Session.find({ UserId: req.userId }).populate('SiteId', 'SiteName')
+    const query = {
+      UserId: req.userId
+    }
+
+    if (req.query.filteringValue) {
+      query.SiteId = req.query.filteringValue
+    }
+
+    if (!req.query.paginationCurrentPage) {
+      req.query.paginationCurrentPage = 0
+    } else if (req.query.paginationCurrentPage > 0) {
+      req.query.paginationCurrentPage -= 1
+    }
+
+    if (isNaN(req.query.paginationMaxElements)) {
+      req.query.paginationMaxElements = Number(req.query.paginationMaxElements)
+    }
+
+    if (!req.query.paginationMaxElements) {
+      req.query.paginationMaxElements = 10
+    }
+
+    if (req.query.lastId) {
+      query.lastId = req.query.lastId
+    }
+
+    const skipItems = req.query.paginationCurrentPage * Number(req.query.paginationMaxElements)
+
+    const sessions = await Session.find(query).skip(skipItems).limit(req.query.paginationMaxElements).populate('SiteId').populate('Loadout')
 
     if (!sessions || sessions.length === 0) {
       return res.status(200).send({ message: 'No sessions found!' })
@@ -510,14 +685,52 @@ exports.GetSessionsData = async (req, res) => {
 
     const data = sessions.map((session) => ({
       _id: session._id,
-      Date: UserControllerHelper.FormatSessionDate(session.TimeCreated),
+      Date: UserControllerHelper.FormatSessionDate(session.creationDate),
+      SiteId: session.SiteId._id,
       SiteName: session.SiteId.SiteName,
-      TimeSpent: session.TimeSpent,
-      Earnings: session.Earnings,
-      AverageEarnings: session.AverageEarnings,
-      Expenses: session.Expenses,
-      Gear: session.Gear
+      sessionTime: session.sessionTime,
+      Agris: session.Agris,
+      AgrisTotal: session.AgrisTotal,
+      totalSilverAfterTaxes: session.totalSilverAfterTaxes,
+      silverPerHourBeforeTaxes: session.silverPerHourBeforeTaxes,
+      silverPerHourAfterTaxes: session.silverPerHourAfterTaxes,
+      tax: session.tax,
+      SettingsDropRate: session.SettingsDropRate,
+      DropItems: session.DropItems,
+      Loadout: session.Loadout
     }))
+
+    const totalPages = Math.ceil(await Session.countDocuments(query) / req.query.paginationMaxElements)
+
+    res.status(200).send({ data, pages: totalPages })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
+// This might be optimized better
+exports.GetSessionSites = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).populate('Sessions')
+
+    if (!user) return res.status(404).send({ message: 'User not found!' })
+
+    const sessions = user.Sessions
+    const uniqueSites = new Map()
+
+    // Promise.all() to await all the asynchronous Site.findById() calls
+    await Promise.all(sessions.map(async session => {
+      const SiteId = session.SiteId
+      const site = await Site.findById(SiteId).select('SiteName')
+      const SiteName = site ? site.SiteName : null
+
+      if (SiteId && SiteName) {
+        uniqueSites.set(SiteId.toString(), { SiteId, SiteName })
+      }
+    }))
+
+    const data = Array.from(uniqueSites.values())
 
     res.status(200).send(data)
   } catch (err) {
@@ -568,5 +781,188 @@ exports.GetMarketplaceData = async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).send({ message: err.message })
+  }
+}
+// #endregion
+
+exports.GetTax = async (req, res) => {
+  try {
+    const tax = await User.findById(req.userId).populate({ path: 'Settings', select: 'tax' }).select('Settings').then(data => data.Settings.tax)
+
+    if (!tax) return res.status(404).send({ message: 'Tax not found!' })
+
+    return res.status(200).send({ tax })
+  } catch (err) {
+    return res.status(500).send({ message: err.message })
+  }
+}
+
+exports.GetUserLoadouts = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId, 'UserLoadouts').populate('UserLoadouts')
+    if (!user || user.UserLoadouts.length === 0) return res.status(200).send({ message: 'No loadouts found!' })
+
+    const loadoutsArr = []
+
+    user.UserLoadouts.forEach((loadout) => {
+      const loadoutObj = {
+        id: loadout._id,
+        name: loadout.name,
+        class: loadout.class,
+        AP: loadout.AP,
+        DP: loadout.DP
+      }
+      loadoutsArr.push(loadoutObj)
+    })
+
+    res.status(200).send(loadoutsArr)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+exports.AddUserLoadout = async (req, res) => {
+  try {
+    const loadoutObj = new Loadouts({
+      UserId: req.userId,
+      name: req.body.loadoutName,
+      class: req.body.loadoutClass,
+      AP: req.body.loadoutAP,
+      DP: req.body.loadoutDP
+    })
+    await loadoutObj.save()
+
+    await User.findByIdAndUpdate(req.userId, { $push: { UserLoadouts: loadoutObj._id } })
+
+    res.status(200).send({ id: loadoutObj._id, name: loadoutObj.name, class: loadoutObj.class, AP: loadoutObj.AP, DP: loadoutObj.DP })
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
+exports.DeleteUserLoadout = async (req, res) => {
+  try {
+    await Loadouts.findByIdAndDelete(req.body.loadoutId)
+
+    await User.findByIdAndUpdate(req.userId, { $pull: { UserLoadouts: req.body.loadoutId } })
+
+    let loadouts = await Loadouts.find({ UserId: req.userId })
+    if (!loadouts) loadouts = []
+
+    loadouts = loadouts.map((loadout) => ({
+      id: loadout._id,
+      name: loadout.name,
+      class: loadout.class,
+      AP: loadout.AP,
+      DP: loadout.DP
+    }))
+
+    res.status(200).send(loadouts)
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
+exports.UpdateUserLoadout = async (req, res) => {
+  try {
+    const loadout = await Loadouts.findByIdAndUpdate(req.body.loadoutId, {
+      $set: {
+        name: req.body.loadoutName,
+        class: req.body.loadoutClass,
+        AP: req.body.loadoutAP,
+        DP: req.body.loadoutDP
+      }
+    },
+    { new: true })
+
+    res.status(200).send({ id: loadout._id, name: loadout.name, class: loadout.class, AP: loadout.AP, DP: loadout.DP })
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
+exports.InsertSitesDataFromJson = async () => {
+  /* await Site.deleteMany({}).then((result) => console.log('Deleted all sites from db => ' + result.deletedCount))
+  return null */
+  const jsonSiteData = fs.readFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/Site_data.json', 'utf8')
+  const SitesData = JSON.parse(jsonSiteData)
+  const DataToFix = []
+  const bulkInsertOperations = []
+  for (const site of Object.values(SitesData)) {
+    const dropItemsTemp = []
+    for (let dropItem of Object.values(site.DropItems)) {
+      dropItem = dropItem.replace("'", '&#39;')
+      const itemDB = await Items.findOne({ name: dropItem })
+
+      const itemObj = {
+        itemId: null,
+        itemName: ''
+      }
+
+      if (itemDB) {
+        itemObj.itemId = itemDB._id
+        itemObj.itemName = itemDB.name
+        dropItemsTemp.push(itemObj)
+      } else {
+        DataToFix.push({
+          name: dropItem,
+          itemdb: 'Not Found',
+          id: 'Not Found'
+        })
+        itemObj.itemId = null
+        itemObj.itemName = dropItem
+        dropItemsTemp.push(itemObj)
+      }
+    }
+    site.DropItems = dropItemsTemp
+    bulkInsertOperations.push({
+      insertOne: {
+        document: site
+      }
+    })
+  }
+
+  fs.writeFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/Site_data_fixed.json', JSON.stringify(DataToFix))
+
+  await Site.bulkWrite(bulkInsertOperations).then((result) => console.log('Finished inserting data to db => ' + result.insertedCount))
+
+  console.log('Done With ISDFJ')
+}
+
+exports.InsertItemDataFromJson = async () => {
+  const jsonItemData = fs.readFileSync('C:/Users/HomePC/source/repos/BDO-Grind-Tracker/server/temp_data/ids.json', 'utf8')
+  const itemData = JSON.parse(jsonItemData)
+  itemData.map((item) => {
+    item.basePrice = item.basePrice.replaceAll(',', '')
+    return item
+  })
+
+  const itemsWithoutDuplicates = itemData.reduce((uniqueItems, item) =>
+    uniqueItems.some(existingItem => existingItem.id === item.id)
+      ? uniqueItems
+      : [...uniqueItems, item], [])
+
+  const bulkUpdateOperations = []
+
+  for (const item of itemsWithoutDuplicates) {
+    bulkUpdateOperations.push({
+      updateOne: {
+        filter: { id: item.id },
+        update: {
+          basePrice: item.basePrice
+        }
+      }
+    })
+  }
+
+  const validBulkUpdateOperations = bulkUpdateOperations.filter(op => op)
+
+  try {
+    await Items.bulkWrite(validBulkUpdateOperations).then((result, error) => console.log('Finished editing data to db => ' + result.modifiedCount + 'Errors: ' + error))
+  } catch (error) {
+    console.log(error)
   }
 }

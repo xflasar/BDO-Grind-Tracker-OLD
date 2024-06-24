@@ -110,3 +110,6 @@ temp_data
 # sensitive data
 .vscode
 server/config
+
+# Database tinkering data
+server/temp_data

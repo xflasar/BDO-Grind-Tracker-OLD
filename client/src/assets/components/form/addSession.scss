@@ -1,0 +1,450 @@
+.sessionAddOverlay {
+  display: flex;
+  position: fixed;
+  justify-content: center;
+  align-items: center;
+  left: 0;
+  top: 3.5rem;
+  padding-left: 4px;
+  padding-right: 4px;
+  width: 100vw;
+  height: calc(100vh - 3.5rem);
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  gap: 12px;
+  
+  &:hover {
+    overflow-y: auto;
+  }
+
+  form {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    display: grid;
+    grid-template-columns: 30% 70%;
+    grid-gap: 1rem;
+    border-radius: 0.9375rem;
+    transition: grid-template-columns .5s ease-in;
+  }
+
+  &-Content.partial {
+    form {
+      grid-template-columns: 100% 0%;
+    }
+  }
+}
+
+.sessionAddOverlay-Content {
+  position: relative;
+  width: 90%;
+  height: 90%;
+  min-height: 405px;
+  border-radius: 0.9375rem;
+  background-color: rgb(32,28,38);
+  overflow: hidden;
+
+  &-Close {
+    all:unset;
+    position: absolute;
+    width: 1.5rem;
+    height: 1.5rem;
+    right: 0.5rem;
+    top: 0.5rem;
+    grid-column: 2;
+    grid-row: 1;
+    color: white;
+    text-align: center;
+    font-weight: 500;
+    font-size: x-large;
+
+    &:hover {
+      color: #FFA600;
+    }
+  }
+
+  .sessionSiteChoosing {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 3rem);
+    height: calc(100% - 3rem);
+    top: 1.5rem;
+    left: 1.5rem;
+    grid-column: 1;
+    grid-row: 1;
+    background-color: rgba(75, 82, 85, 0.3);
+    border-radius: 0.9375rem;
+    flex-shrink: 0;
+    overflow: hidden;
+
+    .sessionSiteChoosing-Header {
+      position: relative;
+      background-color: #1E1E1E;
+      width: 100%;
+      height: 3.25rem;
+      border-radius: 0.9375rem 0.9375rem 0rem 0rem;
+      flex-shrink: 0;
+
+      h3 {
+        all: initial;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #FFA600;
+        text-align: center;
+        font-family: Inter;
+        font-size: 2.125rem;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+      }
+    }
+
+    .sessionSiteChoosing-SiteList {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      width: calc(100% - 2rem);
+      height: calc(100% - 5.25rem);
+      left: 1rem;
+      top: 1rem;
+      background-color: #1E1E1E;
+      border-radius: 0.9375rem;
+      flex-shrink: 0;
+      align-items: center;
+      overflow: hidden;
+      overflow-y: auto;
+
+      .sessionSiteChoosing-SiteList-Item {
+        display: flex;
+        color: white;
+        text-align: center;
+        width: 100%;
+        padding: 1rem;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.7);
+          
+        }
+
+        &.active {
+          color: #FFA600;
+          background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        label {
+          flex: 1;
+          text-align: center;
+          font-family: Inter;
+          font-size: 1.5rem;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+
+          &:hover {
+            color: #FFA600;
+            cursor: pointer;
+          }
+        }
+      }
+
+      &.selectedSite {
+        .sessionSiteChoosing-SiteList-Item {
+          &:not(.active) {
+            color: rgba(255, 255, 255, 0.7);
+          }
+        }
+      }
+    }
+  }
+
+  .sessionMainContent {
+    position: relative;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    grid-column: 2;
+    grid-row: 1;
+    width: calc(100% - 3rem);
+    min-height: calc(100% - 4rem);
+    max-height: calc(100% - 4rem);
+    border-radius: 0.9375rem;
+
+    h2 {
+      align-self: center;
+      margin: 0;
+      margin-top: 1rem;
+      color: white;
+    }
+
+    .sessionMainContent-HeaderContent {
+      position: relative;
+      min-height: 80px;
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      border-radius: 0.9375rem;
+      background-color: rgba(75, 82, 85, 0.3);
+      font-size: 12px;
+      font-weight: 400;
+      color: #fff;
+
+      h3 {
+        text-align: center;
+        margin: 0;
+        margin-top: 0.5rem;
+        color: #ffa600;
+      }
+    
+      &-SessionTime {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.75rem;
+        height: 100%;
+
+        &-Content {
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 1rem;
+          flex: 1;
+
+          h3 {
+            margin: 0;
+          }
+
+          input {
+            width: 2rem;
+            height: 1rem;
+            background-color: #272727;
+            border: unset;
+            color: white;
+            text-align: center;
+            border-radius: 15px;
+
+          }
+        }
+      }
+
+      &-TotalSilverAfterTaxes {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        &-Content {
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 1rem;
+          flex: 1;
+          
+          h3 {
+            margin: 0;
+          }
+        }
+      }
+
+      &-SilverPreHourBeforeTaxes {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        &-Content {
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 1rem;
+          flex: 1;
+
+          h3 {
+            margin: 0;
+          }
+        }
+      }
+
+      &-SilverPreHourAfterTaxes {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        &-Content {
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 1rem;
+          flex: 1;
+
+          h3 {
+            margin: 0;
+          }
+        }
+      }
+    }
+    
+    .sessionMainContent-SetupContent {
+      position: relative;
+      display: grid;
+      grid-template-columns: 40% 60%;
+      grid-template-rows: 40% 50% 10%;
+      width: 100%;
+      min-height: calc(100% - 4rem);
+      max-height: calc(100% - 4rem);
+      border-radius: 0.9375rem;
+
+      .sessionMainContent-SetupContent-Items {
+        display: flex;
+        flex-direction: column;
+        grid-column: span 2;
+        grid-row: 1;
+        width: 100%;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.9375rem;
+        background-color: rgba(75, 82, 85, 0.3);
+        overflow: hidden;
+
+        h2 {
+          margin: 0;
+          margin-bottom: 0.5rem;
+          margin-top: 0.5rem;
+          color:#ffa600;
+        }
+
+        &-Content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          background-color: #141414;
+          border-radius: 15px 15px 15px 15px;
+          padding: 0 1rem 0 1rem;
+          overflow-y: auto;
+
+          &::-webkit-scrollbar {
+            height: 0.5rem;
+          }
+
+          &-Item {
+            display: grid;
+            grid-template-columns: 45% 25% 5% 25%;
+            margin-top: 0.5rem;
+            min-height: 3rem;
+
+            .taxableCheckBox {
+              display: flex;
+              justify-self: center;
+
+              input {
+                all: initial;
+                -webkit-appearance: none;
+                appearance: none;
+                margin: 0;
+                color: #555;
+                width: 1.15em;
+                height: 1.15em;
+                border: 0.15em solid #555;
+                border-radius: 0.15em;
+                transform: translateY(-0.075em);
+                display: grid;
+                place-content: center;
+
+                &:checked {
+                  &::before {
+                    transform: scale(1);
+                  }
+                }
+
+                &::before {
+                  content: "";
+                  width: 0.65em;
+                  height: 0.65em;
+                  transform: scale(0);
+                  transition: 120ms transform ease-in-out;
+                  box-shadow: inset 1em 1em #ffa600;
+                }
+
+                &:hover {
+                  background-color: rgba(255, 255, 255, 0.1);
+                }
+              }
+            }
+
+            &-Name {
+              margin-left: 1rem;
+            }
+
+            div {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+            }
+
+            label {
+              color: white;
+            }
+
+            input {
+              all:unset;
+              width: 100%;
+              background: transparent;
+              color: white;
+              text-align: center;
+            }
+
+            &:last-child {
+              margin-bottom: 0.5rem;
+            }
+
+            &:nth-child(odd) {
+              background-color: #282828;
+            }
+          }
+        }
+      }
+
+      .sessionMainContent-SetupContent-BackSubmit {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        grid-column: span 2;
+        grid-row: 3;
+        margin-top: 1rem;
+
+        button {
+          width: 100%;
+          height: 100%;
+          border-radius: 0.375rem;
+          background-color: rgba(75, 82, 85, 0.3);
+          color: #fff;
+          font-size: 1.5rem;
+          font-weight: 400;
+          border:none;
+          text-align: center;
+          cursor: pointer;
+          transition: color 0.2s ease-in-out;
+
+          &:hover {
+            background-color: rgba(51, 51, 51, 0.8);
+            color: #ffa600;
+          }
+        }
+      }
+    }
+  }
+}
+
+
