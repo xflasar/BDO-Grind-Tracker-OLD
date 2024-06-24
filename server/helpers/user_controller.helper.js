@@ -38,7 +38,7 @@ exports.GetWeightedAverage = async (dbSchema, siteId = null, userId = null, type
   } else if (type === 'Site') {
     match = { SiteId: siteId }
   } else if (type === 'SessionCreation') {
-    match = { UserId: userId, SiteId: siteId }
+    match = { UserId: userId }
   } else {
     match = { _id: { $exists: true } }
   }
@@ -145,6 +145,11 @@ exports.UpdateUserAfterSessionSaved = async (user, savedSession, Session) => {
   user.TotalTime += savedSession.sessionTime
   const data = await this.GetWeightedAverage(Session, savedSession.SiteId, user._id, 'SessionCreation')
   user.AverageEarnings = data[0].weightedAverage
+
+  // Calculate which site is top by raw earnings
+
+  
+
   user.RecentActivity.push({ activity: 'Added new session.', date: new Date() })
 
   return await user.save()

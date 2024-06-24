@@ -13,10 +13,10 @@ import { handleDropItemChange, formatNumberWithSpaces, handleSessionTimeChange, 
 
 const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => {
   const [state, dispatch] = useReducer(editSessionReducer, INITIAL_STATE)
-
   const [settingsState, settingsDispatch] = useReducer(settingsReducer, settingsReducerINIT)
   const [loadoutState, loadoutDispatch] = useReducer(loadoutReducer, loadoutReducerINIT)
   const [dropItemState, dropItemDispatch] = useReducer(dropItemReducer, dropItemReducerINIT)
+
   if (!data) {
     return null
   }
@@ -64,6 +64,7 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
     e.preventDefault()
 
     const newSession = {
+      _id: data._id,
       originalSessionTime: (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes),
       sessionTime: (Number(state.sessionTimeHours) * 60) + Number(state.sessionTimeMinutes),
       Agris: Number(state.Agris),

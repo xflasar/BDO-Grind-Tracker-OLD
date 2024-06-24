@@ -55,7 +55,7 @@ exports.fetchData = async (pagination, authorizedFetch) => {
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join('&')
 
-    const url = 'api/user/historydata' + (queryString ? `?${queryString}` : '')
+    const url = 'api/user/sessions' + (queryString ? `?${queryString}` : '')
 
     const res = await authorizedFetch(url)
     const data = await res.json()

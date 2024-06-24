@@ -13,6 +13,8 @@ const UserSettings = require('../db/models/settings.model.js')
 const BDO_API = require('../services/bdo_api.js')
 const Sessions = require('../db/models/session.model.js')
 
+const { ObjectId } = require('mongodb');
+
 // #region Sets
 exports.SetUserProfileData = (req, res) => {
   const profileData = {}
@@ -372,11 +374,13 @@ exports.EditSession = async (req, res) => {
       Loadout: req.body.Loadout
     }
 
+    const SessionId = new ObjectId(req.body._id)
+
     // Used for purpose of restoring session of any edits
-    const sessionBackup = await Session.findById(req.body.SessionId)
+    const sessionBackup = await Session.findById(SessionId)
 
     const updatedSession = await Session.findOneAndUpdate(
-      req.body.SessionId,
+      SessionId,
       { $set: { ...updateSessionData } },
       { new: true }
     )
@@ -699,6 +703,36 @@ exports.GetSessionsData = async (req, res) => {
     const totalPages = Math.ceil(await Session.countDocuments(query) / req.query.paginationMaxElements)
 
     res.status(200).send({ data, pages: totalPages })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ message: err.message })
+  }
+}
+
+// This might be optimized better
+exports.GetSessionSites = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).populate('Sessions')
+
+    if (!user) return res.status(404).send({ message: 'User not found!' })
+
+    const sessions = user.Sessions
+    const uniqueSites = new Map()
+
+    // Promise.all() to await all the asynchronous Site.findById() calls
+    await Promise.all(sessions.map(async session => {
+      const SiteId = session.SiteId
+      const site = await Site.findById(SiteId).select('SiteName')
+      const SiteName = site ? site.SiteName : null
+
+      if (SiteId && SiteName) {
+        uniqueSites.set(SiteId.toString(), { SiteId, SiteName })
+      }
+    }))
+
+    const data = Array.from(uniqueSites.values())
+
+    res.status(200).send(data)
   } catch (err) {
     console.error(err)
     res.status(500).send({ message: err.message })

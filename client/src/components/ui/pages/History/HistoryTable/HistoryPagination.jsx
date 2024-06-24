@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 
 const HistoryPagination = ({ paginationPages, currentPage, dispatch }) => {
   const handlePageChange = (page) => {
+    if (page === currentPage) return
+
     dispatch({ type: 'SET_CURRENT_PAGE', payload: page })
     dispatch({ type: 'SET_LOADING', payload: true })
   }

@@ -74,7 +74,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
         body: JSON.stringify(sessionData)
       })
       const data = await res.json()
-      console.log(data)
 
       onAddSessionSuccess(data)
     } catch (error) {
@@ -136,7 +135,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
               value={state.sessionTimeHours}
               placeholder="0h"
             />
-            <h3>|</h3>
+            <span>|</span>
             <input
               type="text"
               name="sessionTimeMinutes"
@@ -149,19 +148,19 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
         <div className="sessionMainContent-HeaderContent-TotalSilverAfterTaxes">
           <h3>Total Silver After Taxes</h3>
           <div className="sessionMainContent-HeaderContent-TotalSilverAfterTaxes-Content">
-            <h3>{formatNumberWithSpaces(state.totalSilverAfterTaxes)}</h3>
+            <span>{formatNumberWithSpaces(state.totalSilverAfterTaxes)}</span>
           </div>
         </div>
         <div className="sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes">
           <h3>Silver Per Hour Before Taxes</h3>
           <div className="sessionMainContent-HeaderContent-SilverPreHourBeforeTaxes-Content">
-            <h3>{formatNumberWithSpaces(state.silverPerHourBeforeTaxes)}</h3>
+            <span>{formatNumberWithSpaces(state.silverPerHourBeforeTaxes)}</span>
           </div>
         </div>
         <div className="sessionMainContent-HeaderContent-SilverPreHourAfterTaxes">
           <h3>Silver Per Hour After Taxes</h3>
           <div className="sessionMainContent-HeaderContent-SilverPreHourAfterTaxes-Content">
-            <h3>{formatNumberWithSpaces(state.silverPerHourAfterTaxes)}</h3>
+            <span>{formatNumberWithSpaces(state.silverPerHourAfterTaxes)}</span>
           </div>
         </div>
       </>
@@ -227,7 +226,6 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
               {renderLoadout()}
             </div>
             <div className='sessionMainContent-SetupContent-Settings'>
-              <h2>Settings</h2>
               {renderSettings()}
             </div>
             <div className='sessionMainContent-SetupContent-BackSubmit'>

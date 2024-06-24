@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
+import '../../../assets/components/ui/AddSession/addSession.loadout.scss'
 
 const Loadout = ({ state, dispatch, authorizedFetch }) => {
   useEffect(() => {

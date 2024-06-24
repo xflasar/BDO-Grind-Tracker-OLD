@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
+import '../../../assets/components/ui/AddSession/addSession.settings.scss'
 
 const AddSessionSettings = ({ state, dispatch }) => {
   const handleSettingsDropRateItem = (itemName) => {
@@ -57,6 +58,7 @@ const AddSessionSettings = ({ state, dispatch }) => {
 
   return (
     <div className='sessionMainContent-SetupContent-Settings-Content'>
+      <h2>Total Drop Rate: {(state.DropRateTotal * 100).toFixed(0)}%</h2>
       <div className='sessionMainContent-SetupContent-Settings-Content-GridList'>
         {state.DropRate && (
           Object.keys(state.DropRate).map((itemName) => {
@@ -69,8 +71,6 @@ const AddSessionSettings = ({ state, dispatch }) => {
         )}
         </div>
         <div className='sessionMainContent-SetupContent-Settings-Content-Total'>
-        <h3>Total Drop Rate:</h3>
-        <h3>{(state.DropRateTotal * 100).toFixed(0)}%</h3>
       </div>
     </div>
   )

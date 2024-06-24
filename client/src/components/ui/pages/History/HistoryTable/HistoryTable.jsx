@@ -148,7 +148,7 @@ const HistoryTable = React.forwardRef(({ authorizedFetch, onEditTrigger, onDelet
 
   return (
     <>
-      <HistorySorting data={state.data} dispatch={dispatch}/>
+      <HistorySorting dispatch={dispatch} authorizedFetch={authorizedFetch}/>
       <table role="historyTable" className="history-table">
         <thead className="history-table-header">
           <tr>
