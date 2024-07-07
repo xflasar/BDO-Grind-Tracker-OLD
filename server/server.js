@@ -3,11 +3,13 @@ const cors = require('cors')
 const cookieSession = require('cookie-session')
 const dbConfig = require('./config/db.config')
 const config = require('./config/auth.config')
+const redisCfg = require('./config/redis.config')
 const db = require('mongoose')
 const https = require('https')
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
+const { initRedisClient } = require('./middlewares/redis')
 // const cron = require('cron')
 // const UserController = require('./controllers/user.controller.js')
 
@@ -95,6 +97,17 @@ app.get('/api', (req, res) => {
 // UserController.InsertItemDataFromJson()
 
 // Custom End //
+
+// REDIS
+async function init() {
+  await initRedisClient(redisCfg)
+}
+
+init().then(() => {
+  console.log('Redis client initialized')
+}).catch((e) => {
+  console.log(e)
+})
 
 http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))
 https.createServer({ key, cert }, app).listen(port, () => console.log('Https Server running on port ' + port))
