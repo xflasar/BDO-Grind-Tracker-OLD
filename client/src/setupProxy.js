@@ -6,7 +6,7 @@ module.exports = function (app) {
     createProxyMiddleware({
       target: 'https://localhost:443',
       changeOrigin: true,
-      secure: false
+      secure: false, // should be true if target is https
     })
   )
 }

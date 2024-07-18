@@ -15,7 +15,7 @@ const DropItems = ({ state, dispatch, authorizedFetch, siteId, handleDropItemsAm
 
   const fetchDropItems = async (siteId) => {
     try {
-      const response = await authorizedFetch(`/api/user/getaddsessionsitesitemdata/${siteId}`)
+      const response = await authorizedFetch(`/api/user/sites/getitemdata/${siteId}`)
       const data = await response.json()
       dispatch({ type: 'ADD_SESSION_DROP_ITEMS_FETCH', payload: data })
     } catch (error) {

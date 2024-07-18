@@ -9,7 +9,7 @@ const Loadout = ({ state, dispatch, authorizedFetch }) => {
 
   const fetchLoadouts = async () => {
     try {
-      const response = await authorizedFetch('/api/user/getloadouts')
+      const response = await authorizedFetch('/api/user/loadouts/getloadouts')
       const data = await response.json()
 
       if (data.message === 'No loadouts found!') { return dispatch({ type: 'ADD_SESSION_LOADOUTS_FETCH', payload: [] }) }

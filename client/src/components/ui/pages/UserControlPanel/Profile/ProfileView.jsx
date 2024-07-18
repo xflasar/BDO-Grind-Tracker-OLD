@@ -9,7 +9,7 @@ const ProfileView = () => {
   const [userFamilyName, setUserFamilyName] = useState('')
 
   async function fetchUserData () {
-    const response = await authorizedFetch('api/user/userprofiledata')
+    const response = await authorizedFetch('api/user/profile')
     const data = await response.json()
     if (data) {
       setUser(data)

@@ -46,7 +46,6 @@ exports.checkStatus = () => {
 //  KEEPTTL, // retain the TTL associated with the key
 //  GET, // return the old string stored at key, or "undefined" if key did not exist
 exports.writeData = async (key, data, options) => {
-  console.log(key, data, options)
   if (this.checkStatus()) {
     try {
       await redisClient.set(key, data, options)
@@ -71,6 +70,7 @@ exports.readData = async (key) => {
   }
 }
 
+// TODO: - implement compression
 exports.redisCacheMiddleware =(
   options = {
     EX: 21600, // 6h

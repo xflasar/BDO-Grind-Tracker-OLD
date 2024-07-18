@@ -53,8 +53,30 @@ const Marketplace = () => {
     setCurrentPage(1)
   }
 
+  async function fetchRegistrationQueue () {
+    try {
+      const response = await authorizedFetch('/api/user/marketplace/queue', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await response.json()
+      setData(data)
+      setTotalItems(data.length)
+      setDataLoading(false)
+    } catch (err) {
+      console.log(err)
+      setSearchData({})
+    }
+  }
+
   useEffect(() => {
-    fetchMarketplaceData()
+    if (searchData.mainCategory === 'Registration Queue') {
+      fetchRegistrationQueue()
+    } else {
+      fetchMarketplaceData()
+    }
     setTotalPages(Math.ceil(totalItems / recordsPerPage))
   }, [searchData])
 

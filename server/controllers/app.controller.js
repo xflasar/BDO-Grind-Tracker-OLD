@@ -2,7 +2,7 @@ const SendEmail = require('../services/contactEmailsending.js')
 const { emailConfig } = require('../config/emailSending.config.js')
 const Session = require('../db/models/session.model.js')
 const Sites = require('../db/models/site.model.js')
-const Scrapper = require('../services/BDO_news_scraper.js')
+const News = require('../db/models/news.model.js')
 
 exports.ContactSend = async (req, res) => {
   const { name, email, message } = req.body
@@ -75,9 +75,22 @@ exports.GetHompageGlobalData = async (req, res) => {
 }
 
 exports.GetNews = async (req, res) => {
-  Scrapper.Scrapped().then((news) => {
-    if (!news) return res.status(404).send({ message: 'No news found' })
+  const newsAmount = 15
+  try {
+    const newsDataRes = await News.find().limit(newsAmount)
+    
+    const newsData = newsDataRes.map(news => ({
+      title: news.title,
+      newsUrl: news.newsUrl,
+      newsIcon: news.newsIcon,
+      date: news.date,
+      category: news.category,
+      desc: news.desc
+    }))
 
-    res.status(200).send(news)
-  })
+    return res.status(200).send(newsData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
 }

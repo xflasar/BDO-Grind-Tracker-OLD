@@ -15,7 +15,7 @@ const ProfileSecurity = () => {
       return
     }
 
-    const response = await authorizedFetch('api/user/setusersecuritydata', {
+    const response = await authorizedFetch('api/user/profile/security/changepassword', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

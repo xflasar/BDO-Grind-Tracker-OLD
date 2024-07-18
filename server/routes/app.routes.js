@@ -1,4 +1,5 @@
 const controller = require('../controllers/app.controller')
+const { redisCacheMiddleware } = require('../middlewares/redis')
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -14,5 +15,5 @@ module.exports = function (app) {
 
   // Gets
   app.get('/api/globaldata', controller.GetHompageGlobalData)
-  app.get('/api/news', controller.GetNews)
+  app.get('/api/news', redisCacheMiddleware(), controller.GetNews)
 }

@@ -107,6 +107,9 @@ dist
 temp_data
 .history
 
+# Temporary
+Documentation
+
 # sensitive data
 .vscode
 server/config

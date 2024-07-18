@@ -3,10 +3,11 @@ import PropTypes from 'prop-types'
 import '../../assets/pages/Marketplace/MarketplaceMenu.scss'
 
 // TODO:
-// Registration queue function
+// Registration queue function - done
 // Items images store locally
 // Fix empty categories
 // reformat whole menu
+// Bloody hell insane code spagheti !!!
 const MarketplaceMenu = ({ handleSearch }) => {
   const [activeMainCategory, setMainActiveCategory] = useState('')
 

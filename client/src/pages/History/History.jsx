@@ -30,7 +30,7 @@ function History () {
 
   async function handleDeleteSession (id) {
     try {
-      const res = await authorizedFetch('api/user/deletesession', {
+      const res = await authorizedFetch('api/user/sessions/deletesession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

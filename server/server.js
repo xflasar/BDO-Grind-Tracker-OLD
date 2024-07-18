@@ -10,10 +10,9 @@ const http = require('http')
 const fs = require('fs')
 const path = require('path')
 const { initRedisClient } = require('./middlewares/redis')
-// const cron = require('cron')
-// const UserController = require('./controllers/user.controller.js')
 
-// const BDOAPI = require('./services/bdo_api')
+// Cron Scripts
+const newsCron = require('./cronscripts/news.cron')
 
 const app = express()
 const port = process.env.PORT || 443
@@ -74,7 +73,24 @@ app.get('/api', (req, res) => {
 })
 // #endregion
 
+// REDIS
+async function init() {
+  await initRedisClient(redisCfg)
+}
+
+init().then(() => {
+  console.log('Redis client initialized')
+}).catch((e) => {
+  console.log(e)
+})
+
+http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))
+https.createServer({ key, cert }, app).listen(port, () => console.log('Https Server running on port ' + port))
+
 // cron setup
+
+newsCron.Init()
+
 // const getBDOMarketplaceDBDump = new cron.CronJob('0 */1 * * * *', function () {
 //  BDOAPI.GetDatabaseDump()
 // })
@@ -97,17 +113,3 @@ app.get('/api', (req, res) => {
 // UserController.InsertItemDataFromJson()
 
 // Custom End //
-
-// REDIS
-async function init() {
-  await initRedisClient(redisCfg)
-}
-
-init().then(() => {
-  console.log('Redis client initialized')
-}).catch((e) => {
-  console.log(e)
-})
-
-http.createServer(app).listen(80, () => console.log('Http Server running on port 80'))
-https.createServer({ key, cert }, app).listen(port, () => console.log('Https Server running on port ' + port))

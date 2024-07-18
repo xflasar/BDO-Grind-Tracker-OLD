@@ -66,7 +66,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
     })
 
     try {
-      const res = await authorizedFetch('api/user/addsession', {
+      const res = await authorizedFetch('api/user/sessions/addsession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -82,7 +82,7 @@ const AddSession = ({ onAddSessionSuccess, onCloseClick }) => {
   }
 
   const fetchSites = async () => {
-    const response = await authorizedFetch('/api/user/getaddsessionsites')
+    const response = await authorizedFetch('/api/user/sites/getaddsessionsites')
     if (response.ok) {
       const res = await response.json()
       dispatch({ type: 'ADD_SESSION_SITES_FETCH', payload: res })

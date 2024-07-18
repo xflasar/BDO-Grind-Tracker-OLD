@@ -23,7 +23,7 @@ const EditSession = ({ data, onEditSuccess, authorizedFetch, onCloseClick }) => 
 
   async function handleEditSessionSubmit (data) {
     try {
-      const res = await authorizedFetch('api/user/editsession', {
+      const res = await authorizedFetch('api/user/sessions/editsession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

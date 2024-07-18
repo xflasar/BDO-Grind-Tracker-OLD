@@ -8,7 +8,7 @@ const ProfileSettings = () => {
   const [state, dispatch] = useReducer(profileSettingsReducer, INITIAL_STATE)
 
   async function FetchUserData () {
-    const response = await authorizedFetch('api/user/usersettingsdata')
+    const response = await authorizedFetch('api/user/profile/settings')
     const data = await response.json()
     if (data) {
       dispatch({ type: 'PROFILE_SETTINGS_UPDATE_FETCH', payload: data })
@@ -60,7 +60,7 @@ const ProfileSettings = () => {
     const merchantRing = state.merchantRing
     const familyFame = state.familyFame
 
-    const response = await authorizedFetch('api/user/setusersettingsdata', {
+    const response = await authorizedFetch('api/user/profile/settings/setdata', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

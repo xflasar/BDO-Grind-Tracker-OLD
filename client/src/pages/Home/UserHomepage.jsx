@@ -8,7 +8,7 @@ const UserHomepage = () => {
 
   async function fetchUserData () {
     try {
-      const response = await fetch('/api/user/homepageuserdata')
+      const response = await fetch('/api/user/homedata')
       if (response.ok) {
         const data = await response.json()
         setUserData(data)

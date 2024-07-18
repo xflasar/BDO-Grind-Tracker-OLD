@@ -8,7 +8,7 @@ function Sites () {
   const { isSignedIn, authorizedFetch } = useContext(SessionContext)
 
   async function handleFetchData () {
-    const res = await authorizedFetch('api/user/sitedata')
+    const res = await authorizedFetch('api/user/sites')
     const data = await res.json()
     return data
   }

@@ -1,5 +1,12 @@
 const controller = require('../controllers/user.controller')
 const { verifyToken } = require('../middlewares/authJwt')
+const userProfileRoutes = require('./user/userProfile.routes')
+const userSettingsRoutes = require('./user/userSettings.routes')
+const userSecurityRoutes = require('./user/userSecurity.routes')
+const loadoutRoutes = require('./loadout.routes')
+const sessionRoutes = require('./session.routes')
+const siteRoutes = require('./site.routes')
+const marketplaceRoutes = require('./marketplace.routes')
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -10,7 +17,21 @@ module.exports = function (app) {
     next()
   })
 
-  // Sets
+  app.use('/api/user/profile', userProfileRoutes)
+  app.use('/api/user/profile/settings', userSettingsRoutes)
+  app.use('/api/user/profile/security', userSecurityRoutes)
+  app.use('/api/user/loadouts', loadoutRoutes)
+  app.use('/api/user/sessions', sessionRoutes)
+  app.use('/api/user/sites', siteRoutes)
+
+  app.use('/api/user/marketplace', marketplaceRoutes) // move to app.routes.js
+
+  // In-Routes
+  app.get('/api/user/gettax', [verifyToken], controller.GetTax)
+  app.get('/api/user/homedata', [verifyToken], controller.GetHomepageData)
+  app.get('/api/user/recentactivity', [verifyToken], controller.GetRecentActivity)
+
+  /* // Sets
   app.post('/api/user/setuserprofiledata', [verifyToken], controller.SetUserProfileData)
   app.post('/api/user/setusersecuritydata', [verifyToken], controller.SetUserSecurityData)
   app.post('/api/user/setusersettingsdata', [verifyToken], controller.SetUserSettingsData)
@@ -55,5 +76,5 @@ module.exports = function (app) {
   app.get('/api/user/sessions/sites', [verifyToken], controller.GetSessionSites)
 
   // Marketplace data
-  app.post('/api/user/marketplace', [verifyToken], controller.GetMarketplaceData)
+  app.post('/api/user/marketplace', [verifyToken], controller.GetMarketplaceData) */
 }

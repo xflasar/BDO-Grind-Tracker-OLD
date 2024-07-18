@@ -389,14 +389,17 @@ exports.GetRegistrationQueue = async (dbSchema) => {
     const options = {
       family: 4
     }
-    const response = await fetch('https://api.arsha.io/v1/eu/GetWorldMarketWaitList', options)
-
+    const response = await fetch('https://api.blackdesertmarket.com/list/queue?region=eu&language=en-US', options)
+    
     if (!response.ok) {
       console.log(response.status)
       return { fixItems: [], totalItems: 0 }
     }
 
-    const resData = await response.json()
+    const data = await response.json()
+    //console.log(data)
+    return data
+    /*
     const tempResData = resData.resultMsg.split('|')
 
     const resDataTemp = tempResData
@@ -434,9 +437,9 @@ exports.GetRegistrationQueue = async (dbSchema) => {
     if (missingItems.length > 0) {
       console.log(`Missing items: ${missingItems}`)
     }
-
+    */
     // Use 'Promise.all' to parallelize fetching item images
-    const fixItems = await Promise.all(unformattedItems.map(async (item) => {
+    const fixItems = await Promise.all(data.map(async (item) => {
       // This needs to be rewriten most likely internal database for the icons/storage/external website server
       /* const resImg = await fetch(`https://${item.icon}`)
       if (resImg.ok) {
@@ -454,6 +457,7 @@ exports.GetRegistrationQueue = async (dbSchema) => {
         Name: item.name,
         Image: item.icon,
         Price: item.basePrice,
+        Timer: item.endTime,
         identifier: GenerateUniqueId()
       }
     }))
