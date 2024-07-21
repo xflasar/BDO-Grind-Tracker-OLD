@@ -77,13 +77,13 @@ exports.GetHompageGlobalData = async (req, res) => {
 exports.GetNews = async (req, res) => {
   const newsAmount = 15
   try {
-    const newsDataRes = await News.find().limit(newsAmount)
+    const newsDataRes = await News.find().sort({date: -1}).limit(newsAmount)
     
     const newsData = newsDataRes.map(news => ({
       title: news.title,
       newsUrl: news.newsUrl,
       newsIcon: news.newsIcon,
-      date: news.date,
+      date: news.date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric'}),
       category: news.category,
       desc: news.desc
     }))

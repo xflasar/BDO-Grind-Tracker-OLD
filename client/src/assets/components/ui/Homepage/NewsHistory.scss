@@ -33,20 +33,31 @@
     }
     
     &::-webkit-scrollbar-thumb {
-      background-color: black;
+      background-color: #ffa600;
       border-radius: 5px;
     }
     
     .news-history-item {
       position: relative;
+      display: flex;
+      flex-direction: column;
       width: 250px;
       margin-right: 1rem;
       margin-bottom: 0.2rem;
       transition: all 0.3s ease-in-out;
 
       &:hover {
+        .news-history-item-desc {
+          display: block;
+          z-index: 1;
+        }
+
         img {
           filter: opacity(0.5);
+        }
+
+        .news-history-item-content {
+          filter: blur(5px);
         }
       }
 
@@ -73,10 +84,23 @@
         margin-right: .5rem;
       }
 
+      &-desc {
+        position: absolute;
+        width: calc(100% - 2rem);
+        top: 50%;
+        transform: translateY(-50%);
+        margin:0 1rem 0 1rem;
+        display: none;
+        text-align: center;
+        text-decoration: none;
+        user-select: none;
+        pointer-events: none;
+      }
+
       &-content {
         display: grid;
-        grid-template-columns: 50% 50%;
-        grid-template-rows: 70%;
+        grid-template-columns: 60% 40%;
+        grid-template-rows: 50% 20% 30%;
         background-color: rgba(0,0,0,0.5);
         text-decoration: none;
         color: white;
@@ -88,18 +112,37 @@
         z-index: 1;
 
         &-title {
-          width: 100%;
+          width: calc(100% - 1rem);
           grid-row: 1;
           grid-column: 2 span;
+          margin: 0 0.5rem 0 0.5rem;
           text-align: center;
+
           p {
             overflow-wrap: normal;
           }
         }
 
+        &-cate {
+          position: relative;
+          display: flex;
+          grid-column: 2;
+          grid-row: 3;
+          text-align: center;
+          align-self:center;
+          justify-content: center;
+          
+          &-overlay {
+            width: fit-content;
+            background-color: rgba(0,0,0,1);
+            border-radius: 5px;
+            padding: 0.2rem;
+          }
+        }
+
         &-date {
           position: relative;
-          grid-row: 2;
+          grid-row: 3;
           grid-column: 1;
           left: 10%;
         }
