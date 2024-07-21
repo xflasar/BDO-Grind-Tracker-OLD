@@ -45,7 +45,9 @@
       transition: all 0.3s ease-in-out;
 
       &:hover {
-        border: 1px solid #ffa600;
+        img {
+          filter: opacity(0.5);
+        }
       }
 
       a {
@@ -54,6 +56,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        
       }
       
       img {
@@ -62,6 +66,7 @@
         width: inherit;
         height: 100%;
         border-radius: 1rem;
+        
       }
 
       &:last-child {

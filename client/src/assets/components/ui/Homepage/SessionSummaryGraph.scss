@@ -1,0 +1,77 @@
+.siteGraph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: 1fr;
+  grid-template-rows: 15% 85%;
+  align-items: center;
+  user-select: none;
+
+  h1 {
+    color: white;
+  }
+
+  &-legend {
+    width: 60%;
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: min-content auto;
+    gap: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: black;
+      border-radius: 5px;
+    }
+
+    &-text {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      span {
+        height: 1.3rem;
+      }
+    }
+
+    &-textgraph {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+
+      .item {
+        height: 1.3rem;
+
+        span {
+          position: absolute;
+          color: white;
+        }
+
+        &-graphical {
+          height: 1rem;
+          max-width: 0;
+          animation: loadIn 1.5s normal forwards;
+
+          @keyframes loadIn {
+            0% {
+              max-width: 0;
+              border-radius: 0 15px 15px 0; 
+            }
+            100% {
+              max-width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+
+}

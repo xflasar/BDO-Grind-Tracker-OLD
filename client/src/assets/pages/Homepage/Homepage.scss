@@ -8,7 +8,19 @@
 }
 
 .Homepage {
-  min-height: calc(100vh - 70px - 44px); // fixme: problematic
+  min-height: calc(100vh - 70px - 60px); // fixme: problematic
+  position: relative;
+  z-index: 0;
+
+  .news {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.6);
+  }
 }
 
 .box-container {

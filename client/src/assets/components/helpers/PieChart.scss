@@ -1,0 +1,17 @@
+.pie-chart {
+  display: flex;
+  position: relative;
+  width: 60%;
+  height: 60%;
+  text-align: center;
+  overflow: visible;
+}
+
+.sector-path {
+  transition: transform 0.2s ease-in-out;
+}
+
+.sector-path:hover,
+.sector-path.hovered {
+  transform: scale(1.1); // or any other transformation you prefer
+}
