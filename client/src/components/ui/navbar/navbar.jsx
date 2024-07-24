@@ -100,6 +100,10 @@ function Navigation () {
     dispatch({ type: 'TOGGLE_MOBILE_MENU', payload: false })
   }
 
+  const handleCloseSignUp = () => {
+    dispatch({ type: 'SIGNUP_OVERLAY_HIDE' })
+  }
+
   const handleLoginSuccess = () => {
     dispatch({ type: 'SIGNIN_OVERLAY_HIDE' })
     if (userData) {
@@ -168,11 +172,11 @@ function Navigation () {
         {state.showSignin && <Portal el={(
         <div className={`login-form-overlay ${state.overlayActive ? 'active' : ''}`}
       onTransitionEnd={handleTransitionEnd}>
-             <Login onLoginSuccess={handleLoginSuccess} onClose={() => { dispatch({ type: 'SIGNIN_OVERLAY_HIDE', payload: false }) } }/>
+            <Login onLoginSuccess={handleLoginSuccess} onClose={() => { dispatch({ type: 'SIGNIN_OVERLAY_HIDE', payload: false }) } }/>
         </div>
         )}/>}
         {state.showSignup && <Portal el={<div className={`signup-form-overlay ${state.overlayActive ? 'active' : ''}`} onTransitionEnd={handleTransitionEnd}>
-            <Signup onSignupSuccess={handleSignupSuccess} onClose={() => { dispatch({ type: 'SIGNUP_OVERLAY_HIDE', payload: false }) } }/>
+            <Signup onSignupSuccess={handleSignupSuccess} onClose={handleCloseSignUp}/>
           </div>}/>}
     <div className="nav-container">
       <nav>

@@ -1,25 +1,40 @@
+// Temporary (WIP -> maybe i will add this to all scss)
+$bg-color: #1a202c;
+$modal-bg-color: #2d3748;
+$text-color: #f6ad55;
+$button-bg-color: #ed8936;
+$button-hover-bg-color: #dd6b20;
+$input-bg-color: #4a5568;
+$input-border-color: #2d3748;
+$subheader-color: #a0aec0;
+
 .signup-form-container {
     position: absolute;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 30% 70%;
     left: 50%;
     top: 50%;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: rgb(51, 51, 51);
+    background-color: rgb(32, 28, 38);
     border-radius: 12px;
     color: #ff9900;
     font-family: 'Montserrat', sans-serif;
     min-width: 25rem;
     max-width: fit-content;
+    height: 350px;
     transform: translate(-50%, -50%);
     transition: all 0.5s ease;
     z-index: 101;
 
-    h3{
+    h2{
         color: #ff9900;
-        font-size: 1.1rem;
+        font-size: 1.8rem;
+        margin: 0;
         margin-bottom: 0.2rem;
+        text-align: center;
     }
   
     form {
@@ -28,57 +43,117 @@
       align-items: center;
       justify-content: center;
       width: 100%;
+      height: 100%;
+
+      input[class*="error"]{
+        outline: 2px solid red !important;
+        margin-bottom: 0 !important;
+      }
+
+      &.verify-code {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        input {
+          width: 40%;
+          height: 35px;
+          font-size: large;
+          font-weight: 500;
+          text-align: center;
+          padding: 0.5rem;
+          margin-bottom: 1rem;
+          color: #e2e8f0;
+          background-color: $input-bg-color;
+          outline: 1px solid $input-border-color;
+          border: none;
+          border-radius: 0.5rem;
+          outline: none;
+          transition: border-color 0.3s;
+
+          &:focus {
+            outline: 1px solid $text-color;
+          }
+        }
+
+        span {
+          font-size: large;
+          margin-bottom: 2rem;
+        }
+
+        .verify-code-error {
+          margin-top: 0.5rem;
+          margin-bottom: 2rem;
+          color: red;
+        }
+
+        .verify-code-success {
+          color: #008000;
+        }
+
+        .signup-form-verify-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+      }
 
       .signup-form-inputs {
         display: flex;
         flex-direction: column;
+        align-items: center;
         width: 90%;
         height: 100%;
-        margin-bottom: 3rem;
         
         input {
+          width: 80%;
+          height: 20px;
+          font-size: medium;
+          font-weight: 400;
+          text-align: center;
           padding: 0.5rem;
           margin-bottom: 1rem;
+          color: #e2e8f0;
+          background-color: $input-bg-color;
           border: none;
-          border-radius: 0.25rem;
-          background-color: #2b2b2b;
-          color: #fff;
-          font-size: 1rem;
-          width: 95%;
-          transition: all 0.2s ease-in-out;
-          
+          border-radius: 0.5rem;
+          outline: none;
+          transition: border-color 0.3s;
+
           &:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px #ff9900;
+            outline: 1px solid $text-color;
           }
         }
-        
-        [class*="error"]{
-          color: red;
-          box-shadow: 0 0 0 2px red;
-        }
-        
-        label{
-          margin-bottom: .5rem;
-        } 
       }
 
-      button[type="submit"] {
+      button {
         position: relative;
         padding: 0.5rem 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 2rem;
         border: none;
         border-radius: 0.25rem;
         background-color: #ff9900;
         color: #1a1a1a;
         font-size: 1rem;
-        bottom: 0.7rem;
         cursor: pointer;
         transition: all 0.2s ease-in-out;
   
         &:hover {
-          background-color: #e68a00;
+          background-color: $button-hover-bg-color;
         }
+
+        &.disabled {
+          background-color:rgba(25, 25, 25, 0.8) !important;
+          outline: 1px solid rgb(20, 20, 20);
+          color: rgba(255, 255, 255, 0.3);
+          cursor: default;
+        }
+      }
+
+      // Fix for autofill style
+      input:-webkit-autofill, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+        -webkit-box-shadow:0 0 0 50px #4a5568 inset;
+        -webkit-text-fill-color: #e2e8f0;
+        caret-color: #FFF;
       }
     }
   
@@ -91,6 +166,63 @@
   
       &:hover {
         color: #e68a00;
+      }
+    }
+
+    &-close {
+      position: absolute;
+      top: 2.5%;
+      right: 2.5%;
+      background: none;
+      border: none;
+      color: #a0aec0;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s;
+
+      button {
+        all: unset;
+        position: relative;
+        display: inline-block;
+        background-color: transparent;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        overflow: hidden;
+        
+        
+        &:hover {
+          &::before, &::after {
+            background: #ffa600;
+          }
+        }
+      
+        &::before, &::after {
+          content: '';
+          position: absolute;
+          height: 2px;
+          width: 100%;
+          top: 50%;
+          left: 0;
+          margin-top: -1px;
+          background: rgb(100, 100, 100);
+        }
+
+        &::before {
+          transform: rotate(45deg);
+        }
+        &::after {
+          transform: rotate(-45deg);
+        }
+
+        &::before, &::after {
+          height: 2px;
+          margin-top: -2px;
+        }
+
+        &:hover {
+          color: #FFF;
+        }
       }
     }
 }

@@ -27,7 +27,7 @@ const verifyToken = async (req, res, next) => {
     if (!userAuth) {
       return await res.status(401).send({ message: 'User Not found. Auth' })
     }
-    req.userId = userAuth.UserId.toString()
+    req.userId = userAuth.UserId
     next()
   }).catch(err => { res.status(500).send({ message: err }) })
 }

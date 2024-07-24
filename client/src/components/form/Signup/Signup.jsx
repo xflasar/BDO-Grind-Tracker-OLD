@@ -1,10 +1,10 @@
-import React, { useContext, useReducer } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 import '../../../assets//components/ui/Signup/Signup.scss'
 import { SessionContext } from '../../../contexts/SessionContext'
 import { INITIAL_STATE, signupReducer } from './signupReducer'
 
-const Signup = ({ onSignupSuccess }) => {
+const Signup = ({ onSignupSuccess, onClose }) => {
   const { authorizedFetch, signin } = useContext(SessionContext)
   const [state, dispatch] = useReducer(signupReducer, INITIAL_STATE)
 
@@ -46,12 +46,6 @@ const Signup = ({ onSignupSuccess }) => {
   const handleSignup = async (event) => {
     event.preventDefault()
 
-    const username = checkValidationOfData('username', state.username) ? state.username : false
-    const email = checkValidationOfData('email', state.email) ? state.email : false
-    const password = checkValidationOfData('password', state.password) ? state.password : false
-
-    if (username === false || email === false || password === false) return
-
     try {
       const response = await authorizedFetch('api/auth/signup', {
         method: 'POST',
@@ -59,50 +53,141 @@ const Signup = ({ onSignupSuccess }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          username,
-          email,
-          password
+          username: state.username,
+          email: state.email,
+          password: state.password,
+          code: state.code
         })
       })
+
       if (response.ok) {
         signin()
-        onSignupSuccess()
         dispatch({ type: 'SIGNUP_SUCCESS' })
+        onSignupSuccess()
       } else {
-        const res = response.JSON()
-        switch (res.message) {
-          case 'Failed! Username is already in use!':
-            dispatch({ type: 'SIGNUP_USERNAME_ERROR', payload: { msg: 'Username is already in use.' } })
-            break
-          case 'Failed! Email is already in use!':
-            dispatch({ type: 'SIGNUP_EMAIL_ERROR', payload: { msg: 'Email is already in use.' } })
-            break
-          case 'Validation fail.':
-            res.errorsList.forEach(error => {
-              switch (error.type) {
-                case 'username':
-                  dispatch({ type: 'SIGNUP_USERNAME_ERROR', payload: { msg: error.message } })
-                  break
-                case 'email':
-                  dispatch({ type: 'SIGNUP_EMAIL_ERROR', payload: { msg: error.message } })
-                  break
-                case 'password':
-                  dispatch({ type: 'SIGNUP_PASSWORD_ERROR', payload: { msg: error.message } })
-                  break
-              }
-            })
-            break
-        }
+        // Rework API on this..
+        console.log('Signup failed')
       }
     } catch (error) {
       console.error(error)
     }
   }
 
+  const handleVerifyEmail = async () => {
+    try {
+      // Validation of user data
+      const username = checkValidationOfData('username', state.username) ? state.username : false
+      const email = checkValidationOfData('email', state.email) ? state.email : false
+      const password = checkValidationOfData('password', state.password) ? state.password : false
+
+      if (!username || !email || !password) return
+
+      // Verify email start
+      const response = await fetch('api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: state.username,
+          email: state.email
+        })
+      })
+      if (!response.ok) {
+        const err = await response.json()
+        throw new Error(err.message)
+      }
+
+      const code = await response.json()
+
+      if (code) {
+        dispatch({ type: 'SIGNUP_PHASE_CHANGE', payload: { phase: 2 } })
+      } else {
+        dispatch({ type: 'SIGNUP_VERIFICATION_ERROR', payload: { msg: 'Failed to send verification email.' } })
+      }
+      dispatch({ type: 'SIGNUP_RATELIMIT_ENABLED', payload: { enabled: true } })
+    } catch (err) {
+      switch (err.message) {
+        case 'Failed! Username is already taken!':
+          dispatch({ type: 'SIGNUP_USERNAME_ERROR', payload: { msg: err.message } })
+          break
+        case 'Failed! Email is already in use!':
+          dispatch({ type: 'SIGNUP_EMAIL_ERROR', payload: { msg: err.message } })
+          break
+        default:
+          dispatch({ type: 'SIGNUP_VERIFICATION_ERROR', payload: { msg: 'Failed to send verification email.' } })
+          break
+      }
+    }
+  }
+
+  const handleVerifyCode = async (e) => {
+    e.preventDefault()
+
+    if (state.code.length !== 6) return dispatch({ type: 'SIGNUP_VERIFICATION_ERROR', payload: { msg: 'Code incomplete (lenght must be 6)' } })
+
+    try {
+      const response = await fetch('api/auth/verify-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: state.email,
+          code: state.code
+        })
+      })
+
+      if (!response.ok) {
+        const err = await response.json()
+        return dispatch({ type: 'SIGNUP_VERIFICATION_ERROR', payload: { msg: err.message } })
+      }
+      if (response.ok) dispatch({ type: 'SIGNUP_PHASE_CHANGE', payload: { phase: 3 } })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleInputCodeChange = (e) => {
+    if (isNaN(e.target.value)) e.target.value = state.code
+    dispatch({ type: 'SIGNUP_CODE_CHANGE', payload: { code: e.target.value } })
+  }
+
+  const handleCloseSignUp = (e) => {
+    e.preventDefault()
+    onClose()
+  }
+
+  useEffect(() => {
+    const decrementTimer = () => {
+      if (state.rateLimitTimer > 0) {
+        dispatch({ type: 'SIGNUP_RATE_LIMIT_TIMER', payload: { timer: state.rateLimitTimer - 1 } })
+      } else {
+        dispatch({ type: 'SIGNUP_RATE_LIMIT_ENABLED', payload: { enabled: false } })
+      }
+    }
+
+    if (state.rateLimitEnabled) {
+      const rateInterval = setInterval(() => {
+        decrementTimer()
+      }, 1000)
+
+      return () => {
+        clearInterval(rateInterval)
+      }
+    }
+  }, [state.rateLimitEnabled, state.rateLimitTimer])
+
   return (
     <div className='signup-form-container' aria-label='signup-container'>
-      <form onSubmit={handleSignup} aria-label='signup-container-form'>
-        <h2>Registration</h2>
+      <div className='signup-form-container-close'>
+        <button type='button' aria-label='close-button' name='closeSignup' onClick={(e) => handleCloseSignUp(e)}>
+        </button>
+      </div>
+      <h2>Registration</h2>
+      {state.phase === 1
+        ? (
+      <form aria-label='signup-container-form'>
         <div className='signup-form-inputs'>
         <input
             type='text'
@@ -153,16 +238,47 @@ const Signup = ({ onSignupSuccess }) => {
           : (<></>)
         }
         </div>
-        <button type='submit' aria-label='signup-button' name='signupSubmit'>
-          Register
+        <button type='button' aria-label='verify-button' name='verifySubmit' onClick={handleVerifyEmail}>
+          Verify
         </button>
       </form>
+          )
+        : null}
+      {state.phase === 2 || state.phase === 3
+        ? (
+        <form onSubmit={(e) => handleVerifyCode(e)} aria-label='signup-container-form' className='verify-code'>
+          {state.phase === 2
+            ? (<>
+          <h3>Verification</h3>
+          <input type='text' className={state.verificationError ? 'error' : null} name='code' value={state.code} onChange={(e) => handleInputCodeChange(e)} size="6" maxLength="6" placeholder='CODE' autoFocus autoComplete='off'/>
+          <label htmlFor='code' className='verify-code-error'>
+            {state.verificationErrorMsg}
+          </label></>)
+            : (<span className='verify-code-success'>Email verified!</span>)}
+          <div className='signup-form-verify-buttons'>
+          {state.phase === 2
+            ? (
+            <>
+            <button type='submit' aria-label='verify-button' name='verifySubmit'>
+            Verify
+          </button>
+          <button type='button' className={state.rateLimitEnabled ? 'resend disabled' : 'resend'} disabled={state.rateLimitEnabled} onClick={handleVerifyEmail}>
+          {!state.rateLimitEnabled ? 'Resend' : 'Resend ' + state.rateLimitTimer + 's'}
+          </button></>)
+            : (<button type='button' onClick={(e) => handleSignup(e)}>
+            Sign up
+          </button>)}
+          </div>
+        </form>
+          )
+        : null}
     </div>
   )
 }
 
 Signup.propTypes = {
-  onSignupSuccess: PropTypes.func.isRequired
+  onSignupSuccess: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired
 }
 
 export default Signup

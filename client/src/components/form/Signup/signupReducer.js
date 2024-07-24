@@ -7,7 +7,13 @@ export const INITIAL_STATE = {
   emailError: false,
   emailErrorMsg: '',
   passwordError: false,
-  passwordErrorMsg: ''
+  passwordErrorMsg: '',
+  verificationError: false,
+  verificationErrorMsg: '',
+  rateLimitEnabled: true,
+  rateLimitTimer: 60,
+  code: '',
+  phase: 1
 }
 
 export const signupReducer = (state, action) => {
@@ -43,6 +49,35 @@ export const signupReducer = (state, action) => {
         ...state,
         passwordError: true,
         passwordErrorMsg: action.payload.msg
+      }
+    case 'SIGNUP_PHASE_CHANGE':
+      return {
+        ...state,
+        phase: action.payload.phase
+      }
+    case 'SIGNUP_CODE_CHANGE':
+      return {
+        ...state,
+        code: action.payload.code,
+        verificationError: false,
+        verificationErrorMsg: ''
+      }
+    case 'SIGNUP_VERIFICATION_ERROR':
+      return {
+        ...state,
+        verificationError: true,
+        verificationErrorMsg: action.payload.msg
+      }
+    case 'SIGNUP_RATE_LIMIT_ENABLED':
+      return {
+        ...state,
+        rateLimitEnabled: action.payload.enabled,
+        rateLimitTimer: INITIAL_STATE.rateLimitTimer
+      }
+    case 'SIGNUP_RATE_LIMIT_TIMER':
+      return {
+        ...state,
+        rateLimitTimer: action.payload.timer
       }
     default:
       return state

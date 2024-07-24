@@ -94,3 +94,16 @@ exports.GetNews = async (req, res) => {
     res.status(500).send({ message: 'Internal Server Error' });
   }
 }
+
+// Testing IP address for Rate-Limiting
+exports.getUserIP = async (req, res) => {
+  console.log(req.ip)
+  try {
+    const response = await fetch('https://api.ipify.org/?format=json')
+    const userIP = await response.json()
+    res.status(200).send(userIP.ip)
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Internal Server Error')
+  }
+}

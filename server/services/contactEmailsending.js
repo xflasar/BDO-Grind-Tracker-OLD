@@ -14,7 +14,7 @@ const SendEmail = (recipient, subject, content) => {
   })
   transporter.verify().then(console.log).catch(console.error)
   const mailOptions = {
-    from: emailConfig.username,
+    from: emailConfig.user,
     to: recipient,
     subject,
     html: content

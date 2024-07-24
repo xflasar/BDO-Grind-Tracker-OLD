@@ -16,4 +16,7 @@ module.exports = function (app) {
   // Gets
   app.get('/api/globaldata', controller.GetHompageGlobalData)
   app.get('/api/news', redisCacheMiddleware(), controller.GetNews)
+
+  // In Testing
+  app.get('/api/ip', controller.getUserIP)
 }
